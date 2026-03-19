@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.20.0
+      helm:
+        releaseName: cert-manager
+        valueFiles:
+          - $values/helm/cert-manager/values.yaml
+          - $values/environments/dev/cert-manager/values.yaml
+    - repoURL: https://github.com/vmorera/aspavi-infra.git
+      targetRevision: master
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

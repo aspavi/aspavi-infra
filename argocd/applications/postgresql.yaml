@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql
+  namespace: argocd
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://charts.bitnami.com/bitnami
+      chart: postgresql
+      targetRevision: 18.5.8
+      helm:
+        releaseName: postgresql
+        valueFiles:
+          - $values/helm/postgresql/values.yaml
+          - $values/environments/dev/postgresql/values.yaml
+        # Passwords referenciados desde Secret existente en el cluster
+        # El Secret "postgresql-helm-secrets" debe crearse manualmente (ver cluster/postgresql-secret.yaml)
+        parameters:
+          - name: auth.existingSecret
+            value: postgresql-helm-secrets
+          - name: auth.secretKeys.adminPasswordKey
+            value: postgres-password
+          - name: auth.secretKeys.userPasswordKey
+            value: app-password
+    - repoURL: https://github.com/vmorera/aspavi-infra.git
+      targetRevision: master
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rrhh-data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

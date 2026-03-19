@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/vmorera/aspavi-infra.git
-    targetRevision: main
+    targetRevision: master
     path: apps/employee-service
   destination:
     server: https://kubernetes.default.svc

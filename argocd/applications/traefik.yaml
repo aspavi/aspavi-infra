@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://helm.traefik.io/traefik
+      chart: traefik
+      targetRevision: 39.0.5
+      helm:
+        releaseName: traefik
+        valueFiles:
+          - $values/helm/traefik/values.yaml
+          - $values/environments/dev/traefik/values.yaml
+    - repoURL: https://github.com/vmorera/aspavi-infra.git
+      targetRevision: master
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
