@@ -1,23 +1,21 @@
 # helm/postgresql/values.yaml
 # Valores COMUNES a todos los entornos
+# Los passwords se gestionan via Secret "postgresql-helm-secrets" (ver cluster/postgresql-secret.yaml)
 # Los overrides por entorno están en environments/{env}/postgresql/values.yaml
 
 auth:
-  postgresPassword: "${POSTGRES_ADMIN_PASSWORD}"
   username: app_user
-  password: "${APP_USER_PASSWORD}"
   database: postgres
+  existingSecret: postgresql-helm-secrets
+  secretKeys:
+    adminPasswordKey: postgres-password
+    userPasswordKey: app-password
 
 primary:
   persistence:
     enabled: true
-
   initdb:
-    scripts:
-      init.sql: |
-        CREATE USER keycloak_user WITH PASSWORD '${KEYCLOAK_USER_PASSWORD}';
-        CREATE DATABASE keycloak OWNER keycloak_user;
-        GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak_user;
+    scriptsSecret: postgresql-init-secret
 
 readReplicas:
   replicaCount: 0

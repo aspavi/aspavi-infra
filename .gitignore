@@ -1,0 +1,11 @@
+# Ficheros con credenciales — NUNCA commitear
+*-secret-values.yaml
+*.env
+.env*
+
+# Kubeconfig local
+kubeconfig*
+*.kubeconfig
+
+
+.idea

@@ -30,10 +30,12 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql-credentials
+                  name: postgresql-helm-secrets
                   key: app-password
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aspavi"
           livenessProbe:
             httpGet:
               path: /actuator/health

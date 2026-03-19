@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  description: Infrastructure and cluster-wide components
+  sourceRepos:
+    - 'https://github.com/vmorera/aspavi-infra.git'
+    - 'https://helm.traefik.io/traefik'
+    - 'https://charts.jetstack.io'
+    - 'https://charts.bitnami.com/bitnami'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
