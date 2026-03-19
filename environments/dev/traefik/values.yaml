@@ -1,0 +1,5 @@
+# environments/dev/traefik/values.yaml
+# Overrides de desarrollo
+
+deployment:
+  replicas: 1

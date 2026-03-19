@@ -1,0 +1,84 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'helm/**'
+      - 'environments/**'
+      - 'cluster/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'prod'
+        type: choice
+        options: [prod, dev]
+
+env:
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'prod' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'prod' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.17.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Add Helm repos
+        run: |
+          helm repo add traefik https://helm.traefik.io/traefik
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+
+      - name: Apply namespaces
+        run: kubectl apply -f cluster/namespaces.yaml
+
+      - name: Deploy Traefik
+        run: |
+          helm upgrade --install traefik traefik/traefik \
+            --namespace kube-system \
+            --values helm/traefik/values.yaml \
+            --values environments/${{ env.ENVIRONMENT }}/traefik/values.yaml \
+            --version 39.0.5 \
+            --wait
+
+      - name: Deploy cert-manager
+        run: |
+          helm upgrade --install cert-manager jetstack/cert-manager \
+            --namespace kube-system \
+            --values helm/cert-manager/values.yaml \
+            --values environments/${{ env.ENVIRONMENT }}/cert-manager/values.yaml \
+            --version v1.20.0 \
+            --wait
+
+      - name: Apply ClusterIssuer
+        run: kubectl apply -f cluster/cluster-issuer.yaml
+
+      - name: Deploy PostgreSQL
+        run: |
+          helm upgrade --install postgresql bitnami/postgresql \
+            --namespace rrhh-data \
+            --values helm/postgresql/values.yaml \
+            --values environments/${{ env.ENVIRONMENT }}/postgresql/values.yaml \
+            --set auth.postgresPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
+            --set auth.password="${{ secrets.APP_USER_PASSWORD }}" \
+            --set auth.initdb.password="${{ secrets.KEYCLOAK_USER_PASSWORD }}" \
+            --wait

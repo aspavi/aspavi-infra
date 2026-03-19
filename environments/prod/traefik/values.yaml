@@ -1,0 +1,5 @@
+# environments/prod/traefik/values.yaml
+# Overrides de producción
+
+deployment:
+  replicas: 2

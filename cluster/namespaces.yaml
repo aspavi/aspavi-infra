@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rrhh-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rrhh-gateway
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rrhh-auth
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rrhh-data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring

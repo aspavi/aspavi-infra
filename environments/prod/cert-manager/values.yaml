@@ -1,0 +1,10 @@
+# environments/prod/cert-manager/values.yaml
+# Overrides de producción
+
+replicaCount: 2
+
+webhook:
+  replicaCount: 2
+
+cainjector:
+  replicaCount: 1

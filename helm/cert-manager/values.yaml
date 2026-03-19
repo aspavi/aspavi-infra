@@ -1,0 +1,36 @@
+# cert-manager-values.yaml — Chart v1.20.0
+
+# Instala los CRDs automáticamente (requerido)
+crds:
+  enabled: true
+
+replicaCount: 2
+
+# Recursos
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+webhook:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "32Mi"
+    limits:
+      cpu: "100m"
+      memory: "64Mi"
+
+cainjector:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "32Mi"
+    limits:
+      cpu: "100m"
+      memory: "64Mi"

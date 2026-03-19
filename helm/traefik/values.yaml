@@ -1,0 +1,50 @@
+# helm/traefik/values.yaml — Chart v39.x / Traefik v3.6.x
+
+deployment:
+  replicas: 2
+
+service:
+  type: LoadBalancer
+
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 8443
+    exposedPort: 443
+    protocol: TCP
+
+ingressRoute:
+  dashboard:
+    enabled: true
+
+logs:
+  general:
+    level: INFO
+
+providers:
+  kubernetesCRD:
+    enabled: true
+  kubernetesIngress:
+    enabled: true
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: morelol87@gmail.com
+      storage: /data/acme.json
+      tlsChallenge: {}
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "300m"
+    memory: "256Mi"

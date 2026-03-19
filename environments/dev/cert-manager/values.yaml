@@ -1,0 +1,10 @@
+# environments/dev/cert-manager/values.yaml
+# Overrides de desarrollo — usar staging de Let's Encrypt para no consumir cuota
+
+replicaCount: 1
+
+webhook:
+  replicaCount: 1
+
+cainjector:
+  replicaCount: 1

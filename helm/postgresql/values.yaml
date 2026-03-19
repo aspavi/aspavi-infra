@@ -1,0 +1,29 @@
+# helm/postgresql/values.yaml
+# Valores COMUNES a todos los entornos
+# Los overrides por entorno están en environments/{env}/postgresql/values.yaml
+
+auth:
+  postgresPassword: "${POSTGRES_ADMIN_PASSWORD}"
+  username: app_user
+  password: "${APP_USER_PASSWORD}"
+  database: postgres
+
+primary:
+  persistence:
+    enabled: true
+
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE USER keycloak_user WITH PASSWORD '${KEYCLOAK_USER_PASSWORD}';
+        CREATE DATABASE keycloak OWNER keycloak_user;
+        GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak_user;
+
+readReplicas:
+  replicaCount: 0
+
+backup:
+  enabled: false
+
+metrics:
+  enabled: false

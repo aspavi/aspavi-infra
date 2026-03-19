@@ -1,0 +1,14 @@
+# environments/prod/postgresql/values.yaml
+# Overrides de producción — sobreescribe helm/postgresql/values.yaml
+
+primary:
+  persistence:
+    size: 100Gi
+
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
