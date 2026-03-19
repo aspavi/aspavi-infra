@@ -1,0 +1,10 @@
+# helm/argocd/values.yaml
+# Valores base comunes a todos los entornos
+
+configs:
+  params:
+    server.insecure: true   # Traefik gestiona TLS, ArgoCD no necesita su propio TLS
+
+server:
+  ingress:
+    enabled: false          # Activar cuando haya dominio real
