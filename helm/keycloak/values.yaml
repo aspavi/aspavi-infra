@@ -1,0 +1,53 @@
+# helm/keycloak/values.yaml
+# Valores comunes a todos los entornos
+# El password de admin se gestiona via Secret "keycloak-secrets" (crear manualmente)
+
+auth:
+  adminUser: admin
+  existingSecret: keycloak-secrets
+  passwordSecretKey: admin-password
+
+# Usar PostgreSQL externa (rrhh-data) en lugar de una instancia propia
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: postgresql.rrhh-data
+  port: 5432
+  database: keycloak
+  user: keycloak_user
+  existingSecret: keycloak-secrets
+  existingSecretPasswordKey: db-password
+
+# Proxy inverso (Traefik gestiona TLS)
+proxy: edge
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hostname: keycloak.aspavi.com
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+# Health checks
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 24
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 0
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3

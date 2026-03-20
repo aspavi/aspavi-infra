@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://charts.bitnami.com/bitnami
+      chart: keycloak
+      targetRevision: 25.2.0
+      helm:
+        releaseName: keycloak
+        valueFiles:
+          - $values/helm/keycloak/values.yaml
+          - $values/environments/dev/keycloak/values.yaml
+    - repoURL: https://github.com/vmorera/aspavi-infra.git
+      targetRevision: master
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rrhh-auth
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
