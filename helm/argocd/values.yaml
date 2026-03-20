@@ -9,7 +9,11 @@ server:
   ingress:
     enabled: true
     ingressClassName: traefik
-    hostname: argocd.aspavi.com
-    tls: true
+    hosts:
+      - argocd.aspavi.com
+    tls:
+      - secretName: argocd-tls
+        hosts:
+          - argocd.aspavi.com
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
