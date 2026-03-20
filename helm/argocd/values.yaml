@@ -4,6 +4,11 @@
 configs:
   params:
     server.insecure: true   # Traefik gestiona TLS, ArgoCD no necesita su propio TLS
+  cm:
+    accounts.aspatoal: apiKey, login
+  rbac:
+    policy.csv: |
+      g, aspatoal, role:admin
 
 server:
   ingress:
