@@ -1,60 +1,82 @@
 # helm/keycloak/values.yaml
 # Valores comunes a todos los entornos
+# Chart: codecentric/keycloakx (usa imagen oficial quay.io/keycloak/keycloak)
 # El password de admin se gestiona via Secret "keycloak-secrets" (crear manualmente)
 
+# Imagen oficial de Keycloak (Quay.io)
 image:
-  registry: quay.io
-  repository: keycloak/keycloak
-  tag: "26.5.6"
-global:
-  security:
-    allowInsecureImages: true
+  repository: quay.io/keycloak/keycloak
+  tag: "26.3.3"
 
-auth:
-  adminUser: admin
-  existingSecret: keycloak-secrets
-  passwordSecretKey: admin-password
+# Comando de arranque en modo producción con proxy edge (Traefik gestiona TLS)
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "start"
+  - "--http-enabled=true"
+  - "--http-port=8080"
+  - "--proxy-headers=xforwarded"
+  - "--hostname=keycloak.aspavi.com"
+  - "--hostname-strict=false"
 
-# Usar PostgreSQL externa (rrhh-data) en lugar de una instancia propia
-postgresql:
-  enabled: false
-
-externalDatabase:
-  host: postgresql.rrhh-data
-  port: 5432
-  database: keycloak
-  user: keycloak_user
-  existingSecret: keycloak-secrets
-  existingSecretPasswordKey: db-password
-
-# Proxy inverso (Traefik gestiona TLS)
-proxy: edge
+# Variables de entorno para DB y admin
+extraEnv: |
+  - name: KC_DB
+    value: postgres
+  - name: KC_DB_URL
+    value: jdbc:postgresql://postgresql.rrhh-data:5432/keycloak
+  - name: KC_DB_USERNAME
+    value: keycloak_user
+  - name: KC_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-secrets
+        key: db-password
+  - name: KC_BOOTSTRAP_ADMIN_USERNAME
+    value: admin
+  - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-secrets
+        key: admin-password
 
 ingress:
   enabled: true
   ingressClassName: traefik
-  hostname: keycloak.aspavi.com
-  tls: true
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  rules:
+    - host: keycloak.aspavi.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - keycloak.aspavi.com
+      secretName: keycloak-tls
 
 # Health checks
-startupProbe:
-  enabled: true
+startupProbe: |
+  httpGet:
+    path: /health/started
+    port: 9000
   initialDelaySeconds: 30
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 24
 
-livenessProbe:
-  enabled: true
+livenessProbe: |
+  httpGet:
+    path: /health/live
+    port: 9000
   initialDelaySeconds: 0
   periodSeconds: 20
   timeoutSeconds: 5
   failureThreshold: 3
 
-readinessProbe:
-  enabled: true
+readinessProbe: |
+  httpGet:
+    path: /health/ready
+    port: 9000
   initialDelaySeconds: 0
   periodSeconds: 10
   timeoutSeconds: 5
