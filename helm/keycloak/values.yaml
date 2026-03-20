@@ -2,11 +2,11 @@
 # Valores comunes a todos los entornos
 # El password de admin se gestiona via Secret "keycloak-secrets" (crear manualmente)
 
-# Bitnami eliminó las imágenes debian-12-rX de Docker Hub.
-# El registry disponible públicamente sin autenticación es AWS ECR Public.
-# Ref: https://bitnami.com/stack/keycloak/containers
-global:
-  imageRegistry: "public.ecr.aws"
+image:
+  registry: quay.io
+  repository: keycloak/keycloak
+  tag: "26.5.6"
+
 
 auth:
   adminUser: admin
