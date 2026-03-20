@@ -10,6 +10,7 @@ spec:
     - 'https://helm.traefik.io/traefik'
     - 'https://charts.jetstack.io'
     - 'https://charts.bitnami.com/bitnami'
+    - 'https://argoproj.github.io/argo-helm'
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc

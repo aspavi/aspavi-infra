@@ -7,4 +7,9 @@ configs:
 
 server:
   ingress:
-    enabled: false          # Activar cuando haya dominio real
+    enabled: true
+    ingressClassName: traefik
+    hostname: argocd.aspavi.com
+    tls: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
