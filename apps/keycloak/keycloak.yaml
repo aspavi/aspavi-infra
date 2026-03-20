@@ -1,0 +1,32 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: rrhh-auth
+spec:
+  instances: 1
+  image: quay.io/keycloak/keycloak:26.5.5
+  db:
+    vendor: postgres
+    host: postgresql.rrhh-data
+    port: 5432
+    database: keycloak
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+  http:
+    httpEnabled: true
+  hostname:
+    hostname: keycloak.aspavi.com
+  proxy:
+    headers: xforwarded
+  additionalOptions:
+    - name: KC_BOOTSTRAP_ADMIN_USERNAME
+      value: admin
+    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+      secret:
+        name: keycloak-secrets
+        key: admin-password

@@ -1,0 +1,14 @@
+# Keycloak Operator CRDs y Deployment
+# Fuente: https://www.keycloak.org/operator/installation
+# Version: 26.5.5
+#
+# Los CRDs se instalan a nivel de cluster.
+# El operator se despliega en el namespace rrhh-auth.
+#
+# Para actualizar de version, cambiar el tag en las URLs y en la imagen del operator.
+#
+# Instalacion manual (solo primera vez o si ArgoCD no gestiona CRDs):
+#
+#   kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.5.5/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+#   kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.5.5/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+#   kubectl -n rrhh-auth apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.5.5/kubernetes/kubernetes.yml
