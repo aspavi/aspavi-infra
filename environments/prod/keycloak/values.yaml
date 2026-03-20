@@ -3,6 +3,10 @@
 
 replicaCount: 2
 
+# Multi-replica: ispn with kubernetes stack for distributed cache
+cache:
+  stack: kubernetes
+
 resources:
   requests:
     cpu: "500m"

@@ -3,6 +3,10 @@
 
 replicaCount: 1
 
+# Single replica: local cache avoids JGroups/DNS clustering issues
+cache:
+  stack: local
+
 resources:
   requests:
     cpu: "250m"

@@ -1,36 +1,40 @@
 # helm/keycloak/values.yaml
 # Valores comunes a todos los entornos
-# Chart: codecentric/keycloakx (usa imagen oficial quay.io/keycloak/keycloak)
-# El password de admin se gestiona via Secret "keycloak-secrets" (crear manualmente)
+# Chart: codecentric/keycloakx 7.1.3 (usa imagen oficial quay.io/keycloak/keycloak)
+# Secretos gestionados via Secret manual "keycloak-secrets" en namespace rrhh-auth
 
-# Imagen oficial de Keycloak (Quay.io)
 image:
   repository: quay.io/keycloak/keycloak
   tag: "26.3.3"
 
-# Comando de arranque en modo producción con proxy edge (Traefik gestiona TLS)
-command:
-  - "/opt/keycloak/bin/kc.sh"
-  - "start"
-  - "--http-enabled=true"
-  - "--http-port=8080"
-  - "--proxy-headers=xforwarded"
-  - "--hostname=keycloak.aspavi.com"
-  - "--hostname-strict=false"
+# Proxy: Traefik gestiona TLS externamente, Keycloak recibe tráfico HTTP
+proxy:
+  enabled: true
+  mode: forwarded
+  http:
+    enabled: true
 
-# Variables de entorno para DB y admin
+# Database: usa el helper nativo del chart (evita duplicar KC_DB_* en extraEnv)
+database:
+  vendor: postgres
+  hostname: postgresql.rrhh-data
+  port: 5432
+  database: keycloak
+  username: keycloak_user
+  existingSecret: keycloak-secrets
+  existingSecretKey: db-password
+
+# Cache: "custom" desactiva la inyección automática de KC_CACHE/KC_CACHE_STACK
+# Cada entorno define su propio cache.stack (local para dev, ispn para prod)
+cache:
+  stack: custom
+
+# Hostname y admin credentials via extraEnv (no tienen helpers nativos en el chart)
 extraEnv: |
-  - name: KC_DB
-    value: postgres
-  - name: KC_DB_URL
-    value: jdbc:postgresql://postgresql.rrhh-data:5432/keycloak
-  - name: KC_DB_USERNAME
-    value: keycloak_user
-  - name: KC_DB_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-secrets
-        key: db-password
+  - name: KC_HOSTNAME
+    value: keycloak.aspavi.com
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
   - name: KC_BOOTSTRAP_ADMIN_USERNAME
     value: admin
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
@@ -39,6 +43,18 @@ extraEnv: |
         name: keycloak-secrets
         key: admin-password
 
+# Health y métricas habilitadas (puerto 9000 de management)
+health:
+  enabled: true
+
+metrics:
+  enabled: true
+
+# Keycloak 26 sirve en / por defecto; el chart hereda /auth de versiones antiguas
+http:
+  relativePath: "/"
+
+# Ingress gestionado por Traefik con TLS via cert-manager
 ingress:
   enabled: true
   ingressClassName: traefik
@@ -53,31 +69,3 @@ ingress:
     - hosts:
         - keycloak.aspavi.com
       secretName: keycloak-tls
-
-# Health checks
-startupProbe: |
-  httpGet:
-    path: /health/started
-    port: 9000
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 24
-
-livenessProbe: |
-  httpGet:
-    path: /health/live
-    port: 9000
-  initialDelaySeconds: 0
-  periodSeconds: 20
-  timeoutSeconds: 5
-  failureThreshold: 3
-
-readinessProbe: |
-  httpGet:
-    path: /health/ready
-    port: 9000
-  initialDelaySeconds: 0
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
