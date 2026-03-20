@@ -7,9 +7,21 @@ configs:
   cm:
     url: https://argocd.aspavi.com
     accounts.aspatoal: apiKey, login
+    oidc.config: |
+      name: Keycloak
+      issuer: https://keycloak.aspavi.com/realms/master
+      clientID: argocd
+      clientSecret: $oidc.keycloak.clientSecret
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - groups
+      groupsClaim: groups
   rbac:
     policy.csv: |
       g, aspatoal, role:admin
+      g, /argocd-admins, role:admin
 
 server:
   ingress:
