@@ -20,7 +20,7 @@ configs:
   rbac:
     policy.csv: |
       g, aspatoal, role:admin
-      g, /argocd-admins, role:admin
+      g, argocd-admins, role:admin
 
 server:
   ingress:
