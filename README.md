@@ -67,6 +67,7 @@ environments/{env}/postgresql/values.yaml     ← override del entorno
 | `POSTGRES_ADMIN_PASSWORD` | Password del usuario postgres admin |
 | `APP_USER_PASSWORD` | Password del usuario app_user |
 | `KEYCLOAK_USER_PASSWORD` | Password del usuario keycloak_user |
+| `ARGOCD_GITHUB_TOKEN` | GitHub PAT con acceso de lectura al repo GitOps |
 
 ## Despliegue manual
 
@@ -90,6 +91,17 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
 # ClusterIssuer
 kubectl apply -f cluster/cluster-issuer.yaml
+
+# ArgoCD repo credentials
+ARGOCD_GITHUB_TOKEN=$(security find-generic-password -a "aspavi" -s "ARGOCD_GITHUB_TOKEN" -w)
+kubectl create secret generic argocd-github-credentials \
+  --from-literal=url="https://github.com/vmorera" \
+  --from-literal=username="vmorera" \
+  --from-literal=password="${ARGOCD_GITHUB_TOKEN}" \
+  --namespace argocd \
+  --dry-run=client -o yaml | \
+kubectl label --local -f - argocd.argoproj.io/secret-type=repo-creds -o yaml | \
+kubectl apply -f -
 
 # PostgreSQL
 helm upgrade --install postgresql bitnami/postgresql \
