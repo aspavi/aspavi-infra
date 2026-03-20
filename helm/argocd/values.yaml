@@ -16,7 +16,6 @@ configs:
         - openid
         - profile
         - email
-        - groups
       groupsClaim: groups
   rbac:
     policy.csv: |
