@@ -9,5 +9,5 @@ type: Opaque
 stringData:
   type: git
   url: https://github.com/vmorera/aspavi-infra.git
-  password: ${GHCR_TOKEN}
+  password: ${ARGOCD_GITHUB_PASSWORD}
   username: vmorera
