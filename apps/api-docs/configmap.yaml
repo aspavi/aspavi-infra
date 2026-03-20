@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-docs-config
+  namespace: rrhh-docs
+data:
+  urls: |
+    [
+      { "url": "/specs/employee-service.json", "name": "Employee Service" }
+    ]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-docs-specs
+  namespace: rrhh-docs
+data:
+  # Las specs OpenAPI de cada microservicio se publican aqui.
+  # El workflow de CI/CD de cada microservicio actualiza este ConfigMap
+  # con la spec generada en cada release.
+  employee-service.json: |
+    {
+      "openapi": "3.0.1",
+      "info": {
+        "title": "Employee Service API",
+        "version": "pending"
+      },
+      "servers": [
+        { "url": "https://api.aspavi.com" }
+      ],
+      "paths": {}
+    }

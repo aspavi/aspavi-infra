@@ -26,4 +26,9 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: rrhh-docs
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: monitoring
