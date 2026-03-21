@@ -45,22 +45,22 @@ data:
     \            \"application/json\": {\n              \"schema\": {\n          \
     \      \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\n            \
     \  }\n            }\n          },\n          \"required\": true\n        },\n\
-    \        \"responses\": {\n          \"200\": {\n            \"description\":\
-    \ \"Empleado actualizado exitosamente\",\n            \"content\": {\n       \
-    \       \"application/json\": {\n                \"schema\": {\n             \
-    \     \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n\
-    \              }\n            }\n          },\n          \"409\": {\n        \
-    \    \"description\": \"El email ya existe\",\n            \"content\": {\n  \
-    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
-    \ }\n            }\n          },\n          \"404\": {\n            \"description\"\
-    : \"Empleado no encontrado\",\n            \"content\": {\n              \"*/*\"\
-    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \        \"responses\": {\n          \"409\": {\n            \"description\":\
+    \ \"El email ya existe\",\n            \"content\": {\n              \"*/*\":\
+    \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
-    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
-    \                 \"$ref\": \"#/components/schemas/EmployeeResponse\"\n      \
-    \          }\n              }\n            }\n          }\n        }\n      },\n\
+    404\": {\n            \"description\": \"Empleado no encontrado\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"400\"\
+    : {\n            \"description\": \"Datos inv\\u00e1lidos\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          },\n          \"200\": {\n         \
+    \   \"description\": \"Empleado actualizado exitosamente\",\n            \"content\"\
+    : {\n              \"application/json\": {\n                \"schema\": {\n  \
+    \                \"$ref\": \"#/components/schemas/EmployeeResponse\"\n       \
+    \         }\n              }\n            }\n          }\n        }\n      },\n\
     \      \"delete\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
     \        \"summary\": \"Eliminar empleado\",\n        \"description\": \"Elimina\
     \ un empleado del sistema\",\n        \"operationId\": \"deleteEmployee\",\n \
@@ -86,13 +86,13 @@ data:
     : {\n          \"content\": {\n            \"application/json\": {\n         \
     \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeCreateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
+    \        },\n        \"responses\": {\n          \"201\": {\n            \"description\"\
+    : \"Empleado creado exitosamente\",\n            \"content\": {\n            \
+    \  \"application/json\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n       \
+    \       }\n            }\n          },\n          \"409\": {\n            \"description\"\
     : \"El email ya existe\",\n            \"content\": {\n              \"*/*\":\
     \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    201\": {\n            \"description\": \"Empleado creado exitosamente\",\n   \
-    \         \"content\": {\n              \"application/json\": {\n            \
-    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
     400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
     \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
@@ -210,11 +210,11 @@ data:
     boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
     \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
     \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
-    \      },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"pageSize\": {\n \
-    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
-    \    },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
