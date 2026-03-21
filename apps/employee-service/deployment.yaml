@@ -38,6 +38,11 @@ spec:
               value: "validate"
             - name: SPRING_PROFILES_ACTIVE
               value: "aspavi"
+            # Multitenancy
+            - name: APP_KEYCLOAK_BASE_URL
+              value: "https://keycloak.aspavi.com"
+            - name: APP_TENANTS_ALLOWED
+              value: "test,acme"
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

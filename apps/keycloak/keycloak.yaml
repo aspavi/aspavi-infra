@@ -23,9 +23,7 @@ spec:
   proxy:
     headers: xforwarded
   additionalOptions:
-    - name: KC_BOOTSTRAP_ADMIN_USERNAME
-      value: admin
-    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-      secret:
-        name: keycloak-secrets
-        key: admin-password
+    - name: log-level
+      value: INFO
+    - name: features
+      value: "token-exchange,admin-fine-grained-authz"
