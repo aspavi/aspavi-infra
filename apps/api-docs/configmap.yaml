@@ -45,22 +45,22 @@ data:
     \            \"application/json\": {\n              \"schema\": {\n          \
     \      \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\n            \
     \  }\n            }\n          },\n          \"required\": true\n        },\n\
-    \        \"responses\": {\n          \"409\": {\n            \"description\":\
-    \ \"El email ya existe\",\n            \"content\": {\n              \"*/*\":\
-    \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"Empleado actualizado exitosamente\",\n            \"content\": {\n       \
+    \       \"application/json\": {\n                \"schema\": {\n             \
+    \     \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"409\": {\n        \
+    \    \"description\": \"El email ya existe\",\n            \"content\": {\n  \
+    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"Empleado no encontrado\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    404\": {\n            \"description\": \"Empleado no encontrado\",\n         \
-    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n     \
-    \           }\n              }\n            }\n          },\n          \"400\"\
-    : {\n            \"description\": \"Datos inv\\u00e1lidos\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"200\": {\n         \
-    \   \"description\": \"Empleado actualizado exitosamente\",\n            \"content\"\
-    : {\n              \"application/json\": {\n                \"schema\": {\n  \
-    \                \"$ref\": \"#/components/schemas/EmployeeResponse\"\n       \
-    \         }\n              }\n            }\n          }\n        }\n      },\n\
+    400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
+    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
+    \                 \"$ref\": \"#/components/schemas/EmployeeResponse\"\n      \
+    \          }\n              }\n            }\n          }\n        }\n      },\n\
     \      \"delete\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
     \        \"summary\": \"Eliminar empleado\",\n        \"description\": \"Elimina\
     \ un empleado del sistema\",\n        \"operationId\": \"deleteEmployee\",\n \
@@ -86,31 +86,31 @@ data:
     : {\n          \"content\": {\n            \"application/json\": {\n         \
     \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeCreateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"201\": {\n            \"description\"\
-    : \"Empleado creado exitosamente\",\n            \"content\": {\n            \
-    \  \"application/json\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n       \
-    \       }\n            }\n          },\n          \"409\": {\n            \"description\"\
+    \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
     : \"El email ya existe\",\n            \"content\": {\n              \"*/*\":\
     \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
     400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
     \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
     \                 \"$ref\": \"#/components/schemas/EmployeeResponse\"\n      \
-    \          }\n              }\n            }\n          }\n        }\n      }\n\
-    \    },\n    \"/api/v1/employees/paginated\": {\n      \"get\": {\n        \"\
-    tags\": [\n          \"Employees\"\n        ],\n        \"summary\": \"Obtener\
-    \ empleados paginados\",\n        \"description\": \"Obtiene una p\\u00e1gina\
-    \ de empleados\",\n        \"operationId\": \"getEmployeesPaginated\",\n     \
-    \   \"parameters\": [\n          {\n            \"name\": \"pageable\",\n    \
-    \        \"in\": \"query\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"$ref\": \"#/components/schemas/Pageable\"\n            }\n\
-    \          }\n        ],\n        \"responses\": {\n          \"200\": {\n   \
-    \         \"description\": \"P\\u00e1gina de empleados obtenida\",\n         \
-    \   \"content\": {\n              \"application/json\": {\n                \"\
-    schema\": {\n                  \"$ref\": \"#/components/schemas/Page\"\n     \
-    \           }\n              }\n            }\n          }\n        }\n      }\n\
-    \    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"EmployeeUpdateRequest\"\
+    \          }\n              }\n            }\n          },\n          \"201\"\
+    : {\n            \"description\": \"Empleado creado exitosamente\",\n        \
+    \    \"content\": {\n              \"application/json\": {\n                \"\
+    schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          }\n        }\n\
+    \      }\n    },\n    \"/api/v1/employees/paginated\": {\n      \"get\": {\n \
+    \       \"tags\": [\n          \"Employees\"\n        ],\n        \"summary\"\
+    : \"Obtener empleados paginados\",\n        \"description\": \"Obtiene una p\\\
+    u00e1gina de empleados\",\n        \"operationId\": \"getEmployeesPaginated\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"pageable\"\
+    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
+    \   \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"P\\u00e1gina de empleados obtenida\"\
+    ,\n            \"content\": {\n              \"application/json\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/Page\"\
+    \n                }\n              }\n            }\n          }\n        }\n\
+    \      }\n    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"EmployeeUpdateRequest\"\
     : {\n        \"required\": [\n          \"department\",\n          \"email\",\n\
     \          \"firstName\",\n          \"lastName\",\n          \"salary\"\n   \
     \     ],\n        \"type\": \"object\",\n        \"properties\": {\n         \
@@ -203,24 +203,24 @@ data:
     : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
     #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
     \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
-    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
-    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
-    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
-    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
-    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
-    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
-    : \"boolean\"\n          }\n        }\n      }\n    }\n  }\n}"
+    \      \"first\": {\n            \"type\": \"boolean\"\n          },\n       \
+    \   \"last\": {\n            \"type\": \"boolean\"\n          },\n          \"\
+    numberOfElements\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"empty\": {\n            \"type\": \"boolean\"\
+    \n          }\n        }\n      },\n      \"PageableObject\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"offset\": {\n          \
+    \  \"type\": \"integer\",\n            \"format\": \"int64\"\n          },\n \
+    \         \"pageNumber\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"pageSize\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    paged\": {\n            \"type\": \"boolean\"\n          },\n          \"sort\"\
+    : {\n            \"$ref\": \"#/components/schemas/SortObject\"\n          },\n\
+    \          \"unpaged\": {\n            \"type\": \"boolean\"\n          }\n  \
+    \      }\n      },\n      \"SortObject\": {\n        \"type\": \"object\",\n \
+    \       \"properties\": {\n          \"empty\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sorted\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"unsorted\": {\n            \"type\": \"boolean\"\n \
+    \         }\n        }\n      }\n    }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-specs
