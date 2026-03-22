@@ -25,11 +25,11 @@ spec:
             - containerPort: 8080
               name: http
           env:
-            - name: SPRING_DATASOURCE_URL
+            - name: DB_URL
               value: "jdbc:postgresql://postgresql.rrhh-data:5432/employee_db"
-            - name: SPRING_DATASOURCE_USERNAME
+            - name: DB_USERNAME
               value: "app_user"
-            - name: SPRING_DATASOURCE_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgresql-helm-secrets
@@ -38,11 +38,9 @@ spec:
               value: "validate"
             - name: SPRING_PROFILES_ACTIVE
               value: "aspavi"
-            # Multitenancy
-            - name: APP_KEYCLOAK_BASE_URL
+            # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml
+            - name: KEYCLOAK_BASE_URL
               value: "https://keycloak.aspavi.com"
-            - name: APP_TENANTS_ALLOWED
-              value: "test,acme"
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
