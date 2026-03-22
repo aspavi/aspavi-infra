@@ -23,10 +23,10 @@ data:
     \      \"description\": \"Returns the employee if it belongs to the authenticated\
     \ tenant\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
     \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
     \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
@@ -44,11 +44,11 @@ data:
     : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
     ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
     \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
-    \          \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    requestBody\": {\n          \"content\": {\n            \"application/json\":\
-    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
+    \          \"description\": \"Employee UUID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
     \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
     : \"Validation error in request body\",\n            \"content\": {\n        \
@@ -76,10 +76,10 @@ data:
     \        \"description\": \"Deletes the employee if it belongs to the authenticated\
     \ tenant\",\n        \"operationId\": \"deleteEmployee\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
     \ not found\"\n          },\n          \"401\": {\n            \"description\"\
     : \"Missing or invalid JWT token\"\n          },\n          \"204\": {\n     \
     \       \"description\": \"Employee deleted successfully\"\n          }\n    \
@@ -127,26 +127,14 @@ data:
     \   }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\": {\n  \
     \    \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n  \
     \      \"summary\": \"List employees with pagination\",\n        \"description\"\
-    : \"Returns a page of employees for the authenticated tenant\",\n        \"operationId\"\
+    : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
+    \ pageable params: ?page=0&size=20&sort=lastName,asc\",\n        \"operationId\"\
     : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
-    \     \"name\": \"page\",\n            \"in\": \"query\",\n            \"description\"\
-    : \"Page number (0-based)\",\n            \"required\": false,\n            \"\
-    schema\": {\n              \"type\": \"integer\",\n              \"format\": \"\
-    int32\",\n              \"default\": 0\n            }\n          },\n        \
-    \  {\n            \"name\": \"size\",\n            \"in\": \"query\",\n      \
-    \      \"description\": \"Page size\",\n            \"required\": false,\n   \
-    \         \"schema\": {\n              \"type\": \"integer\",\n              \"\
-    format\": \"int32\",\n              \"default\": 20\n            }\n         \
-    \ },\n          {\n            \"name\": \"sort\",\n            \"in\": \"query\"\
-    ,\n            \"description\": \"Sort field\",\n            \"required\": false,\n\
-    \            \"schema\": {\n              \"type\": \"string\",\n            \
-    \  \"default\": \"id\"\n            }\n          },\n          {\n           \
-    \ \"name\": \"direction\",\n            \"in\": \"query\",\n            \"description\"\
-    : \"Sort direction: asc or desc\",\n            \"required\": false,\n       \
-    \     \"schema\": {\n              \"type\": \"string\",\n              \"default\"\
-    : \"asc\"\n            }\n          }\n        ],\n        \"responses\": {\n\
-    \          \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
-    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    \     \"name\": \"pageable\",\n            \"in\": \"query\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
+    \n            }\n          }\n        ],\n        \"responses\": {\n         \
+    \ \"401\": {\n            \"description\": \"Missing or invalid JWT token\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
     : {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
     200\": {\n            \"description\": \"Page returned successfully\",\n     \
@@ -173,8 +161,8 @@ data:
     string\"\n          },\n          \"status\": {\n            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\"\
     ,\n            \"type\": \"string\"\n          }\n        }\n      },\n      \"\
     EmployeeResponse\": {\n        \"type\": \"object\",\n        \"properties\":\
-    \ {\n          \"id\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int64\"\n          },\n          \"firstName\": {\n            \"type\": \"\
+    \ {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"firstName\": {\n            \"type\": \"\
     string\"\n          },\n          \"lastName\": {\n            \"type\": \"string\"\
     \n          },\n          \"email\": {\n            \"type\": \"string\"\n   \
     \       },\n          \"department\": {\n            \"type\": \"string\"\n  \
@@ -205,38 +193,44 @@ data:
     string\"\n          },\n          \"address\": {\n            \"maxLength\": 255,\n\
     \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
     \          \"status\": {\n            \"type\": \"string\"\n          }\n    \
-    \    }\n      },\n      \"PageEmployeeResponse\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
-    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
-    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
-    \            \"type\": \"array\",\n            \"items\": {\n              \"\
-    $ref\": \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n\
-    \          \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
-    #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
-    \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
-    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
-    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
-    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
-    \      },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"pageSize\": {\n \
-    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
-    \    },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
-    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
-    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
-    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
-    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
-    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
-    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    \    }\n      },\n      \"Pageable\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"page\": {\n            \"minimum\": 0,\n  \
+    \          \"type\": \"integer\",\n            \"format\": \"int32\"\n       \
+    \   },\n          \"size\": {\n            \"minimum\": 1,\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    sort\": {\n            \"type\": \"array\",\n            \"items\": {\n      \
+    \        \"type\": \"string\"\n            }\n          }\n        }\n      },\n\
+    \      \"PageEmployeeResponse\": {\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"totalElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int64\"\n          },\n          \"totalPages\":\
+    \ {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"size\": {\n            \"type\": \"integer\",\n    \
+    \        \"format\": \"int32\"\n          },\n          \"content\": {\n     \
+    \       \"type\": \"array\",\n            \"items\": {\n              \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n   \
+    \       \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"paged\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n      \
+    \    }\n        }\n      },\n      \"SortObject\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"empty\": {\n            \"type\": \"\
+    boolean\"\n          },\n          \"sorted\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"unsorted\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
+    bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
+    \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
 kind: ConfigMap
