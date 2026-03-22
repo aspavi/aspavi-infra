@@ -203,24 +203,24 @@ data:
     : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
     #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
     \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
-    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
-    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
-    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
-    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
-    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
-    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
-    : \"boolean\"\n          }\n        }\n      }\n    }\n  }\n}"
+    \      \"first\": {\n            \"type\": \"boolean\"\n          },\n       \
+    \   \"last\": {\n            \"type\": \"boolean\"\n          },\n          \"\
+    numberOfElements\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"empty\": {\n            \"type\": \"boolean\"\
+    \n          }\n        }\n      },\n      \"PageableObject\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"offset\": {\n          \
+    \  \"type\": \"integer\",\n            \"format\": \"int64\"\n          },\n \
+    \         \"pageNumber\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"pageSize\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    paged\": {\n            \"type\": \"boolean\"\n          },\n          \"sort\"\
+    : {\n            \"$ref\": \"#/components/schemas/SortObject\"\n          },\n\
+    \          \"unpaged\": {\n            \"type\": \"boolean\"\n          }\n  \
+    \      }\n      },\n      \"SortObject\": {\n        \"type\": \"object\",\n \
+    \       \"properties\": {\n          \"empty\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sorted\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"unsorted\": {\n            \"type\": \"boolean\"\n \
+    \         }\n        }\n      }\n    }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-specs

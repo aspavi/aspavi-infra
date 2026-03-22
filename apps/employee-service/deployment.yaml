@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: employee-service
-          image: ghcr.io/vmorera/aspavi-employee-service:master-9b43dbb
+          image: ghcr.io/vmorera/aspavi-employee-service:master-5b79145
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
