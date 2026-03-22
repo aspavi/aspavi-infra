@@ -23,10 +23,10 @@ data:
     \      \"description\": \"Returns the employee if it belongs to the authenticated\
     \ tenant\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
     \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
     \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
@@ -44,11 +44,11 @@ data:
     : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
     ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
     \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
-    \          \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    requestBody\": {\n          \"content\": {\n            \"application/json\":\
-    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
+    \          \"description\": \"Employee UUID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
     \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
     : \"Validation error in request body\",\n            \"content\": {\n        \
@@ -76,10 +76,10 @@ data:
     \        \"description\": \"Deletes the employee if it belongs to the authenticated\
     \ tenant\",\n        \"operationId\": \"deleteEmployee\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"integer\",\n           \
-    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
-    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
     \ not found\"\n          },\n          \"401\": {\n            \"description\"\
     : \"Missing or invalid JWT token\"\n          },\n          \"204\": {\n     \
     \       \"description\": \"Employee deleted successfully\"\n          }\n    \
@@ -161,8 +161,8 @@ data:
     string\"\n          },\n          \"status\": {\n            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\"\
     ,\n            \"type\": \"string\"\n          }\n        }\n      },\n      \"\
     EmployeeResponse\": {\n        \"type\": \"object\",\n        \"properties\":\
-    \ {\n          \"id\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int64\"\n          },\n          \"firstName\": {\n            \"type\": \"\
+    \ {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"firstName\": {\n            \"type\": \"\
     string\"\n          },\n          \"lastName\": {\n            \"type\": \"string\"\
     \n          },\n          \"email\": {\n            \"type\": \"string\"\n   \
     \       },\n          \"department\": {\n            \"type\": \"string\"\n  \
