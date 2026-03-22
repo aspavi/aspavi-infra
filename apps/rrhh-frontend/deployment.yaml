@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rrhh-frontend
+  namespace: rrhh-system
+  labels:
+    app: rrhh-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rrhh-frontend
+  template:
+    metadata:
+      labels:
+        app: rrhh-frontend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: rrhh-frontend
+          image: ghcr.io/vmorera/aspavi-rrhh-management-site:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rrhh-frontend
+  namespace: rrhh-system
+  labels:
+    app: rrhh-frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: rrhh-frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rrhh-frontend
+  namespace: rrhh-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - app.aspavi.com
+      secretName: rrhh-frontend-tls
+  rules:
+    - host: app.aspavi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rrhh-frontend
+                port:
+                  number: 80
