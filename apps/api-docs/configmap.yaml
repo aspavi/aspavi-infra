@@ -17,210 +17,228 @@ data:
     https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\": \"\
     1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com\"\
     \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Employees\",\n      \"\
-    description\": \"API para gestionar empleados\"\n    }\n  ],\n  \"paths\": {\n\
-    \    \"/api/v1/employees/{id}\": {\n      \"get\": {\n        \"tags\": [\n  \
-    \        \"Employees\"\n        ],\n        \"summary\": \"Obtener empleado por\
-    \ ID\",\n        \"description\": \"Obtiene un empleado espec\\u00edfico por su\
-    \ ID\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
+    description\": \"Employee management API\"\n    }\n  ],\n  \"paths\": {\n    \"\
+    /api/v1/employees/{id}\": {\n      \"get\": {\n        \"tags\": [\n         \
+    \ \"Employees\"\n        ],\n        \"summary\": \"Get employee by ID\",\n  \
+    \      \"description\": \"Returns the employee if it belongs to the authenticated\
+    \ tenant\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"ID del empleado\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"integer\",\n   \
-    \           \"format\": \"int64\"\n            }\n          }\n        ],\n  \
-    \      \"responses\": {\n          \"200\": {\n            \"description\": \"\
-    Empleado encontrado\",\n            \"content\": {\n              \"application/json\"\
-    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"integer\",\n           \
+    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
+    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    404\": {\n            \"description\": \"Empleado no encontrado\",\n         \
-    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n     \
-    \           }\n              }\n            }\n          }\n        }\n      },\n\
-    \      \"put\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
-    \        \"summary\": \"Actualizar empleado\",\n        \"description\": \"Actualiza\
-    \ la informaci\\u00f3n de un empleado\",\n        \"operationId\": \"updateEmployee\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
-    \         \"in\": \"path\",\n            \"description\": \"ID del empleado\"\
-    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"integer\",\n              \"format\": \"int64\"\n            }\n   \
-    \       }\n        ],\n        \"requestBody\": {\n          \"content\": {\n\
-    \            \"application/json\": {\n              \"schema\": {\n          \
-    \      \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\n            \
-    \  }\n            }\n          },\n          \"required\": true\n        },\n\
-    \        \"responses\": {\n          \"200\": {\n            \"description\":\
-    \ \"Empleado actualizado exitosamente\",\n            \"content\": {\n       \
-    \       \"application/json\": {\n                \"schema\": {\n             \
-    \     \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n\
-    \              }\n            }\n          },\n          \"409\": {\n        \
-    \    \"description\": \"El email ya existe\",\n            \"content\": {\n  \
-    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
-    \ }\n            }\n          },\n          \"404\": {\n            \"description\"\
-    : \"Empleado no encontrado\",\n            \"content\": {\n              \"*/*\"\
-    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
-    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
-    \                 \"$ref\": \"#/components/schemas/EmployeeResponse\"\n      \
-    \          }\n              }\n            }\n          }\n        }\n      },\n\
-    \      \"delete\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
-    \        \"summary\": \"Eliminar empleado\",\n        \"description\": \"Elimina\
-    \ un empleado del sistema\",\n        \"operationId\": \"deleteEmployee\",\n \
-    \       \"parameters\": [\n          {\n            \"name\": \"id\",\n      \
-    \      \"in\": \"path\",\n            \"description\": \"ID del empleado\",\n\
-    \            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"integer\",\n              \"format\": \"int64\"\n            }\n   \
-    \       }\n        ],\n        \"responses\": {\n          \"204\": {\n      \
-    \      \"description\": \"Empleado eliminado exitosamente\"\n          },\n  \
-    \        \"404\": {\n            \"description\": \"Empleado no encontrado\"\n\
-    \          }\n        }\n      }\n    },\n    \"/api/v1/employees\": {\n     \
-    \ \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n     \
-    \   \"summary\": \"Obtener todos los empleados\",\n        \"description\": \"\
-    Obtiene la lista de todos los empleados\",\n        \"operationId\": \"getAllEmployees\"\
-    ,\n        \"responses\": {\n          \"200\": {\n            \"description\"\
-    : \"Lista de empleados obtenida\",\n            \"content\": {\n             \
-    \ \"application/json\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n       \
-    \       }\n            }\n          }\n        }\n      },\n      \"post\": {\n\
-    \        \"tags\": [\n          \"Employees\"\n        ],\n        \"summary\"\
-    : \"Crear un nuevo empleado\",\n        \"description\": \"Crea un nuevo empleado\
-    \ en el sistema\",\n        \"operationId\": \"createEmployee\",\n        \"requestBody\"\
-    : {\n          \"content\": {\n            \"application/json\": {\n         \
-    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeCreateRequest\"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Employee found\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"put\": {\n        \"tags\": [\n          \"Employees\"\n     \
+    \   ],\n        \"summary\": \"Update an employee\",\n        \"description\"\
+    : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
+    ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
+    \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
+    \          \"description\": \"Employee ID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"integer\",\n           \
+    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
+    requestBody\": {\n          \"content\": {\n            \"application/json\":\
+    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"201\": {\n            \"description\"\
-    : \"Empleado creado exitosamente\",\n            \"content\": {\n            \
-    \  \"application/json\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n       \
-    \       }\n            }\n          },\n          \"409\": {\n            \"description\"\
-    : \"El email ya existe\",\n            \"content\": {\n              \"*/*\":\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"Employee not found\",\n            \"content\": {\n              \"*/*\":\
     \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    400\": {\n            \"description\": \"Datos inv\\u00e1lidos\",\n          \
-    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
-    \                 \"$ref\": \"#/components/schemas/EmployeeResponse\"\n      \
-    \          }\n              }\n            }\n          }\n        }\n      }\n\
-    \    },\n    \"/api/v1/employees/paginated\": {\n      \"get\": {\n        \"\
-    tags\": [\n          \"Employees\"\n        ],\n        \"summary\": \"Obtener\
-    \ empleados paginados\",\n        \"description\": \"Obtiene una p\\u00e1gina\
-    \ de empleados\",\n        \"operationId\": \"getEmployeesPaginated\",\n     \
-    \   \"parameters\": [\n          {\n            \"name\": \"pageable\",\n    \
-    \        \"in\": \"query\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"$ref\": \"#/components/schemas/Pageable\"\n            }\n\
-    \          }\n        ],\n        \"responses\": {\n          \"200\": {\n   \
-    \         \"description\": \"P\\u00e1gina de empleados obtenida\",\n         \
-    \   \"content\": {\n              \"application/json\": {\n                \"\
-    schema\": {\n                  \"$ref\": \"#/components/schemas/Page\"\n     \
-    \           }\n              }\n            }\n          }\n        }\n      }\n\
-    \    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"EmployeeUpdateRequest\"\
+    200\": {\n            \"description\": \"Employee updated successfully\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"New email already in use within this\
+    \ tenant\",\n            \"content\": {\n              \"*/*\": {\n          \
+    \      \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Employees\"\n        ],\n        \"summary\": \"Delete an employee\",\n\
+    \        \"description\": \"Deletes the employee if it belongs to the authenticated\
+    \ tenant\",\n        \"operationId\": \"deleteEmployee\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"description\": \"Employee ID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"integer\",\n           \
+    \   \"format\": \"int64\"\n            }\n          }\n        ],\n        \"\
+    responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    \ not found\"\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\"\n          },\n          \"204\": {\n     \
+    \       \"description\": \"Employee deleted successfully\"\n          }\n    \
+    \    },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      }\n    },\n    \"/api/v1/employees\": {\n     \
+    \ \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n     \
+    \   \"summary\": \"List all employees\",\n        \"description\": \"Returns all\
+    \ employees belonging to the authenticated tenant\",\n        \"operationId\"\
+    : \"getAllEmployees\",\n        \"responses\": {\n          \"401\": {\n     \
+    \       \"description\": \"Missing or invalid JWT token\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"type\": \"array\",\n                  \"items\": {\n                   \
+    \ \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                  }\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"List returned successfully\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/EmployeeResponse\"\n   \
+    \               }\n                }\n              }\n            }\n       \
+    \   }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Employees\"\n        ],\n        \"summary\": \"Create a new employee\"\
+    ,\n        \"description\": \"Creates an employee for the tenant identified in\
+    \ the Bearer token\",\n        \"operationId\": \"createEmployee\",\n        \"\
+    requestBody\": {\n          \"content\": {\n            \"application/json\":\
+    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeCreateRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"409\": {\n            \"description\"\
+    : \"Email already exists for this tenant\",\n            \"content\": {\n    \
+    \          \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Employee created successfully\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          }\n        },\n \
+    \       \"security\": [\n          {\n            \"bearerAuth\": []\n       \
+    \   }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\": {\n  \
+    \    \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n  \
+    \      \"summary\": \"List employees with pagination\",\n        \"description\"\
+    : \"Returns a page of employees for the authenticated tenant\",\n        \"operationId\"\
+    : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
+    \     \"name\": \"page\",\n            \"in\": \"query\",\n            \"description\"\
+    : \"Page number (0-based)\",\n            \"required\": false,\n            \"\
+    schema\": {\n              \"type\": \"integer\",\n              \"format\": \"\
+    int32\",\n              \"default\": 0\n            }\n          },\n        \
+    \  {\n            \"name\": \"size\",\n            \"in\": \"query\",\n      \
+    \      \"description\": \"Page size\",\n            \"required\": false,\n   \
+    \         \"schema\": {\n              \"type\": \"integer\",\n              \"\
+    format\": \"int32\",\n              \"default\": 20\n            }\n         \
+    \ },\n          {\n            \"name\": \"sort\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Sort field\",\n            \"required\": false,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"default\": \"id\"\n            }\n          },\n          {\n           \
+    \ \"name\": \"direction\",\n            \"in\": \"query\",\n            \"description\"\
+    : \"Sort direction: asc or desc\",\n            \"required\": false,\n       \
+    \     \"schema\": {\n              \"type\": \"string\",\n              \"default\"\
+    : \"asc\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Page returned successfully\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"firstName\": {\n            \"maxLength\":\
+    \ 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"lastName\": {\n            \"maxLength\": 100,\n      \
+    \      \"minLength\": 0,\n            \"type\": \"string\"\n          },\n   \
+    \       \"email\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"department\"\
+    : {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"salary\": {\n           \
+    \ \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n            \"\
+    type\": \"number\"\n          },\n          \"hireDate\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date\"\n          },\n          \"phone\"\
+    : {\n            \"maxLength\": 20,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"address\": {\n           \
+    \ \"maxLength\": 255,\n            \"minLength\": 0,\n            \"type\": \"\
+    string\"\n          },\n          \"status\": {\n            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\"\
+    ,\n            \"type\": \"string\"\n          }\n        }\n      },\n      \"\
+    EmployeeResponse\": {\n        \"type\": \"object\",\n        \"properties\":\
+    \ {\n          \"id\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"firstName\": {\n            \"type\": \"\
+    string\"\n          },\n          \"lastName\": {\n            \"type\": \"string\"\
+    \n          },\n          \"email\": {\n            \"type\": \"string\"\n   \
+    \       },\n          \"department\": {\n            \"type\": \"string\"\n  \
+    \        },\n          \"salary\": {\n            \"type\": \"number\"\n     \
+    \     },\n          \"hireDate\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date\"\n          },\n          \"status\": {\n        \
+    \    \"type\": \"string\"\n          },\n          \"phone\": {\n            \"\
+    type\": \"string\"\n          },\n          \"address\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"createdAt\": {\n            \"type\":\
+    \ \"string\",\n            \"format\": \"date-time\"\n          },\n         \
+    \ \"updatedAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          }\n        }\n      },\n      \"EmployeeCreateRequest\"\
     : {\n        \"required\": [\n          \"department\",\n          \"email\",\n\
-    \          \"firstName\",\n          \"lastName\",\n          \"salary\"\n   \
-    \     ],\n        \"type\": \"object\",\n        \"properties\": {\n         \
-    \ \"firstName\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Nombre del empleado\",\n            \"example\": \"Juan\"\n          },\n\
-    \          \"lastName\": {\n            \"type\": \"string\",\n            \"\
-    description\": \"Apellido del empleado\",\n            \"example\": \"P\\u00e9rez\"\
-    \n          },\n          \"email\": {\n            \"type\": \"string\",\n  \
-    \          \"description\": \"Email del empleado\",\n            \"example\":\
-    \ \"juan.perez@example.com\"\n          },\n          \"department\": {\n    \
-    \        \"type\": \"string\",\n            \"description\": \"Departamento del\
-    \ empleado\",\n            \"example\": \"Ingenier\\u00eda\"\n          },\n \
-    \         \"salary\": {\n            \"type\": \"number\",\n            \"description\"\
-    : \"Salario del empleado\",\n            \"example\": 3000.0\n          },\n \
-    \         \"status\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Estado del empleado\",\n            \"example\": \"ACTIVE\"\n          },\n\
-    \          \"phone\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Tel\\u00e9fono del empleado\",\n            \"example\": \"+34612345678\"\n\
-    \          },\n          \"address\": {\n            \"type\": \"string\",\n \
-    \           \"description\": \"Direcci\\u00f3n del empleado\",\n            \"\
-    example\": \"Calle Principal 123\"\n          }\n        },\n        \"description\"\
-    : \"DTO para actualizar un empleado\"\n      },\n      \"EmployeeResponse\": {\n\
-    \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
-    \            \"type\": \"integer\",\n            \"description\": \"ID del empleado\"\
-    ,\n            \"format\": \"int64\",\n            \"example\": 1\n          },\n\
-    \          \"firstName\": {\n            \"type\": \"string\",\n            \"\
-    description\": \"Nombre del empleado\",\n            \"example\": \"Juan\"\n \
-    \         },\n          \"lastName\": {\n            \"type\": \"string\",\n \
-    \           \"description\": \"Apellido del empleado\",\n            \"example\"\
-    : \"P\\u00e9rez\"\n          },\n          \"email\": {\n            \"type\"\
-    : \"string\",\n            \"description\": \"Email del empleado\",\n        \
-    \    \"example\": \"juan.perez@example.com\"\n          },\n          \"department\"\
-    : {\n            \"type\": \"string\",\n            \"description\": \"Departamento\
-    \ del empleado\",\n            \"example\": \"Ingenier\\u00eda\"\n          },\n\
-    \          \"salary\": {\n            \"type\": \"number\",\n            \"description\"\
-    : \"Salario del empleado\",\n            \"example\": 3000.0\n          },\n \
-    \         \"hireDate\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Fecha de contrataci\\u00f3n\",\n            \"format\": \"date\",\n      \
-    \      \"example\": \"2024-01-15\"\n          },\n          \"status\": {\n  \
-    \          \"type\": \"string\",\n            \"description\": \"Estado del empleado\"\
-    ,\n            \"example\": \"ACTIVE\"\n          },\n          \"phone\": {\n\
-    \            \"type\": \"string\",\n            \"description\": \"Tel\\u00e9fono\
-    \ del empleado\",\n            \"example\": \"+34612345678\"\n          },\n \
-    \         \"address\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Direcci\\u00f3n del empleado\",\n            \"example\": \"Calle Principal\
-    \ 123\"\n          },\n          \"createdAt\": {\n            \"type\": \"string\"\
-    ,\n            \"description\": \"Fecha de creaci\\u00f3n\",\n            \"format\"\
-    : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
-    : \"string\",\n            \"description\": \"Fecha de \\u00faltima actualizaci\\\
-    u00f3n\",\n            \"format\": \"date-time\"\n          }\n        },\n  \
-    \      \"description\": \"DTO de respuesta para un empleado\"\n      },\n    \
-    \  \"EmployeeCreateRequest\": {\n        \"required\": [\n          \"department\"\
-    ,\n          \"email\",\n          \"firstName\",\n          \"hireDate\",\n \
-    \         \"lastName\",\n          \"salary\"\n        ],\n        \"type\": \"\
-    object\",\n        \"properties\": {\n          \"firstName\": {\n           \
-    \ \"type\": \"string\",\n            \"description\": \"Nombre del empleado\"\
-    ,\n            \"example\": \"Juan\"\n          },\n          \"lastName\": {\n\
-    \            \"type\": \"string\",\n            \"description\": \"Apellido del\
-    \ empleado\",\n            \"example\": \"P\\u00e9rez\"\n          },\n      \
-    \    \"email\": {\n            \"type\": \"string\",\n            \"description\"\
-    : \"Email del empleado\",\n            \"example\": \"juan.perez@example.com\"\
-    \n          },\n          \"department\": {\n            \"type\": \"string\"\
-    ,\n            \"description\": \"Departamento del empleado\",\n            \"\
-    example\": \"Ingenier\\u00eda\"\n          },\n          \"salary\": {\n     \
-    \       \"type\": \"number\",\n            \"description\": \"Salario del empleado\"\
-    ,\n            \"example\": 3000.0\n          },\n          \"hireDate\": {\n\
-    \            \"type\": \"string\",\n            \"description\": \"Fecha de contrataci\\\
-    u00f3n\",\n            \"format\": \"date\",\n            \"example\": \"2024-01-15\"\
-    \n          },\n          \"phone\": {\n            \"type\": \"string\",\n  \
-    \          \"description\": \"Tel\\u00e9fono del empleado\",\n            \"example\"\
-    : \"+34612345678\"\n          },\n          \"address\": {\n            \"type\"\
-    : \"string\",\n            \"description\": \"Direcci\\u00f3n del empleado\",\n\
-    \            \"example\": \"Calle Principal 123\"\n          }\n        },\n \
-    \       \"description\": \"DTO para crear un nuevo empleado\"\n      },\n    \
-    \  \"Pageable\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
-    \          \"page\": {\n            \"minimum\": 0,\n            \"type\": \"\
-    integer\",\n            \"format\": \"int32\"\n          },\n          \"size\"\
-    : {\n            \"minimum\": 1,\n            \"type\": \"integer\",\n       \
-    \     \"format\": \"int32\"\n          },\n          \"sort\": {\n           \
-    \ \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\
-    \n            }\n          }\n        }\n      },\n      \"Page\": {\n       \
-    \ \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
-    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
-    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
-    \ \"items\": {\n              \"type\": \"object\"\n            }\n          },\n\
+    \          \"firstName\",\n          \"hireDate\",\n          \"lastName\",\n\
+    \          \"salary\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"firstName\": {\n            \"maxLength\": 100,\n           \
+    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
+    \  \"lastName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"email\": {\n\
+    \            \"maxLength\": 100,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"department\": {\n            \"\
+    maxLength\": 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"salary\": {\n            \"minimum\": 0.0,\n     \
+    \       \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n     \
+    \     },\n          \"hireDate\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date\"\n          },\n          \"phone\": {\n         \
+    \   \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\": \"\
+    string\"\n          },\n          \"address\": {\n            \"maxLength\": 255,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"status\": {\n            \"type\": \"string\"\n          }\n    \
+    \    }\n      },\n      \"PageEmployeeResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
+    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    $ref\": \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n\
     \          \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
     : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
     #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
     \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"first\": {\n            \"type\": \"boolean\"\n          },\n       \
-    \   \"last\": {\n            \"type\": \"boolean\"\n          },\n          \"\
-    numberOfElements\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"empty\": {\n            \"type\": \"boolean\"\
-    \n          }\n        }\n      },\n      \"PageableObject\": {\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"offset\": {\n          \
-    \  \"type\": \"integer\",\n            \"format\": \"int64\"\n          },\n \
-    \         \"paged\": {\n            \"type\": \"boolean\"\n          },\n    \
-    \      \"pageNumber\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"pageSize\": {\n            \"type\": \"\
-    integer\",\n            \"format\": \"int32\"\n          },\n          \"sort\"\
-    : {\n            \"$ref\": \"#/components/schemas/SortObject\"\n          },\n\
-    \          \"unpaged\": {\n            \"type\": \"boolean\"\n          }\n  \
-    \      }\n      },\n      \"SortObject\": {\n        \"type\": \"object\",\n \
-    \       \"properties\": {\n          \"empty\": {\n            \"type\": \"boolean\"\
-    \n          },\n          \"sorted\": {\n            \"type\": \"boolean\"\n \
-    \         },\n          \"unsorted\": {\n            \"type\": \"boolean\"\n \
-    \         }\n        }\n      }\n    }\n  }\n}"
+    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
+    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
+    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
+    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
+    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
+    \      },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"pageSize\": {\n \
+    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
+    \    },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
+    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
+    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-specs
