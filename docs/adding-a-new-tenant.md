@@ -55,7 +55,53 @@ accessControlAllowOriginList:
 
 ---
 
-## Paso 3 — Añadir el client secret al deployment del backend
+## Paso 3 — Actualizar el Ingress del frontend para incluir el nuevo dominio
+
+El frontend es una única SPA que sirve todos los tenants, detectando cuál usar desde el hostname.
+Actualiza `apps/rrhh-frontend/deployment.yaml`:
+
+**En la sección `spec.tls.hosts`:**
+```yaml
+tls:
+  - hosts:
+      - app.aspavi.com
+      - test.aspavi.com
+      - acme.aspavi.com
+      - globex.aspavi.com    # ← añadir
+    secretName: rrhh-frontend-tls
+```
+
+**En la sección `spec.rules`:**
+```yaml
+rules:
+  - host: app.aspavi.com
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: rrhh-frontend
+              port:
+                number: 80
+  # ... (resto de tenants existentes)
+  - host: globex.aspavi.com    # ← añadir
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: rrhh-frontend
+              port:
+                number: 80
+```
+
+cert-manager generará automáticamente un certificado SAN que cubra todos los hosts.
+
+---
+
+## Paso 4 — Añadir el client secret al deployment del backend
 
 En `apps/employee-service/deployment.yaml`, añade la nueva variable de entorno:
 
@@ -69,7 +115,7 @@ En `apps/employee-service/deployment.yaml`, añade la nueva variable de entorno:
 
 ---
 
-## Paso 4 — Commit y push → ArgoCD sincroniza
+## Paso 5 — Commit y push → ArgoCD sincroniza
 
 ```bash
 git add apps/keycloak/realm-import-globex.yaml \
@@ -86,7 +132,7 @@ ArgoCD detecta el cambio y aplica automáticamente:
 
 ---
 
-## Paso 5 — Obtener el client secret del nuevo realm
+## Paso 6 — Obtener el client secret del nuevo realm
 
 Una vez ArgoCD haya sincronizado y el realm esté creado en Keycloak:
 
@@ -97,7 +143,7 @@ Una vez ArgoCD haya sincronizado y el realm esté creado en Keycloak:
 
 ---
 
-## Paso 6 — Crear el Kubernetes Secret manualmente
+## Paso 7 — Crear el Kubernetes Secret manualmente
 
 ```bash
 # Si el secret keycloak-client-secrets NO existe aún:
@@ -118,7 +164,7 @@ kubectl rollout restart deployment/employee-service -n rrhh-system
 
 ---
 
-## Paso 7 — Actualizar el frontend
+## Paso 8 — Actualizar el frontend
 
 En `aspavi-rrhh-management-site`, edita `src/utils/tenant.ts` y añade la entrada:
 
@@ -135,7 +181,7 @@ ArgoCD despliega el frontend actualizado automáticamente.
 
 ---
 
-## Paso 8 — Verificación
+## Paso 9 — Verificación
 
 ```bash
 # Realm creado en Keycloak
@@ -160,7 +206,8 @@ curl -s -X POST \
 | Fichero | Repo | Acción |
 |---|---|---|
 | `apps/keycloak/realm-import-{slug}.yaml` | `aspavi-infra` | Crear (copiar de acme) |
-| `apps/employee-service/cors-middleware.yaml` | `aspavi-infra` | Añadir origen |
+| `apps/employee-service/cors-middleware.yaml` | `aspavi-infra` | Añadir origen al CORS |
+| `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |

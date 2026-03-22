@@ -77,9 +77,33 @@ spec:
   tls:
     - hosts:
         - app.aspavi.com
+        - test.aspavi.com
+        - acme.aspavi.com
       secretName: rrhh-frontend-tls
   rules:
+    # Dominio principal (default)
     - host: app.aspavi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rrhh-frontend
+                port:
+                  number: 80
+    # Dominios por tenant (la SPA detecta el tenant del hostname)
+    - host: test.aspavi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rrhh-frontend
+                port:
+                  number: 80
+    - host: acme.aspavi.com
       http:
         paths:
           - path: /
