@@ -128,15 +128,20 @@ data:
     \    \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n  \
     \      \"summary\": \"List employees with pagination\",\n        \"description\"\
     : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
-    \ pageable params: ?page=0&size=20&sort=lastName,asc\",\n        \"operationId\"\
+    \ pageable params: ?page=0&size=20&sort=lastName,asc. Optional ?search= filters\
+    \ across firstName, lastName, email and department.\",\n        \"operationId\"\
     : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
     \     \"name\": \"pageable\",\n            \"in\": \"query\",\n            \"\
     required\": true,\n            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
-    \n            }\n          }\n        ],\n        \"responses\": {\n         \
-    \ \"401\": {\n            \"description\": \"Missing or invalid JWT token\",\n\
-    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
+    \n            }\n          },\n          {\n            \"name\": \"search\",\n\
+    \            \"in\": \"query\",\n            \"description\": \"Free-text search\
+    \ across firstName, lastName, email and department\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"type\": \"string\"\n    \
+    \        }\n          }\n        ],\n        \"responses\": {\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid JWT token\",\n        \
+    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
     200\": {\n            \"description\": \"Page returned successfully\",\n     \
     \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
     \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
@@ -218,10 +223,10 @@ data:
     \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"paged\": {\n            \"type\": \"boolean\"\n  \
-    \        },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
+    \      },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"pageNumber\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
     \     },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n      \
     \    }\n        }\n      },\n      \"SortObject\": {\n        \"type\": \"object\"\
