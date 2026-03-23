@@ -47,7 +47,6 @@ Añade el nuevo origen en `apps/employee-service/cors-middleware.yaml`:
 
 ```yaml
 accessControlAllowOriginList:
-  - "https://app.aspavi.com"
   - "https://acme.aspavi.com"
   - "https://test.aspavi.com"
   - "https://globex.aspavi.com"    # ← añadir
@@ -64,7 +63,6 @@ Actualiza `apps/rrhh-frontend/deployment.yaml`:
 ```yaml
 tls:
   - hosts:
-      - app.aspavi.com
       - test.aspavi.com
       - acme.aspavi.com
       - globex.aspavi.com    # ← añadir
@@ -74,7 +72,7 @@ tls:
 **En la sección `spec.rules`:**
 ```yaml
 rules:
-  - host: app.aspavi.com
+  - host: test.aspavi.com
     http:
       paths:
         - path: /
@@ -84,7 +82,16 @@ rules:
               name: rrhh-frontend
               port:
                 number: 80
-  # ... (resto de tenants existentes)
+  - host: acme.aspavi.com
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: rrhh-frontend
+              port:
+                number: 80
   - host: globex.aspavi.com    # ← añadir
     http:
       paths:

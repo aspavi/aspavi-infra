@@ -16,7 +16,6 @@ spec:
       - "Authorization"
       - "X-Requested-With"
     accessControlAllowOriginList:
-      - "https://app.aspavi.com"
       - "https://acme.aspavi.com"
       - "https://test.aspavi.com"
     accessControlMaxAge: 3600
