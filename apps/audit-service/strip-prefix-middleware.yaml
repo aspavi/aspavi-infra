@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: audit-strip-prefix
+  namespace: rrhh-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /audit

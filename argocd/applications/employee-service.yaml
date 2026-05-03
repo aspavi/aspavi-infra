@@ -14,7 +14,5 @@ spec:
     namespace: rrhh-system
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true

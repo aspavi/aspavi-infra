@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: organization-service
+  namespace: rrhh-system
+  labels:
+    app: organization-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: organization-service
+  template:
+    metadata:
+      labels:
+        app: organization-service
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: organization-service
+          image: ghcr.io/vmorera/aspavi-organization-service:master-placeholder
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://postgresql.rrhh-data:5432/organization_db"
+            - name: DB_USERNAME
+              value: "app_user"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: app-password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "validate"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aspavi"
+            # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml
+            - name: KEYCLOAK_BASE_URL
+              value: "https://keycloak.aspavi.com"
+            # Client secrets del backend (rrhh-organization-service) por realm.
+            # Secret creado manualmente: kubectl create secret generic keycloak-client-secrets ...
+            # Ver apps/keycloak/secrets.yaml para instrucciones completas.
+            - name: KEYCLOAK_CLIENT_SECRET_TEST
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-client-secrets
+                  key: organization-service-secret-test
+            - name: KEYCLOAK_CLIENT_SECRET_ACME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-client-secrets
+                  key: organization-service-secret-acme
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: organization-service
+  namespace: rrhh-system
+  labels:
+    app: organization-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: organization-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: organization-service
+  namespace: rrhh-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: rrhh-system-cors-headers@kubernetescrd,rrhh-system-organization-strip-prefix@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.aspavi.com
+      secretName: organization-service-tls
+  rules:
+    - host: api.aspavi.com
+      http:
+        paths:
+          - path: /organization
+            pathType: Prefix
+            backend:
+              service:
+                name: organization-service
+                port:
+                  number: 80
