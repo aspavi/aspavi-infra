@@ -81,4 +81,5 @@ jobs:
             --set auth.postgresPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
             --set auth.password="${{ secrets.APP_USER_PASSWORD }}" \
             --set auth.initdb.password="${{ secrets.KEYCLOAK_USER_PASSWORD }}" \
+            --version 18.5.8 \
             --wait

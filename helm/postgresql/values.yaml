@@ -11,9 +11,6 @@ auth:
     adminPasswordKey: postgres-password
     userPasswordKey: app-password
 
-image:
-  tag: "17"
-
 primary:
   persistence:
     enabled: true
