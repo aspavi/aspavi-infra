@@ -111,8 +111,8 @@ data:
     \ \"items\": {\n              \"$ref\": \"#/components/schemas/AuditLogResponse\"\
     \n            }\n          },\n          \"number\": {\n            \"type\":\
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\n       \
-    \   },\n          \"pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
     ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
     \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
@@ -120,19 +120,19 @@ data:
     \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
-    \      },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"pageNumber\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n      \
-    \    }\n        }\n      },\n      \"SortObject\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          },\n          \"sorted\": {\n            \"type\": \"boolean\"\
-    \n          },\n          \"unsorted\": {\n            \"type\": \"boolean\"\n\
-    \          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
-    Bearer\": {\n        \"type\": \"http\",\n        \"description\": \"JWT token\
-    \ from Keycloak\",\n        \"scheme\": \"bearer\",\n        \"bearerFormat\"\
+    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
+    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
+    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"Bearer\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"JWT token from Keycloak\",\n        \"scheme\": \"bearer\",\n        \"bearerFormat\"\
     : \"JWT\"\n      }\n    }\n  }\n}"
   employee-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
     : \"Employee Service API\",\n    \"description\": \"Microservicio CRUD para gesti\\\
