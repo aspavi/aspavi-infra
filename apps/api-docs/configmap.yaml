@@ -2,7 +2,8 @@ apiVersion: v1
 data:
   urls: "[\n  {\n    \"url\": \"/specs/employee-service.json\",\n    \"name\": \"\
     Employee Service\"\n  },\n  {\n    \"url\": \"/specs/audit-service.json\",\n \
-    \   \"name\": \"Audit Service\"\n  }\n]\n"
+    \   \"name\": \"Audit Service\"\n  },\n  {\n    \"url\": \"/specs/organization-service.json\"\
+    ,\n    \"name\": \"Organization Service\"\n  }\n]\n"
 kind: ConfigMap
 metadata:
   name: api-docs-config
@@ -646,6 +647,15 @@ data:
     : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
+  organization-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"\
+    title\": \"Organization Service API\",\n    \"description\": \"REST API for organizational\
+    \ configuration management\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\"\
+    : [\n    {\n      \"url\": \"https://api.aspavi.com/organization\"\n    }\n  ],\n\
+    \  \"paths\": {},\n  \"components\": {\n    \"securitySchemes\": {\n      \"bearerAuth\"\
+    : {\n        \"type\": \"http\",\n        \"description\": \"Keycloak JWT access\
+    \ token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n  \
+    \      \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n \
+    \   }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-specs
