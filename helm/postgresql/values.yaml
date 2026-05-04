@@ -16,6 +16,23 @@ primary:
     enabled: true
   initdb:
     scriptsSecret: postgresql-init-secret
+    scripts:
+      01_create_service_databases.sql: |
+        -- Create one database per microservice and transfer ownership to app_user.
+        -- Ownership gives app_user full CREATE/DDL rights in the public schema,
+        -- so Flyway can run migrations without any manual GRANT steps.
+        -- To add a new service: create the database here and redeploy PostgreSQL.
+        CREATE DATABASE employee_db;
+        ALTER DATABASE employee_db OWNER TO app_user;
+
+        CREATE DATABASE audit_db;
+        ALTER DATABASE audit_db OWNER TO app_user;
+
+        CREATE DATABASE organization_db;
+        ALTER DATABASE organization_db OWNER TO app_user;
+
+        CREATE DATABASE payroll_db;
+        ALTER DATABASE payroll_db OWNER TO app_user;
 
 readReplicas:
   replicaCount: 0
