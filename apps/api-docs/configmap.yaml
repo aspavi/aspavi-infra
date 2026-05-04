@@ -120,10 +120,10 @@ data:
     \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"paged\": {\n            \"type\": \"boolean\"\n  \
-    \        },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
+    \      },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"pageNumber\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
     \     },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n      \
     \    }\n        }\n      },\n      \"SortObject\": {\n        \"type\": \"object\"\
