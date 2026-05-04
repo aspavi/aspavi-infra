@@ -652,7 +652,773 @@ data:
     title\": \"Organization Service API\",\n    \"description\": \"REST API for organizational\
     \ configuration management\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\"\
     : [\n    {\n      \"url\": \"https://api.aspavi.com/organization\"\n    }\n  ],\n\
-    \  \"paths\": {},\n  \"components\": {\n    \"securitySchemes\": {\n      \"bearerAuth\"\
+    \  \"tags\": [\n    {\n      \"name\": \"Departments\",\n      \"description\"\
+    : \"Departments management\"\n    },\n    {\n      \"name\": \"Professional Categories\"\
+    ,\n      \"description\": \"Professional categories management\"\n    },\n   \
+    \ {\n      \"name\": \"Tenants\",\n      \"description\": \"Tenant (organization)\
+    \ management\"\n    },\n    {\n      \"name\": \"Collective Agreements\",\n  \
+    \    \"description\": \"Collective bargaining agreements management\"\n    },\n\
+    \    {\n      \"name\": \"Work Centers\",\n      \"description\": \"Work centers\
+    \ management\"\n    },\n    {\n      \"name\": \"Contract Types\",\n      \"description\"\
+    : \"Contract types management\"\n    },\n    {\n      \"name\": \"Salary Concepts\"\
+    ,\n      \"description\": \"Salary concepts management\"\n    },\n    {\n    \
+    \  \"name\": \"Work Calendars\",\n      \"description\": \"Work calendars management\"\
+    \n    },\n    {\n      \"name\": \"Positions\",\n      \"description\": \"Job\
+    \ positions management\"\n    },\n    {\n      \"name\": \"Agreement Permits\"\
+    ,\n      \"description\": \"Agreement permits and leave types management\"\n \
+    \   }\n  ],\n  \"paths\": {\n    \"/api/v1/work-centers/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Work Centers\"\n        ],\n        \"summary\"\
+    : \"Get work center by ID\",\n        \"operationId\": \"getById\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\"\
+    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/WorkCenterResponse\"\n                }\n           \
+    \   }\n            }\n          }\n        },\n        \"security\": [\n     \
+    \     {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n  \
+    \    \"put\": {\n        \"tags\": [\n          \"Work Centers\"\n        ],\n\
+    \        \"summary\": \"Update work center\",\n        \"operationId\": \"update\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/WorkCenterRequest\"\n  \
+    \            }\n            }\n          },\n          \"required\": true\n  \
+    \      },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCenterResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Work Centers\"\n        ],\n        \"summary\": \"Delete work center\"\
+    ,\n        \"operationId\": \"delete\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Work Calendars\"\n   \
+    \     ],\n        \"summary\": \"Get work calendar by ID\",\n        \"operationId\"\
+    : \"getById_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n       \
+    \         }\n              }\n            }\n          }\n        },\n       \
+    \ \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Work\
+    \ Calendars\"\n        ],\n        \"summary\": \"Update work calendar\",\n  \
+    \      \"operationId\": \"update_1\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Work Calendars\"\n        ],\n        \"summary\": \"Delete work calendar\"\
+    ,\n        \"operationId\": \"delete_1\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/tenants/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Tenants\"\n        ],\n\
+    \        \"summary\": \"Get tenant by ID\",\n        \"operationId\": \"getById_2\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/TenantResponse\"\n                }\n         \
+    \     }\n            }\n          }\n        },\n        \"security\": [\n   \
+    \       {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
+    \      \"put\": {\n        \"tags\": [\n          \"Tenants\"\n        ],\n  \
+    \      \"summary\": \"Update tenant\",\n        \"operationId\": \"update_2\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/TenantRequest\"\n      \
+    \        }\n            }\n          },\n          \"required\": true\n      \
+    \  },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/TenantResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Tenants\"\n        ],\n        \"summary\": \"Delete tenant\",\n      \
+    \  \"operationId\": \"delete_2\",\n        \"parameters\": [\n          {\n  \
+    \          \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    \n          }\n        },\n        \"security\": [\n          {\n            \"\
+    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/salary-concepts/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Salary Concepts\"\n  \
+    \      ],\n        \"summary\": \"Get salary concept by ID\",\n        \"operationId\"\
+    : \"getById_3\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/SalaryConceptResponse\"\n      \
+    \          }\n              }\n            }\n          }\n        },\n      \
+    \  \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Salary\
+    \ Concepts\"\n        ],\n        \"summary\": \"Update salary concept\",\n  \
+    \      \"operationId\": \"update_3\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/SalaryConceptRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/SalaryConceptResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Salary Concepts\"\n        ],\n        \"summary\": \"Delete salary concept\"\
+    ,\n        \"operationId\": \"delete_3\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/professional-categories/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Professional Categories\"\
+    \n        ],\n        \"summary\": \"Get professional category by ID\",\n    \
+    \    \"operationId\": \"getById_4\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ProfessionalCategoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Professional Categories\"\n        ],\n        \"summary\": \"Update professional\
+    \ category\",\n        \"operationId\": \"update_4\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/ProfessionalCategoryRequest\"\n        \
+    \      }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ProfessionalCategoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Professional Categories\"\n        ],\n        \"summary\": \"Delete professional\
+    \ category\",\n        \"operationId\": \"delete_4\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\"\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/positions/{id}\": {\n      \"get\": {\n        \"tags\"\
+    : [\n          \"Positions\"\n        ],\n        \"summary\": \"Get position\
+    \ by ID\",\n        \"operationId\": \"getById_5\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n \
+    \           \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PositionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Positions\"\n        ],\n        \"summary\": \"Update position\",\n     \
+    \   \"operationId\": \"update_5\",\n        \"parameters\": [\n          {\n \
+    \           \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/PositionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PositionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Positions\"\n        ],\n        \"summary\": \"Delete position\",\n  \
+    \      \"operationId\": \"delete_5\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/departments/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Departments\"\n      \
+    \  ],\n        \"summary\": \"Get department by ID\",\n        \"operationId\"\
+    : \"getById_6\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/DepartmentResponse\"\n         \
+    \       }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Departments\"\
+    \n        ],\n        \"summary\": \"Update department\",\n        \"operationId\"\
+    : \"update_6\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/DepartmentRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/DepartmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Departments\"\n        ],\n        \"summary\": \"Delete department\",\n\
+    \        \"operationId\": \"delete_6\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/contract-types/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contract Types\"\n   \
+    \     ],\n        \"summary\": \"Get contract type by ID\",\n        \"operationId\"\
+    : \"getById_7\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/ContractTypeResponse\"\n       \
+    \         }\n              }\n            }\n          }\n        },\n       \
+    \ \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Contract\
+    \ Types\"\n        ],\n        \"summary\": \"Update contract type\",\n      \
+    \  \"operationId\": \"update_7\",\n        \"parameters\": [\n          {\n  \
+    \          \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/ContractTypeRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractTypeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Contract Types\"\n        ],\n        \"summary\": \"Delete contract type\"\
+    ,\n        \"operationId\": \"delete_7\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/collective-agreements/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Collective Agreements\"\
+    \n        ],\n        \"summary\": \"Get collective agreement by ID\",\n     \
+    \   \"operationId\": \"getById_8\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/CollectiveAgreementResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Collective Agreements\"\n        ],\n        \"summary\": \"Update collective\
+    \ agreement\",\n        \"operationId\": \"update_8\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/CollectiveAgreementRequest\"\n         \
+    \     }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/CollectiveAgreementResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Collective Agreements\"\n        ],\n        \"summary\": \"Delete collective\
+    \ agreement\",\n        \"operationId\": \"delete_8\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\"\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/agreement-permits/{id}\": {\n      \"get\": {\n       \
+    \ \"tags\": [\n          \"Agreement Permits\"\n        ],\n        \"summary\"\
+    : \"Get agreement permit by ID\",\n        \"operationId\": \"getById_9\",\n \
+    \       \"parameters\": [\n          {\n            \"name\": \"id\",\n      \
+    \      \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/AgreementPermitResponse\"\n                }\n\
+    \              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"put\": {\n        \"tags\": [\n          \"Agreement Permits\"\
+    \n        ],\n        \"summary\": \"Update agreement permit\",\n        \"operationId\"\
+    : \"update_9\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/AgreementPermitRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/AgreementPermitResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Agreement Permits\"\n        ],\n        \"summary\": \"Delete agreement\
+    \ permit\",\n        \"operationId\": \"delete_9\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n \
+    \           \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-centers\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Work Centers\"\n     \
+    \   ],\n        \"summary\": \"Get all work centers\",\n        \"operationId\"\
+    : \"getAll\",\n        \"responses\": {\n          \"200\": {\n            \"\
+    description\": \"OK\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"type\": \"array\",\n     \
+    \             \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCenterResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Work Centers\"\n        ],\n        \"summary\": \"Create work center\"\
+    ,\n        \"operationId\": \"create\",\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/WorkCenterRequest\"\n  \
+    \            }\n            }\n          },\n          \"required\": true\n  \
+    \      },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCenterResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars\": {\n      \"\
+    get\": {\n        \"tags\": [\n          \"Work Calendars\"\n        ],\n    \
+    \    \"summary\": \"Get all work calendars\",\n        \"operationId\": \"getAll_1\"\
+    ,\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Work Calendars\"\n        ],\n        \"summary\": \"Create work\
+    \ calendar\",\n        \"operationId\": \"create_1\",\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/tenants\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Tenants\"\n        ],\n        \"summary\"\
+    : \"Get all tenants\",\n        \"operationId\": \"getAll_2\",\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/TenantResponse\"\n               \
+    \   }\n                }\n              }\n            }\n          }\n      \
+    \  },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n  \
+    \        \"Tenants\"\n        ],\n        \"summary\": \"Create tenant\",\n  \
+    \      \"operationId\": \"create_2\",\n        \"requestBody\": {\n          \"\
+    content\": {\n            \"application/json\": {\n              \"schema\": {\n\
+    \                \"$ref\": \"#/components/schemas/TenantRequest\"\n          \
+    \    }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/TenantResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/salary-concepts\": {\n     \
+    \ \"get\": {\n        \"tags\": [\n          \"Salary Concepts\"\n        ],\n\
+    \        \"summary\": \"Get all salary concepts\",\n        \"operationId\": \"\
+    getAll_3\",\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/SalaryConceptResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Salary Concepts\"\n        ],\n        \"summary\": \"Create salary\
+    \ concept\",\n        \"operationId\": \"create_3\",\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/SalaryConceptRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/SalaryConceptResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/professional-categories\": {\n\
+    \      \"get\": {\n        \"tags\": [\n          \"Professional Categories\"\n\
+    \        ],\n        \"summary\": \"Get all professional categories\",\n     \
+    \   \"operationId\": \"getAll_4\",\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"type\"\
+    : \"array\",\n                  \"items\": {\n                    \"$ref\": \"\
+    #/components/schemas/ProfessionalCategoryResponse\"\n                  }\n   \
+    \             }\n              }\n            }\n          }\n        },\n   \
+    \     \"security\": [\n          {\n            \"bearerAuth\": []\n         \
+    \ }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n          \"\
+    Professional Categories\"\n        ],\n        \"summary\": \"Create professional\
+    \ category\",\n        \"operationId\": \"create_4\",\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/ProfessionalCategoryRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ProfessionalCategoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/positions\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Positions\"\n        ],\n        \"summary\"\
+    : \"Get all positions\",\n        \"operationId\": \"getAll_5\",\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/PositionResponse\"\n             \
+    \     }\n                }\n              }\n            }\n          }\n    \
+    \    },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n  \
+    \        \"Positions\"\n        ],\n        \"summary\": \"Create position\",\n\
+    \        \"operationId\": \"create_5\",\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/PositionRequest\"\n    \
+    \          }\n            }\n          },\n          \"required\": true\n    \
+    \    },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PositionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/departments\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Departments\"\n        ],\n        \"summary\"\
+    : \"Get all departments\",\n        \"operationId\": \"getAll_6\",\n        \"\
+    responses\": {\n          \"200\": {\n            \"description\": \"OK\",\n \
+    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/DepartmentResponse\"\n \
+    \                 }\n                }\n              }\n            }\n     \
+    \     }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Departments\"\n        ],\n        \"summary\": \"Create department\"\
+    ,\n        \"operationId\": \"create_6\",\n        \"requestBody\": {\n      \
+    \    \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/DepartmentRequest\"\n  \
+    \            }\n            }\n          },\n          \"required\": true\n  \
+    \      },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/DepartmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/contract-types\": {\n      \"\
+    get\": {\n        \"tags\": [\n          \"Contract Types\"\n        ],\n    \
+    \    \"summary\": \"Get all contract types\",\n        \"operationId\": \"getAll_7\"\
+    ,\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/ContractTypeResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Contract Types\"\n        ],\n        \"summary\": \"Create contract\
+    \ type\",\n        \"operationId\": \"create_7\",\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/ContractTypeRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractTypeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/collective-agreements\": {\n\
+    \      \"get\": {\n        \"tags\": [\n          \"Collective Agreements\"\n\
+    \        ],\n        \"summary\": \"Get all collective agreements\",\n       \
+    \ \"operationId\": \"getAll_8\",\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"type\"\
+    : \"array\",\n                  \"items\": {\n                    \"$ref\": \"\
+    #/components/schemas/CollectiveAgreementResponse\"\n                  }\n    \
+    \            }\n              }\n            }\n          }\n        },\n    \
+    \    \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"post\": {\n        \"tags\": [\n          \"Collective\
+    \ Agreements\"\n        ],\n        \"summary\": \"Create collective agreement\"\
+    ,\n        \"operationId\": \"create_8\",\n        \"requestBody\": {\n      \
+    \    \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/CollectiveAgreementRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/CollectiveAgreementResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/agreement-permits\": {\n   \
+    \   \"get\": {\n        \"tags\": [\n          \"Agreement Permits\"\n       \
+    \ ],\n        \"summary\": \"Get all agreement permits\",\n        \"operationId\"\
+    : \"getAll_9\",\n        \"responses\": {\n          \"200\": {\n            \"\
+    description\": \"OK\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"type\": \"array\",\n     \
+    \             \"items\": {\n                    \"$ref\": \"#/components/schemas/AgreementPermitResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Agreement Permits\"\n        ],\n        \"summary\": \"Create agreement\
+    \ permit\",\n        \"operationId\": \"create_9\",\n        \"requestBody\":\
+    \ {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/AgreementPermitRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/AgreementPermitResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"WorkCenterRequest\": {\n        \"required\": [\n          \"address\"\
+    ,\n          \"city\",\n          \"name\",\n          \"postalCode\",\n     \
+    \     \"province\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"name\": {\n            \"type\": \"string\"\n          },\n \
+    \         \"address\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"city\": {\n            \"type\": \"string\"\n          },\n        \
+    \  \"province\": {\n            \"type\": \"string\"\n          },\n         \
+    \ \"postalCode\": {\n            \"type\": \"string\"\n          },\n        \
+    \  \"country\": {\n            \"type\": \"string\"\n          },\n          \"\
+    isActive\": {\n            \"type\": \"boolean\"\n          }\n        }\n   \
+    \   },\n      \"WorkCenterResponse\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"id\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"name\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"address\": {\n       \
+    \     \"type\": \"string\"\n          },\n          \"city\": {\n            \"\
+    type\": \"string\"\n          },\n          \"province\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"postalCode\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"country\": {\n            \"type\": \"\
+    string\"\n          },\n          \"isActive\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"WorkCalendarRequest\": {\n        \"\
+    required\": [\n          \"name\",\n          \"totalWorkingDays\",\n        \
+    \  \"workCenterId\",\n          \"year\"\n        ],\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"name\": {\n            \"type\": \"\
+    string\"\n          },\n          \"year\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"workCenterId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"totalWorkingDays\": {\n            \"minimum\": 1,\n \
+    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
+    \    },\n          \"isDefault\": {\n            \"type\": \"boolean\"\n     \
+    \     },\n          \"isActive\": {\n            \"type\": \"boolean\"\n     \
+    \     }\n        }\n      },\n      \"WorkCalendarResponse\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"id\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"uuid\"\n          },\n        \
+    \  \"name\": {\n            \"type\": \"string\"\n          },\n          \"year\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"workCenterId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"totalWorkingDays\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"isDefault\": {\n            \"type\": \"boolean\"\n\
+    \          },\n          \"isActive\": {\n            \"type\": \"boolean\"\n\
+    \          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"TenantRequest\": {\n        \"required\"\
+    : [\n          \"domain\",\n          \"name\",\n          \"slug\"\n        ],\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"name\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"slug\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"domain\": {\n    \
+    \        \"type\": \"string\"\n          },\n          \"status\": {\n       \
+    \     \"type\": \"string\"\n          }\n        }\n      },\n      \"TenantResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"name\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"slug\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"domain\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"status\": {\n            \"type\": \"string\"\n          },\n      \
+    \    \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
+    \      },\n      \"SalaryConceptRequest\": {\n        \"required\": [\n      \
+    \    \"agreementId\",\n          \"code\",\n          \"name\",\n          \"\
+    type\"\n        ],\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"name\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"code\": {\n            \"type\": \"string\"\n          },\n          \"\
+    type\": {\n            \"type\": \"string\"\n          },\n          \"isTaxable\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"isSubjectToSS\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"isItComplement\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"agreementId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
+    \       }\n        }\n      },\n      \"SalaryConceptResponse\": {\n        \"\
+    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
+    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
+    \         \"name\": {\n            \"type\": \"string\"\n          },\n      \
+    \    \"code\": {\n            \"type\": \"string\"\n          },\n          \"\
+    type\": {\n            \"type\": \"string\"\n          },\n          \"isTaxable\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"isSubjectToSS\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"isItComplement\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"agreementId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
+    \       },\n          \"createdAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        }\n        }\n      },\n      \"ProfessionalCategoryRequest\": {\n  \
+    \      \"required\": [\n          \"agreementId\",\n          \"code\",\n    \
+    \      \"contributionGroup\",\n          \"name\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"name\": {\n            \"\
+    type\": \"string\"\n          },\n          \"code\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"contributionGroup\": {\n            \"\
+    minimum\": 1,\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"agreementId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"isActive\"\
+    : {\n            \"type\": \"boolean\"\n          }\n        }\n      },\n   \
+    \   \"ProfessionalCategoryResponse\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"id\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"name\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"code\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"contributionGroup\": {\n  \
+    \          \"type\": \"integer\",\n            \"format\": \"int32\"\n       \
+    \   },\n          \"agreementId\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"isActive\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"createdAt\": {\n    \
+    \        \"type\": \"string\",\n            \"format\": \"date-time\"\n      \
+    \    },\n          \"updatedAt\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date-time\"\n          }\n        }\n      },\n      \"\
+    PositionRequest\": {\n        \"required\": [\n          \"code\",\n         \
+    \ \"departmentId\",\n          \"level\",\n          \"name\"\n        ],\n  \
+    \      \"type\": \"object\",\n        \"properties\": {\n          \"name\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"code\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"departmentId\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"uuid\"\n         \
+    \ },\n          \"level\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"isActive\": {\n            \"type\": \"boolean\"\n          }\n \
+    \       }\n      },\n      \"PositionResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"name\": {\n   \
+    \         \"type\": \"string\"\n          },\n          \"code\": {\n        \
+    \    \"type\": \"string\"\n          },\n          \"departmentId\": {\n     \
+    \       \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"level\": {\n            \"type\": \"string\"\n          },\n    \
+    \      \"isActive\": {\n            \"type\": \"boolean\"\n          },\n    \
+    \      \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
+    \      },\n      \"DepartmentRequest\": {\n        \"required\": [\n         \
+    \ \"code\",\n          \"name\",\n          \"workCenterId\"\n        ],\n   \
+    \     \"type\": \"object\",\n        \"properties\": {\n          \"name\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"code\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"workCenterId\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"uuid\"\n         \
+    \ },\n          \"isActive\": {\n            \"type\": \"boolean\"\n         \
+    \ }\n        }\n      },\n      \"DepartmentResponse\": {\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"id\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"name\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"code\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"workCenterId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"isActive\": {\n            \"type\": \"boolean\"\n       \
+    \   },\n          \"createdAt\": {\n            \"type\": \"string\",\n      \
+    \      \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"date-time\"\n   \
+    \       }\n        }\n      },\n      \"ContractTypeRequest\": {\n        \"required\"\
+    : [\n          \"category\",\n          \"code\",\n          \"name\"\n      \
+    \  ],\n        \"type\": \"object\",\n        \"properties\": {\n          \"\
+    name\": {\n            \"type\": \"string\"\n          },\n          \"code\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"category\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"description\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"isActive\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    ContractTypeResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"name\": {\n            \"type\": \"string\"\
+    \n          },\n          \"code\": {\n            \"type\": \"string\"\n    \
+    \      },\n          \"category\": {\n            \"type\": \"string\"\n     \
+    \     },\n          \"description\": {\n            \"type\": \"string\"\n   \
+    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
+    \       },\n          \"createdAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        }\n        }\n      },\n      \"CollectiveAgreementRequest\": {\n   \
+    \     \"required\": [\n          \"code\",\n          \"name\",\n          \"\
+    validFrom\",\n          \"validTo\"\n        ],\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"name\": {\n            \"type\": \"\
+    string\"\n          },\n          \"code\": {\n            \"type\": \"string\"\
+    \n          },\n          \"validFrom\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"validTo\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"date\"\n         \
+    \ },\n          \"isActive\": {\n            \"type\": \"boolean\"\n         \
+    \ }\n        }\n      },\n      \"CollectiveAgreementResponse\": {\n        \"\
+    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
+    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
+    \         \"name\": {\n            \"type\": \"string\"\n          },\n      \
+    \    \"code\": {\n            \"type\": \"string\"\n          },\n          \"\
+    validFrom\": {\n            \"type\": \"string\",\n            \"format\": \"\
+    date\"\n          },\n          \"validTo\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"date\"\n          },\n          \"isActive\": {\n\
+    \            \"type\": \"boolean\"\n          },\n          \"createdAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"updatedAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          }\n        }\n      },\n    \
+    \  \"AgreementPermitRequest\": {\n        \"required\": [\n          \"agreementId\"\
+    ,\n          \"code\",\n          \"maxDays\",\n          \"name\"\n        ],\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"name\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"code\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"maxDays\": {\n   \
+    \         \"minimum\": 0,\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"isPaid\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"agreementId\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"isActive\"\
+    : {\n            \"type\": \"boolean\"\n          }\n        }\n      },\n   \
+    \   \"AgreementPermitResponse\": {\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"id\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"name\": {\n         \
+    \   \"type\": \"string\"\n          },\n          \"code\": {\n            \"\
+    type\": \"string\"\n          },\n          \"maxDays\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    isPaid\": {\n            \"type\": \"boolean\"\n          },\n          \"agreementId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
+    \       },\n          \"createdAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"bearerAuth\"\
     : {\n        \"type\": \"http\",\n        \"description\": \"Keycloak JWT access\
     \ token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n  \
     \      \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n \
