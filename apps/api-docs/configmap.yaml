@@ -3,7 +3,8 @@ data:
   urls: "[\n  {\n    \"url\": \"/specs/employee-service.json\",\n    \"name\": \"\
     Employee Service\"\n  },\n  {\n    \"url\": \"/specs/audit-service.json\",\n \
     \   \"name\": \"Audit Service\"\n  },\n  {\n    \"url\": \"/specs/organization-service.json\"\
-    ,\n    \"name\": \"Organization Service\"\n  }\n]\n"
+    ,\n    \"name\": \"Organization Service\"\n  },\n  {\n    \"url\": \"/specs/payroll-service.json\"\
+    ,\n    \"name\": \"Payroll Service\"\n  }\n]\n"
 kind: ConfigMap
 metadata:
   name: api-docs-config
@@ -656,6 +657,643 @@ data:
     \ token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n  \
     \      \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n \
     \   }\n  }\n}"
+  payroll-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Payroll Service API\",\n    \"description\": \"Microservicio de n\\u00f3minas\
+    \ y cotizaciones sociales\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\"\
+    : [\n    {\n      \"url\": \"https://api.aspavi.com\"\n    }\n  ],\n  \"tags\"\
+    : [\n    {\n      \"name\": \"Contribution Rate Variations\",\n      \"description\"\
+    : \"Contribution rate variations by contract type\"\n    },\n    {\n      \"name\"\
+    : \"Payroll Periods\",\n      \"description\": \"Payroll periods management\"\n\
+    \    },\n    {\n      \"name\": \"Payroll Line Concepts\",\n      \"description\"\
+    : \"Payroll line concepts management\"\n    },\n    {\n      \"name\": \"Payroll\
+    \ Lines\",\n      \"description\": \"Payroll lines management\"\n    },\n    {\n\
+    \      \"name\": \"IRPF Tables\",\n      \"description\": \"IRPF retention rate\
+    \ tables management\"\n    },\n    {\n      \"name\": \"Contribution Bases\",\n\
+    \      \"description\": \"Social security contribution bases management\"\n  \
+    \  }\n  ],\n  \"paths\": {\n    \"/api/v1/payroll-periods/{periodId}/lines/{lineId}/concepts/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Line Concepts\"\
+    \n        ],\n        \"summary\": \"Get payroll line concept by ID\",\n     \
+    \   \"operationId\": \"getById\",\n        \"parameters\": [\n          {\n  \
+    \          \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Update payroll\
+    \ line concept\",\n        \"operationId\": \"update\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\n          \
+    \    }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Delete payroll\
+    \ line concept\",\n        \"operationId\": \"delete\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\"\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/payroll-periods/{periodId}/lines/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Payroll Lines\"\n        ],\n        \"\
+    summary\": \"Get payroll line by ID\",\n        \"operationId\": \"getById_1\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/PayrollLineResponse\"\n                }\n    \
+    \          }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
+    \      \"put\": {\n        \"tags\": [\n          \"Payroll Lines\"\n        ],\n\
+    \        \"summary\": \"Update payroll line\",\n        \"operationId\": \"update_1\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/PayrollLineRequest\"\n \
+    \             }\n            }\n          },\n          \"required\": true\n \
+    \       },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Payroll Lines\"\n        ],\n        \"summary\": \"Delete payroll line\"\
+    ,\n        \"operationId\": \"delete_1\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Periods\"\n  \
+    \      ],\n        \"summary\": \"Get payroll period by ID\",\n        \"operationId\"\
+    : \"getById_2\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\n      \
+    \          }\n              }\n            }\n          }\n        },\n      \
+    \  \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Payroll\
+    \ Periods\"\n        ],\n        \"summary\": \"Update payroll period\",\n   \
+    \     \"operationId\": \"update_2\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/PayrollPeriodRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Payroll Periods\"\n        ],\n        \"summary\": \"Delete payroll period\"\
+    ,\n        \"operationId\": \"delete_2\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/irpf-tables/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"IRPF Tables\"\n      \
+    \  ],\n        \"summary\": \"Get IRPF table by ID\",\n        \"operationId\"\
+    : \"getById_3\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/IrpfTableResponse\"\n          \
+    \      }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"IRPF Tables\"\
+    \n        ],\n        \"summary\": \"Update IRPF table\",\n        \"operationId\"\
+    : \"update_3\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/IrpfTableRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/IrpfTableResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"IRPF Tables\"\n        ],\n        \"summary\": \"Delete IRPF table\",\n\
+    \        \"operationId\": \"delete_3\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/contribution-rate-variations/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contribution Rate Variations\"\
+    \n        ],\n        \"summary\": \"Get contribution rate variation by ID\",\n\
+    \        \"operationId\": \"getById_4\",\n        \"parameters\": [\n        \
+    \  {\n            \"name\": \"id\",\n            \"in\": \"path\",\n         \
+    \   \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContributionRateVariationResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Contribution Rate Variations\"\n        ],\n        \"summary\": \"Update\
+    \ contribution rate variation\",\n        \"operationId\": \"update_4\",\n   \
+    \     \"parameters\": [\n          {\n            \"name\": \"id\",\n        \
+    \    \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/ContributionRateVariationRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContributionRateVariationResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Contribution Rate Variations\"\n        ],\n        \"summary\": \"Delete\
+    \ contribution rate variation\",\n        \"operationId\": \"delete_4\",\n   \
+    \     \"parameters\": [\n          {\n            \"name\": \"id\",\n        \
+    \    \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\"\n          }\n        },\n     \
+    \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/contribution-bases/{id}\": {\n    \
+    \  \"get\": {\n        \"tags\": [\n          \"Contribution Bases\"\n       \
+    \ ],\n        \"summary\": \"Get contribution base by ID\",\n        \"operationId\"\
+    : \"getById_5\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/ContributionBaseResponse\"\n   \
+    \             }\n              }\n            }\n          }\n        },\n   \
+    \     \"security\": [\n          {\n            \"bearerAuth\": []\n         \
+    \ }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"\
+    Contribution Bases\"\n        ],\n        \"summary\": \"Update contribution base\"\
+    ,\n        \"operationId\": \"update_5\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"requestBody\": {\n          \"content\": {\n            \"\
+    application/json\": {\n              \"schema\": {\n                \"$ref\":\
+    \ \"#/components/schemas/ContributionBaseRequest\"\n              }\n        \
+    \    }\n          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/ContributionBaseResponse\"\n   \
+    \             }\n              }\n            }\n          }\n        },\n   \
+    \     \"security\": [\n          {\n            \"bearerAuth\": []\n         \
+    \ }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n         \
+    \ \"Contribution Bases\"\n        ],\n        \"summary\": \"Delete contribution\
+    \ base\",\n        \"operationId\": \"delete_5\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n \
+    \           \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Periods\"\n  \
+    \      ],\n        \"summary\": \"Get all payroll periods\",\n        \"operationId\"\
+    : \"getAll\",\n        \"responses\": {\n          \"200\": {\n            \"\
+    description\": \"OK\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"type\": \"array\",\n     \
+    \             \"items\": {\n                    \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Payroll Periods\"\n        ],\n        \"summary\": \"Create payroll\
+    \ period\",\n        \"operationId\": \"create\",\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/PayrollPeriodRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods/{periodId}/lines\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Lines\"\n    \
+    \    ],\n        \"summary\": \"Get all payroll lines for period\",\n        \"\
+    operationId\": \"getAllByPeriodId\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"periodId\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/PayrollLineResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Payroll Lines\"\n        ],\n        \"summary\": \"Create payroll\
+    \ line\",\n        \"operationId\": \"create_1\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"periodId\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/PayrollLineRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PayrollLineResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods/{periodId}/lines/{lineId}/concepts\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Line Concepts\"\
+    \n        ],\n        \"summary\": \"Get all payroll line concepts for line\"\
+    ,\n        \"operationId\": \"getAllByLineId\",\n        \"parameters\": [\n \
+    \         {\n            \"name\": \"lineId\",\n            \"in\": \"path\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
+    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Create\
+    \ payroll line concept\",\n        \"operationId\": \"create_2\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"lineId\",\n            \"\
+    in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"requestBody\": {\n          \"\
+    content\": {\n            \"application/json\": {\n              \"schema\": {\n\
+    \                \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\n\
+    \              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods/{id}/reopen\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Payroll Periods\"\n \
+    \       ],\n        \"summary\": \"Reopen payroll period\",\n        \"operationId\"\
+    : \"reopen\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"OK\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\n               \
+    \ }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/payroll-periods/{id}/close\": {\n      \"post\":\
+    \ {\n        \"tags\": [\n          \"Payroll Periods\"\n        ],\n        \"\
+    summary\": \"Close payroll period\",\n        \"operationId\": \"close\",\n  \
+    \      \"parameters\": [\n          {\n            \"name\": \"id\",\n       \
+    \     \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/PayrollPeriodResponse\"\n                }\n  \
+    \            }\n            }\n          }\n        },\n        \"security\":\
+    \ [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/irpf-tables\": {\n      \"get\": {\n        \"tags\"\
+    : [\n          \"IRPF Tables\"\n        ],\n        \"summary\": \"Get all IRPF\
+    \ tables\",\n        \"operationId\": \"getAll_1\",\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"OK\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"type\": \"array\",\n                  \"items\": {\n                   \
+    \ \"$ref\": \"#/components/schemas/IrpfTableResponse\"\n                  }\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n        \
+    \  \"IRPF Tables\"\n        ],\n        \"summary\": \"Create IRPF table\",\n\
+    \        \"operationId\": \"create_3\",\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/IrpfTableRequest\"\n   \
+    \           }\n            }\n          },\n          \"required\": true\n   \
+    \     },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/IrpfTableResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/contribution-rate-variations\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contribution Rate Variations\"\
+    \n        ],\n        \"summary\": \"Get all contribution rate variations\",\n\
+    \        \"operationId\": \"getAll_2\",\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    type\": \"array\",\n                  \"items\": {\n                    \"$ref\"\
+    : \"#/components/schemas/ContributionRateVariationResponse\"\n               \
+    \   }\n                }\n              }\n            }\n          }\n      \
+    \  },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n  \
+    \        \"Contribution Rate Variations\"\n        ],\n        \"summary\": \"\
+    Create contribution rate variation\",\n        \"operationId\": \"create_4\",\n\
+    \        \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/ContributionRateVariationRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContributionRateVariationResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/contribution-bases\": {\n  \
+    \    \"get\": {\n        \"tags\": [\n          \"Contribution Bases\"\n     \
+    \   ],\n        \"summary\": \"Get all contribution bases\",\n        \"operationId\"\
+    : \"getAll_3\",\n        \"responses\": {\n          \"200\": {\n            \"\
+    description\": \"OK\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"type\": \"array\",\n     \
+    \             \"items\": {\n                    \"$ref\": \"#/components/schemas/ContributionBaseResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Contribution Bases\"\n        ],\n        \"summary\": \"Create contribution\
+    \ base\",\n        \"operationId\": \"create_5\",\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/ContributionBaseRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContributionBaseResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/payroll-periods/year/{year}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Periods\"\n  \
+    \      ],\n        \"summary\": \"Get payroll periods by year\",\n        \"operationId\"\
+    : \"getAllByYear\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"year\",\n            \"in\": \"path\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"integer\",\n           \
+    \   \"format\": \"int32\"\n            }\n          }\n        ],\n        \"\
+    responses\": {\n          \"200\": {\n            \"description\": \"OK\",\n \
+    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\n\
+    \                  }\n                }\n              }\n            }\n    \
+    \      }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/irpf-tables/fiscal-year/{fiscalYear}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"IRPF Tables\"\n      \
+    \  ],\n        \"summary\": \"Get IRPF tables by fiscal year\",\n        \"operationId\"\
+    : \"getAllByFiscalYear\",\n        \"parameters\": [\n          {\n          \
+    \  \"name\": \"fiscalYear\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"integer\",\n   \
+    \           \"format\": \"int32\"\n            }\n          }\n        ],\n  \
+    \      \"responses\": {\n          \"200\": {\n            \"description\": \"\
+    OK\",\n            \"content\": {\n              \"*/*\": {\n                \"\
+    schema\": {\n                  \"type\": \"array\",\n                  \"items\"\
+    : {\n                    \"$ref\": \"#/components/schemas/IrpfTableResponse\"\n\
+    \                  }\n                }\n              }\n            }\n    \
+    \      }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/contribution-rate-variations/search\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contribution Rate Variations\"\
+    \n        ],\n        \"summary\": \"Get variations by fiscal year and contract\
+    \ category\",\n        \"operationId\": \"getByFiscalYearAndContractCategory\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"fiscalYear\"\
+    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
+    \   \"schema\": {\n              \"type\": \"integer\",\n              \"format\"\
+    : \"int32\"\n            }\n          },\n          {\n            \"name\": \"\
+    contractCategory\",\n            \"in\": \"query\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\"\n     \
+    \       }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"type\"\
+    : \"array\",\n                  \"items\": {\n                    \"$ref\": \"\
+    #/components/schemas/ContributionRateVariationResponse\"\n                  }\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/contribution-rate-variations/applicable\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contribution Rate Variations\"\
+    \n        ],\n        \"summary\": \"Find applicable variation for given parameters\"\
+    ,\n        \"operationId\": \"findApplicableVariation\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"fiscalYear\",\n            \"in\": \"\
+    query\",\n            \"required\": true,\n            \"schema\": {\n       \
+    \       \"type\": \"integer\",\n              \"format\": \"int32\"\n        \
+    \    }\n          },\n          {\n            \"name\": \"contributionGroup\"\
+    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
+    \   \"schema\": {\n              \"type\": \"integer\",\n              \"format\"\
+    : \"int32\"\n            }\n          },\n          {\n            \"name\": \"\
+    contractCategory\",\n            \"in\": \"query\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\"\n     \
+    \       }\n          },\n          {\n            \"name\": \"durationMonths\"\
+    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
+    \   \"schema\": {\n              \"type\": \"integer\",\n              \"format\"\
+    : \"int32\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"OK\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/ContributionRateVariationResponse\"\n   \
+    \             }\n              }\n            }\n          }\n        },\n   \
+    \     \"security\": [\n          {\n            \"bearerAuth\": []\n         \
+    \ }\n        ]\n      }\n    },\n    \"/api/v1/contribution-bases/fiscal-year/{fiscalYear}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Contribution Bases\"\n\
+    \        ],\n        \"summary\": \"Get contribution bases by fiscal year\",\n\
+    \        \"operationId\": \"getAllByFiscalYear_1\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"fiscalYear\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"integer\",\n              \"format\": \"int32\"\n            }\n   \
+    \       }\n        ],\n        \"responses\": {\n          \"200\": {\n      \
+    \      \"description\": \"OK\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"type\": \"array\"\
+    ,\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/ContributionBaseResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"\
+    schemas\": {\n      \"PayrollLineConceptRequest\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"conceptCode\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"conceptType\": {\n            \"type\"\
+    : \"string\",\n            \"enum\": [\n              \"INCOME\",\n          \
+    \    \"DEDUCTION\",\n              \"EMPLOYER_COST\"\n            ]\n        \
+    \  },\n          \"amount\": {\n            \"type\": \"number\"\n          },\n\
+    \          \"baseAmount\": {\n            \"type\": \"number\"\n          },\n\
+    \          \"rate\": {\n            \"type\": \"number\"\n          },\n     \
+    \     \"description\": {\n            \"type\": \"string\"\n          }\n    \
+    \    }\n      },\n      \"PayrollLineConceptResponse\": {\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"id\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"lineId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"conceptCode\": {\n            \"type\": \"string\"\n \
+    \         },\n          \"conceptType\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"INCOME\",\n              \"DEDUCTION\"\
+    ,\n              \"EMPLOYER_COST\"\n            ]\n          },\n          \"\
+    amount\": {\n            \"type\": \"number\"\n          },\n          \"baseAmount\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"rate\": {\n \
+    \           \"type\": \"number\"\n          },\n          \"description\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"tenantId\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"createdAt\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"date-time\"\n   \
+    \       },\n          \"updatedAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          }\n        }\n      },\n     \
+    \ \"PayrollLineRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"periodId\": {\n            \"type\": \"string\",\n          \
+    \  \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n         \
+    \   \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n  \
+    \        \"contractTypeCode\": {\n            \"type\": \"string\"\n         \
+    \ },\n          \"grossSalary\": {\n            \"type\": \"number\"\n       \
+    \   },\n          \"netSalary\": {\n            \"type\": \"number\"\n       \
+    \   },\n          \"totalEmployeeDeductions\": {\n            \"type\": \"number\"\
+    \n          },\n          \"totalEmployerCost\": {\n            \"type\": \"number\"\
+    \n          },\n          \"irpfAmount\": {\n            \"type\": \"number\"\n\
+    \          }\n        }\n      },\n      \"PayrollLineResponse\": {\n        \"\
+    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
+    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
+    \         \"periodId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"employeeId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"contractTypeCode\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"grossSalary\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"netSalary\":\
+    \ {\n            \"type\": \"number\"\n          },\n          \"totalEmployeeDeductions\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"totalEmployerCost\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"irpfAmount\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"status\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    DRAFT\",\n              \"APPROVED\"\n            ]\n          },\n          \"\
+    tenantId\": {\n            \"type\": \"string\"\n          },\n          \"createdAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"updatedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          }\n        }\n      },\n   \
+    \   \"PayrollPeriodRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"year\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"month\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    periodStart\": {\n            \"type\": \"string\",\n            \"format\": \"\
+    date\"\n          },\n          \"periodEnd\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"date\"\n          }\n        }\n      },\n      \"\
+    PayrollPeriodResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"year\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"month\": {\n \
+    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
+    \    },\n          \"status\": {\n            \"type\": \"string\",\n        \
+    \    \"enum\": [\n              \"DRAFT\",\n              \"CLOSED\",\n      \
+    \        \"PAID\"\n            ]\n          },\n          \"periodStart\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
+    \   },\n          \"periodEnd\": {\n            \"type\": \"string\",\n      \
+    \      \"format\": \"date\"\n          },\n          \"tenantId\": {\n       \
+    \     \"type\": \"string\"\n          },\n          \"createdAt\": {\n       \
+    \     \"type\": \"string\",\n            \"format\": \"date-time\"\n         \
+    \ },\n          \"updatedAt\": {\n            \"type\": \"string\",\n        \
+    \    \"format\": \"date-time\"\n          }\n        }\n      },\n      \"IrpfTableRequest\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"fiscalYear\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"minIncome\": {\n            \"type\": \"number\"\n \
+    \         },\n          \"maxIncome\": {\n            \"type\": \"number\"\n \
+    \         },\n          \"retentionRate\": {\n            \"type\": \"number\"\
+    \n          },\n          \"fixedAmount\": {\n            \"type\": \"number\"\
+    \n          }\n        }\n      },\n      \"IrpfTableResponse\": {\n        \"\
+    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
+    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
+    \         \"fiscalYear\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"minIncome\": {\n            \"\
+    type\": \"number\"\n          },\n          \"maxIncome\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"retentionRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"fixedAmount\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"tenantId\": {\n            \"type\": \"\
+    string\"\n          },\n          \"createdAt\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"ContributionRateVariationRequest\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"fiscalYear\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"contributionGroup\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"contractCategory\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"maxDurationMonths\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"unemploymentEmployeeRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"unemploymentEmployerRate\": {\n      \
+    \      \"type\": \"number\"\n          },\n          \"fogasaRate\": {\n     \
+    \       \"type\": \"number\"\n          },\n          \"fpEmployeeRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"fpEmployerRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\"\n          }\n        }\n      },\n    \
+    \  \"ContributionRateVariationResponse\": {\n        \"type\": \"object\",\n \
+    \       \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"fiscalYear\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"contributionGroup\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"contractCategory\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"maxDurationMonths\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"unemploymentEmployeeRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"unemploymentEmployerRate\": {\n      \
+    \      \"type\": \"number\"\n          },\n          \"fogasaRate\": {\n     \
+    \       \"type\": \"number\"\n          },\n          \"fpEmployeeRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"fpEmployerRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"tenantId\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"createdAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"updatedAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          }\n        }\n      },\n    \
+    \  \"ContributionBaseRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"fiscalYear\": {\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"contributionGroup\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"baseMin\": {\n            \"type\": \"number\"\n       \
+    \   },\n          \"baseMax\": {\n            \"type\": \"number\"\n         \
+    \ },\n          \"ccEmployee\": {\n            \"type\": \"number\"\n        \
+    \  },\n          \"ccEmployer\": {\n            \"type\": \"number\"\n       \
+    \   },\n          \"unemploymentEmployeeRate\": {\n            \"type\": \"number\"\
+    \n          },\n          \"unemploymentEmployerRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"fogasaRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"fpEmployeeRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"fpEmployerRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"meiEmployeeRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"meiEmployerRate\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"solidarityEmployeeRate\": {\n        \
+    \    \"type\": \"number\"\n          },\n          \"solidarityEmployerRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"cpItRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"cpImsRate\": {\n\
+    \            \"type\": \"number\"\n          }\n        }\n      },\n      \"\
+    ContributionBaseResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"fiscalYear\": {\n            \"type\": \"\
+    integer\",\n            \"format\": \"int32\"\n          },\n          \"contributionGroup\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"baseMin\": {\n            \"type\": \"number\"\n   \
+    \       },\n          \"baseMax\": {\n            \"type\": \"number\"\n     \
+    \     },\n          \"ccEmployee\": {\n            \"type\": \"number\"\n    \
+    \      },\n          \"ccEmployer\": {\n            \"type\": \"number\"\n   \
+    \       },\n          \"unemploymentEmployeeRate\": {\n            \"type\": \"\
+    number\"\n          },\n          \"unemploymentEmployerRate\": {\n          \
+    \  \"type\": \"number\"\n          },\n          \"fogasaRate\": {\n         \
+    \   \"type\": \"number\"\n          },\n          \"fpEmployeeRate\": {\n    \
+    \        \"type\": \"number\"\n          },\n          \"fpEmployerRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"meiEmployeeRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"meiEmployerRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"solidarityEmployeeRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"solidarityEmployerRate\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"cpItRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"cpImsRate\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"tenantId\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"createdAt\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"date-time\"\n   \
+    \       },\n          \"updatedAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          }\n        }\n      }\n    },\n\
+    \    \"securitySchemes\": {\n      \"bearerAuth\": {\n        \"type\": \"http\"\
+    ,\n        \"description\": \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-specs
