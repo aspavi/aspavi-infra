@@ -4,7 +4,8 @@ data:
     Employee Service\"\n  },\n  {\n    \"url\": \"/specs/audit-service.json\",\n \
     \   \"name\": \"Audit Service\"\n  },\n  {\n    \"url\": \"/specs/organization-service.json\"\
     ,\n    \"name\": \"Organization Service\"\n  },\n  {\n    \"url\": \"/specs/payroll-service.json\"\
-    ,\n    \"name\": \"Payroll Service\"\n  }\n]\n"
+    ,\n    \"name\": \"Payroll Service\"\n  },\n  {\n    \"url\": \"/specs/collective-agreements-service.json\"\
+    ,\n    \"name\": \"Collective Agreements Service\"\n  }\n]\n"
 kind: ConfigMap
 metadata:
   name: api-docs-config
@@ -136,6 +137,395 @@ data:
     : {\n      \"Bearer\": {\n        \"type\": \"http\",\n        \"description\"\
     : \"JWT token from Keycloak\",\n        \"scheme\": \"bearer\",\n        \"bearerFormat\"\
     : \"JWT\"\n      }\n    }\n  }\n}"
+  collective-agreements-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n\
+    \    \"title\": \"Collective Agreements Service API\",\n    \"description\": \"\
+    Microservicio para gestion de convenios colectivos\",\n    \"contact\": {\n  \
+    \    \"name\": \"Aspavi\",\n      \"url\": \"https://aspavi.com\",\n      \"email\"\
+    : \"contact@aspavi.com\"\n    },\n    \"license\": {\n      \"name\": \"Apache\
+    \ 2.0\",\n      \"url\": \"https://www.apache.org/licenses/LICENSE-2.0.html\"\n\
+    \    },\n    \"version\": \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\"\
+    : \"https://api.aspavi.com/collective-agreements\"\n    }\n  ],\n  \"tags\": [\n\
+    \    {\n      \"name\": \"Work Calendars\",\n      \"description\": \"Annual work\
+    \ calendars per tenant\"\n    },\n    {\n      \"name\": \"Locality Catalog\"\
+    ,\n      \"description\": \"Spanish CCAA / Province / Locality catalog (INE)\"\
+    \n    },\n    {\n      \"name\": \"Holidays\",\n      \"description\": \"Holidays\
+    \ nested inside a work calendar\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/work-calendars/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Work Calendars\"\n   \
+    \     ],\n        \"summary\": \"Get a work calendar by ID\",\n        \"operationId\"\
+    : \"getById\",\n        \"parameters\": [\n          {\n            \"name\":\
+    \ \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"Calendar found\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Calendar not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n       \
+    \         }\n              }\n            }\n          }\n        },\n       \
+    \ \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Work\
+    \ Calendars\"\n        ],\n        \"summary\": \"Update a work calendar (partial)\"\
+    ,\n        \"description\": \"Only ACTIVE calendars can be updated. To modify\
+    \ an ARCHIVED calendar, unarchive it first.\",\n        \"operationId\": \"update\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\n\
+    \              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Calendar or locality not found\",\n \
+    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Updated\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"409\": {\n        \
+    \    \"description\": \"Calendar is archived\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/WorkCalendarResponse\"\n                }\n   \
+    \           }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
+    \      \"delete\": {\n        \"tags\": [\n          \"Work Calendars\"\n    \
+    \    ],\n        \"summary\": \"Delete a work calendar (cascades to its holidays)\"\
+    ,\n        \"operationId\": \"delete\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{calendarId}/holidays/{holidayId}\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Holidays\"\n        ],\n\
+    \        \"summary\": \"Update a holiday inside an ACTIVE calendar (partial)\"\
+    ,\n        \"operationId\": \"update_1\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"calendarId\",\n            \"in\": \"path\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     },\n          {\n            \"name\": \"holidayId\",\n            \"in\"\
+    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"requestBody\": {\n          \"content\"\
+    : {\n            \"application/json\": {\n              \"schema\": {\n      \
+    \          \"$ref\": \"#/components/schemas/HolidayRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/HolidayResponse\"\n  \
+    \              }\n              }\n            }\n          }\n        },\n  \
+    \      \"security\": [\n          {\n            \"bearerAuth\": []\n        \
+    \  }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n        \
+    \  \"Holidays\"\n        ],\n        \"summary\": \"Remove a holiday from an ACTIVE\
+    \ calendar\",\n        \"operationId\": \"delete_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"calendarId\",\n            \"in\": \"\
+    path\",\n            \"required\": true,\n            \"schema\": {\n        \
+    \      \"type\": \"string\",\n              \"format\": \"uuid\"\n           \
+    \ }\n          },\n          {\n            \"name\": \"holidayId\",\n       \
+    \     \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\"\n          }\n        },\n     \
+    \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/work-calendars\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Work Calendars\"\n        ],\n        \"\
+    summary\": \"Search work calendars (paginated)\",\n        \"operationId\": \"\
+    search\",\n        \"parameters\": [\n          {\n            \"name\": \"year\"\
+    ,\n            \"in\": \"query\",\n            \"description\": \"Filter by year\"\
+    ,\n            \"required\": false,\n            \"schema\": {\n             \
+    \ \"type\": \"integer\",\n              \"format\": \"int32\"\n            }\n\
+    \          },\n          {\n            \"name\": \"status\",\n            \"\
+    in\": \"query\",\n            \"description\": \"Filter by status\",\n       \
+    \     \"required\": false,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"enum\": [\n                \"ACTIVE\",\n      \
+    \          \"ARCHIVED\"\n              ]\n            }\n          },\n      \
+    \    {\n            \"name\": \"localityId\",\n            \"in\": \"query\",\n\
+    \            \"description\": \"Filter by locality UUID\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"type\": \"string\",\n   \
+    \           \"format\": \"uuid\"\n            }\n          },\n          {\n \
+    \           \"name\": \"pageable\",\n            \"in\": \"query\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"$ref\": \"\
+    #/components/schemas/Pageable\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PageWorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n        \
+    \  \"Work Calendars\"\n        ],\n        \"summary\": \"Create a work calendar\"\
+    ,\n        \"description\": \"Creates a calendar for the authenticated tenant.\
+    \ If prefillNationalHolidays is true (default), the 9 BOE national holidays for\
+    \ the calendar's year are added automatically.\",\n        \"operationId\": \"\
+    create\",\n        \"parameters\": [\n          {\n            \"name\": \"prefillNationalHolidays\"\
+    ,\n            \"in\": \"query\",\n            \"description\": \"Whether to pre-load\
+    \ Spanish national holidays for the year\",\n            \"required\": false,\n\
+    \            \"schema\": {\n              \"type\": \"boolean\",\n           \
+    \   \"default\": true\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"201\": {\n            \"description\"\
+    : \"Calendar created\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    400\": {\n            \"description\": \"Validation error\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"404\": {\n        \
+    \    \"description\": \"Locality not found\",\n            \"content\": {\n  \
+    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/WorkCalendarResponse\"\n                }\n         \
+    \     }\n            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{id}/unarchive\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Work Calendars\"\n  \
+    \      ],\n        \"summary\": \"Restore an archived calendar to ACTIVE\",\n\
+    \        \"operationId\": \"unarchive\",\n        \"parameters\": [\n        \
+    \  {\n            \"name\": \"id\",\n            \"in\": \"path\",\n         \
+    \   \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{id}/archive\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Work Calendars\"\n  \
+    \      ],\n        \"summary\": \"Archive a calendar (typically end-of-year)\"\
+    ,\n        \"operationId\": \"archive\",\n        \"parameters\": [\n        \
+    \  {\n            \"name\": \"id\",\n            \"in\": \"path\",\n         \
+    \   \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{calendarId}/holidays\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Holidays\"\n        ],\n\
+    \        \"summary\": \"List all holidays of a calendar (sorted by date)\",\n\
+    \        \"operationId\": \"list\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"calendarId\",\n            \"in\": \"path\",\n      \
+    \      \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/HolidayResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Holidays\"\n        ],\n        \"summary\": \"Add a holiday to an\
+    \ ACTIVE calendar\",\n        \"operationId\": \"create_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"calendarId\",\n            \"in\": \"\
+    path\",\n            \"required\": true,\n            \"schema\": {\n        \
+    \      \"type\": \"string\",\n              \"format\": \"uuid\"\n           \
+    \ }\n          }\n        ],\n        \"requestBody\": {\n          \"content\"\
+    : {\n            \"application/json\": {\n              \"schema\": {\n      \
+    \          \"$ref\": \"#/components/schemas/HolidayRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"409\": {\n            \"description\": \"Holiday\
+    \ already exists for this date+scope, or calendar is archived\",\n           \
+    \ \"content\": {\n              \"*/*\": {\n                \"schema\": {\n  \
+    \                \"$ref\": \"#/components/schemas/HolidayResponse\"\n        \
+    \        }\n              }\n            }\n          },\n          \"201\": {\n\
+    \            \"description\": \"Holiday added\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/HolidayResponse\"\n                }\n        \
+    \      }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"Calendar not found\",\n            \"content\": {\n              \"*/*\":\
+    \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/HolidayResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    400\": {\n            \"description\": \"Validation error or date out of year\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/HolidayResponse\"\n  \
+    \              }\n              }\n            }\n          }\n        },\n  \
+    \      \"security\": [\n          {\n            \"bearerAuth\": []\n        \
+    \  }\n        ]\n      }\n    },\n    \"/api/v1/provinces\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Locality Catalog\"\n        ],\n       \
+    \ \"summary\": \"List provincias, optionally filtered by CCAA code\",\n      \
+    \  \"operationId\": \"listProvinces\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"ccaaCode\",\n            \"in\": \"query\",\n       \
+    \     \"description\": \"INE code of the CCAA (e.g. '01' for Andalucia). Optional.\"\
+    ,\n            \"required\": false,\n            \"schema\": {\n             \
+    \ \"type\": \"string\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/ProvinceResponse\"\n             \
+    \     }\n                }\n              }\n            }\n          }\n    \
+    \    },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      }\n    },\n    \"/api/v1/localities\": {\n    \
+    \  \"get\": {\n        \"tags\": [\n          \"Locality Catalog\"\n        ],\n\
+    \        \"summary\": \"Search localities by province and/or name (paginated)\"\
+    ,\n        \"operationId\": \"searchLocalities\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"provinceCode\",\n            \"in\": \"\
+    query\",\n            \"description\": \"INE provincia code (e.g. '04' for Almeria).\
+    \ Optional.\",\n            \"required\": false,\n            \"schema\": {\n\
+    \              \"type\": \"string\"\n            }\n          },\n          {\n\
+    \            \"name\": \"search\",\n            \"in\": \"query\",\n         \
+    \   \"description\": \"Free-text fragment of the locality name. Optional.\",\n\
+    \            \"required\": false,\n            \"schema\": {\n              \"\
+    type\": \"string\"\n            }\n          },\n          {\n            \"name\"\
+    : \"pageable\",\n            \"in\": \"query\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
+    \n            }\n          }\n        ],\n        \"responses\": {\n         \
+    \ \"200\": {\n            \"description\": \"OK\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/PageLocalityResponse\"\n                }\n   \
+    \           }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/ccaa\": {\n      \"get\": {\n        \"tags\": [\n    \
+    \      \"Locality Catalog\"\n        ],\n        \"summary\": \"List all Comunidades\
+    \ Autonomas\",\n        \"operationId\": \"listCcaa\",\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/CcaaResponse\"\n                 \
+    \ }\n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"WorkCalendarRequest\": {\n        \"required\": [\n          \"localityId\"\
+    ,\n          \"year\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"year\": {\n            \"maximum\": 2100,\n            \"minimum\"\
+    : 2000,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\
+    \n          },\n          \"localityId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"collectiveAgreementId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       }\n        }\n      },\n      \"CcaaResponse\": {\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"code\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"name\": {\n            \"type\": \"string\"\
+    \n          }\n        }\n      },\n      \"HolidayResponse\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"id\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"uuid\"\n          },\n        \
+    \  \"date\": {\n            \"type\": \"string\",\n            \"format\": \"\
+    date\"\n          },\n          \"dayOfWeek\": {\n            \"type\": \"string\"\
+    ,\n            \"enum\": [\n              \"MONDAY\",\n              \"TUESDAY\"\
+    ,\n              \"WEDNESDAY\",\n              \"THURSDAY\",\n              \"\
+    FRIDAY\",\n              \"SATURDAY\",\n              \"SUNDAY\"\n           \
+    \ ]\n          },\n          \"name\": {\n            \"type\": \"string\"\n \
+    \         },\n          \"scope\": {\n            \"type\": \"string\",\n    \
+    \        \"enum\": [\n              \"LOCAL\",\n              \"PROVINCIAL\",\n\
+    \              \"AUTONOMICO\",\n              \"NACIONAL\",\n              \"\
+    CONVENIO\",\n              \"EMPRESA\"\n            ]\n          },\n        \
+    \  \"isPaid\": {\n            \"type\": \"boolean\"\n          },\n          \"\
+    isRecoverable\": {\n            \"type\": \"boolean\"\n          },\n        \
+    \  \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
+    \      },\n      \"LocalityResponse\": {\n        \"type\": \"object\",\n    \
+    \    \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"ineCode\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"name\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"province\": {\n      \
+    \      \"$ref\": \"#/components/schemas/ProvinceResponse\"\n          }\n    \
+    \    }\n      },\n      \"ProvinceResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"code\": {\n            \"type\": \"\
+    string\"\n          },\n          \"name\": {\n            \"type\": \"string\"\
+    \n          },\n          \"ccaa\": {\n            \"$ref\": \"#/components/schemas/CcaaResponse\"\
+    \n          }\n        }\n      },\n      \"WorkCalendarComputed\": {\n      \
+    \  \"type\": \"object\",\n        \"properties\": {\n          \"daysInYear\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"saturdaysInYear\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"sundaysInYear\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"holidaysNotWeekend\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          }\n        }\n      },\n     \
+    \ \"WorkCalendarResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"year\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"locality\": {\n\
+    \            \"$ref\": \"#/components/schemas/LocalityResponse\"\n          },\n\
+    \          \"collectiveAgreementId\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"uuid\"\n          },\n          \"status\": {\n    \
+    \        \"type\": \"string\",\n            \"enum\": [\n              \"ACTIVE\"\
+    ,\n              \"ARCHIVED\"\n            ]\n          },\n          \"archivedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"createdBy\": {\n            \"type\": \"string\"\n\
+    \          },\n          \"updatedBy\": {\n            \"type\": \"string\"\n\
+    \          },\n          \"holidays\": {\n            \"type\": \"array\",\n \
+    \           \"items\": {\n              \"$ref\": \"#/components/schemas/HolidayResponse\"\
+    \n            }\n          },\n          \"computed\": {\n            \"$ref\"\
+    : \"#/components/schemas/WorkCalendarComputed\"\n          }\n        }\n    \
+    \  },\n      \"HolidayRequest\": {\n        \"required\": [\n          \"date\"\
+    ,\n          \"name\",\n          \"scope\"\n        ],\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"date\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date\"\n          },\n          \"name\"\
+    : {\n            \"maxLength\": 200,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"scope\": {\n            \"\
+    type\": \"string\",\n            \"enum\": [\n              \"LOCAL\",\n     \
+    \         \"PROVINCIAL\",\n              \"AUTONOMICO\",\n              \"NACIONAL\"\
+    ,\n              \"CONVENIO\",\n              \"EMPRESA\"\n            ]\n   \
+    \       },\n          \"isPaid\": {\n            \"type\": \"boolean\"\n     \
+    \     },\n          \"isRecoverable\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"Pageable\": {\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"page\": {\n            \"minimum\"\
+    : 0,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
+    \          },\n          \"size\": {\n            \"minimum\": 1,\n          \
+    \  \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n \
+    \         \"sort\": {\n            \"type\": \"array\",\n            \"items\"\
+    : {\n              \"type\": \"string\"\n            }\n          }\n        }\n\
+    \      },\n      \"PageWorkCalendarResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
+    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    $ref\": \"#/components/schemas/WorkCalendarResponse\"\n            }\n       \
+    \   },\n          \"number\": {\n            \"type\": \"integer\",\n        \
+    \    \"format\": \"int32\"\n          },\n          \"pageable\": {\n        \
+    \    \"$ref\": \"#/components/schemas/PageableObject\"\n          },\n       \
+    \   \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\n \
+    \         },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
+    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
+    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      },\n      \"PageLocalityResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/LocalityResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
   employee-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
     : \"Employee Service API\",\n    \"description\": \"Microservicio CRUD para gesti\\\
     u00f3n de empleados\",\n    \"contact\": {\n      \"name\": \"Aspavi\",\n    \
