@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: collective-agreements-strip-prefix
+  namespace: rrhh-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /collective-agreements

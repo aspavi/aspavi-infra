@@ -34,6 +34,9 @@ primary:
         CREATE DATABASE payroll_db;
         ALTER DATABASE payroll_db OWNER TO app_user;
 
+        CREATE DATABASE collective_agreements_db;
+        ALTER DATABASE collective_agreements_db OWNER TO app_user;
+
 readReplicas:
   replicaCount: 0
 

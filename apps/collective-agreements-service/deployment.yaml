@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collective-agreements-service
+  namespace: rrhh-system
+  labels:
+    app: collective-agreements-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collective-agreements-service
+  template:
+    metadata:
+      labels:
+        app: collective-agreements-service
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: collective-agreements-service
+          image: ghcr.io/aspavi/aspavi-collective-agreements-service:master-PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://postgresql.rrhh-data:5432/collective_agreements_db"
+            - name: DB_USERNAME
+              value: "app_user"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: app-password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "validate"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aspavi"
+            # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml
+            - name: KEYCLOAK_BASE_URL
+              value: "https://keycloak.aspavi.com"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collective-agreements-service
+  namespace: rrhh-system
+  labels:
+    app: collective-agreements-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: collective-agreements-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: collective-agreements-service
+  namespace: rrhh-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: rrhh-system-cors-headers@kubernetescrd,rrhh-system-collective-agreements-strip-prefix@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.aspavi.com
+      secretName: collective-agreements-service-tls
+  rules:
+    - host: api.aspavi.com
+      http:
+        paths:
+          - path: /collective-agreements
+            pathType: Prefix
+            backend:
+              service:
+                name: collective-agreements-service
+                port:
+                  number: 80
