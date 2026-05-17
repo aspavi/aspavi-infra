@@ -1872,38 +1872,42 @@ data:
     \ {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
     \          },\n          \"updatedAt\": {\n            \"type\": \"string\",\n\
     \            \"format\": \"date-time\"\n          }\n        }\n      },\n   \
-    \   \"JobPositionRequest\": {\n        \"required\": [\n          \"name\"\n \
-    \       ],\n        \"type\": \"object\",\n        \"properties\": {\n       \
-    \   \"name\": {\n            \"type\": \"string\"\n          },\n          \"\
-    code\": {\n            \"type\": \"string\"\n          },\n          \"department\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"level\": {\n\
-    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
-    JUNIOR\",\n              \"INTERMEDIO\",\n              \"SENIOR\",\n        \
-    \      \"LEAD\",\n              \"DIRECCION\"\n            ]\n          },\n \
-    \         \"description\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"convenioId\": {\n            \"type\": \"string\",\n            \"\
-    format\": \"uuid\"\n          },\n          \"convenioCategoryId\": {\n      \
-    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"isActive\": {\n            \"type\": \"boolean\"\n          },\n\
-    \          \"vacancies\": {\n            \"type\": \"integer\",\n            \"\
-    format\": \"int32\"\n          },\n          \"functions\": {\n            \"\
-    type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\
-    \n            }\n          }\n        }\n      },\n      \"JobPositionResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    \   \"JobPositionCategoryDto\": {\n        \"required\": [\n          \"convenioCategoryId\"\
+    ,\n          \"convenioId\"\n        ],\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"convenioId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"convenioCategoryId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"name\": {\n            \"type\": \"string\"\n        \
-    \  },\n          \"code\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"department\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"level\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"JUNIOR\",\n              \"INTERMEDIO\",\n              \"\
-    SENIOR\",\n              \"LEAD\",\n              \"DIRECCION\"\n            ]\n\
-    \          },\n          \"description\": {\n            \"type\": \"string\"\n\
-    \          },\n          \"convenioId\": {\n            \"type\": \"string\",\n\
-    \            \"format\": \"uuid\"\n          },\n          \"convenioCategoryId\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
-    \       },\n          \"vacancies\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"functions\": {\n\
+    \       }\n        }\n      },\n      \"JobPositionRequest\": {\n        \"required\"\
+    : [\n          \"name\"\n        ],\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"name\": {\n            \"type\": \"string\"\n   \
+    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"department\": {\n            \"type\": \"string\"\n       \
+    \   },\n          \"level\": {\n            \"type\": \"string\",\n          \
+    \  \"enum\": [\n              \"JUNIOR\",\n              \"INTERMEDIO\",\n   \
+    \           \"SENIOR\",\n              \"LEAD\",\n              \"DIRECCION\"\n\
+    \            ]\n          },\n          \"description\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"categories\": {\n            \"type\"\
+    : \"array\",\n            \"items\": {\n              \"$ref\": \"#/components/schemas/JobPositionCategoryDto\"\
+    \n            }\n          },\n          \"isActive\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"vacancies\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    functions\": {\n            \"type\": \"array\",\n            \"items\": {\n \
+    \             \"type\": \"string\"\n            }\n          }\n        }\n  \
+    \    },\n      \"JobPositionResponse\": {\n        \"type\": \"object\",\n   \
+    \     \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"name\": {\n   \
+    \         \"type\": \"string\"\n          },\n          \"code\": {\n        \
+    \    \"type\": \"string\"\n          },\n          \"department\": {\n       \
+    \     \"type\": \"string\"\n          },\n          \"level\": {\n           \
+    \ \"type\": \"string\",\n            \"enum\": [\n              \"JUNIOR\",\n\
+    \              \"INTERMEDIO\",\n              \"SENIOR\",\n              \"LEAD\"\
+    ,\n              \"DIRECCION\"\n            ]\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"categories\"\
+    : {\n            \"type\": \"array\",\n            \"items\": {\n            \
+    \  \"$ref\": \"#/components/schemas/JobPositionCategoryDto\"\n            }\n\
+    \          },\n          \"isActive\": {\n            \"type\": \"boolean\"\n\
+    \          },\n          \"vacancies\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"functions\": {\n\
     \            \"type\": \"array\",\n            \"items\": {\n              \"\
     type\": \"string\"\n            }\n          },\n          \"createdAt\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
