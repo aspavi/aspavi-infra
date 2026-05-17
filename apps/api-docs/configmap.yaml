@@ -533,40 +533,41 @@ data:
     \    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\": \"\
     https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\": \"\
     1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com\"\
-    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Employees\",\n      \"\
-    description\": \"Employee management API\"\n    },\n    {\n      \"name\": \"\
-    Document Categories\",\n      \"description\": \"Document category management\
-    \ API\"\n    },\n    {\n      \"name\": \"Contracts\",\n      \"description\"\
-    : \"Contract management API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
-    \        \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
-    \ the employee if it belongs to the authenticated tenant\",\n        \"operationId\"\
-    : \"getEmployeeById\",\n        \"parameters\": [\n          {\n            \"\
-    name\": \"id\",\n            \"in\": \"path\",\n            \"description\": \"\
-    Employee UUID\",\n            \"required\": true,\n            \"schema\": {\n\
-    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
-    \         }\n          }\n        ],\n        \"responses\": {\n          \"404\"\
-    : {\n            \"description\": \"Employee not found\",\n            \"content\"\
+    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Calendar Assignments\"\
+    ,\n      \"description\": \"Employee work-calendar override API\"\n    },\n  \
+    \  {\n      \"name\": \"Employees\",\n      \"description\": \"Employee management\
+    \ API\"\n    },\n    {\n      \"name\": \"Document Categories\",\n      \"description\"\
+    : \"Document category management API\"\n    },\n    {\n      \"name\": \"Contracts\"\
+    ,\n      \"description\": \"Contract management API\"\n    }\n  ],\n  \"paths\"\
+    : {\n    \"/api/v1/employees/{id}\": {\n      \"get\": {\n        \"tags\": [\n\
+    \          \"Employees\"\n        ],\n        \"summary\": \"Get employee by ID\"\
+    ,\n        \"description\": \"Returns the employee if it belongs to the authenticated\
+    \ tenant\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Employee found\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
     \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"401\": {\n         \
-    \   \"description\": \"Missing or invalid JWT token\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"200\": {\n         \
-    \   \"description\": \"Employee found\",\n            \"content\": {\n       \
-    \       \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
-    \ }\n            }\n          }\n        },\n        \"security\": [\n       \
-    \   {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n    \
-    \  \"put\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n    \
-    \    \"summary\": \"Update an employee\",\n        \"description\": \"Updates\
-    \ employee fields (partial update). Only non-null fields are applied.\",\n   \
-    \     \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n      \
-    \    {\n            \"name\": \"id\",\n            \"in\": \"path\",\n       \
-    \     \"description\": \"Employee UUID\",\n            \"required\": true,\n \
-    \           \"schema\": {\n              \"type\": \"string\",\n             \
-    \ \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"put\": {\n        \"tags\": [\n          \"Employees\"\n     \
+    \   ],\n        \"summary\": \"Update an employee\",\n        \"description\"\
+    : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
+    ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
+    \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
+    \          \"description\": \"Employee UUID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
     : {\n          \"content\": {\n            \"application/json\": {\n         \
     \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
@@ -694,14 +695,76 @@ data:
     : {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\n \
     \               }\n              }\n            }\n          }\n        },\n \
     \       \"security\": [\n          {\n            \"bearerAuth\": []\n       \
-    \   }\n        ]\n      }\n    },\n    \"/api/v1/employees\": {\n      \"get\"\
-    : {\n        \"tags\": [\n          \"Employees\"\n        ],\n        \"summary\"\
-    : \"List all employees\",\n        \"description\": \"Returns all employees belonging\
-    \ to the authenticated tenant\",\n        \"operationId\": \"getAllEmployees\"\
-    ,\n        \"responses\": {\n          \"401\": {\n            \"description\"\
-    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
-    \  \"*/*\": {\n                \"schema\": {\n                  \"type\": \"array\"\
-    ,\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \   }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
+    \n        ],\n        \"summary\": \"Get the active calendar override for an employee\"\
+    ,\n        \"description\": \"Returns the active override, or null if the employee\
+    \ has none\",\n        \"operationId\": \"getActiveOverride\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
+    path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"Override\
+    \ found or null\",\n            \"content\": {\n              \"*/*\": {\n   \
+    \             \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Employee not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Calendar Assignments\"\n        ],\n        \"summary\": \"Set the employee's\
+    \ calendar override\",\n        \"description\": \"Assigns the employee directly\
+    \ to a calendar. A null workCalendarId sets an explicit 'detached' override (the\
+    \ employee follows no calendar).\",\n        \"operationId\": \"setOverride\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"path\",\n            \"description\": \"Employee UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentRequest\"\n      \
+    \        }\n            }\n          },\n          \"required\": true\n      \
+    \  },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Override set successfully\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Employee not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Calendar Assignments\"\n        ],\n        \"summary\": \"Clear the calendar\
+    \ override\",\n        \"description\": \"Removes the override; the employee falls\
+    \ back to the calendar inherited from their work center.\",\n        \"operationId\"\
+    : \"clearOverride\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"employeeId\",\n            \"in\": \"path\",\n            \"description\"\
+    : \"Employee UUID\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    404\": {\n            \"description\": \"Employee not found\"\n          },\n\
+    \          \"204\": {\n            \"description\": \"Override cleared successfully\"\
+    \n          },\n          \"401\": {\n            \"description\": \"Missing or\
+    \ invalid JWT token\"\n          }\n        },\n        \"security\": [\n    \
+    \      {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n  \
+    \  },\n    \"/api/v1/employees\": {\n      \"get\": {\n        \"tags\": [\n \
+    \         \"Employees\"\n        ],\n        \"summary\": \"List all employees\"\
+    ,\n        \"description\": \"Returns all employees belonging to the authenticated\
+    \ tenant\",\n        \"operationId\": \"getAllEmployees\",\n        \"responses\"\
+    : {\n          \"401\": {\n            \"description\": \"Missing or invalid JWT\
+    \ token\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"type\": \"array\",\n                \
+    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeResponse\"\
     \n                  }\n                }\n              }\n            }\n   \
     \       },\n          \"200\": {\n            \"description\": \"List returned\
     \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
@@ -892,10 +955,49 @@ data:
     \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
-    : {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\",\n     \
-    \   \"properties\": {\n          \"firstName\": {\n            \"maxLength\":\
-    \ 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n\
+    \      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\n \
+    \       ],\n        \"summary\": \"List all active calendar overrides for the\
+    \ tenant\",\n        \"operationId\": \"getActiveOverrides\",\n        \"responses\"\
+    : {\n          \"401\": {\n            \"description\": \"Missing or invalid JWT\
+    \ token\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"type\": \"array\",\n                \
+    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"List returned\
+    \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
+    \            \"schema\": {\n                  \"type\": \"array\",\n         \
+    \         \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
+    \n        ],\n        \"summary\": \"Get the alta/baja history of calendar overrides\
+    \ for an employee\",\n        \"operationId\": \"getHistory\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
+    path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"History\
+    \ returned successfully\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
+    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"404\": {\n            \"description\": \"Employee not\
+    \ found\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"type\": \"array\",\n                \
+    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"401\": {\n            \"description\": \"Missing or invalid\
+    \ JWT token\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"type\": \"array\",\n            \
+    \      \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"\
+    schemas\": {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"firstName\": {\n            \"maxLength\"\
+    : 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
     \      },\n          \"lastName\": {\n            \"maxLength\": 100,\n      \
     \      \"minLength\": 0,\n            \"type\": \"string\"\n          },\n   \
     \       \"email\": {\n            \"maxLength\": 100,\n            \"minLength\"\
@@ -911,118 +1013,135 @@ data:
     \    \"address\": {\n            \"maxLength\": 255,\n            \"minLength\"\
     : 0,\n            \"type\": \"string\"\n          },\n          \"status\": {\n\
     \            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\",\n            \"type\"\
-    : \"string\"\n          }\n        }\n      },\n      \"EmployeeResponse\": {\n\
-    \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"firstName\": {\n            \"type\": \"string\"\n       \
-    \   },\n          \"lastName\": {\n            \"type\": \"string\"\n        \
-    \  },\n          \"email\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"department\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"salary\": {\n            \"type\": \"number\"\n          },\n   \
-    \       \"hireDate\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"date\"\n          },\n          \"seniorityDate\": {\n            \"type\"\
-    : \"string\",\n            \"format\": \"date\"\n          },\n          \"seniorityYears\"\
-    : {\n            \"type\": \"number\"\n          },\n          \"status\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"phone\": {\n    \
-    \        \"type\": \"string\"\n          },\n          \"address\": {\n      \
-    \      \"type\": \"string\"\n          },\n          \"createdAt\": {\n      \
-    \      \"type\": \"string\",\n            \"format\": \"date-time\"\n        \
-    \  },\n          \"updatedAt\": {\n            \"type\": \"string\",\n       \
-    \     \"format\": \"date-time\"\n          }\n        }\n      },\n      \"DocumentCategoryRequest\"\
-    : {\n        \"required\": [\n          \"name\"\n        ],\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"name\": {\n            \"\
-    maxLength\": 200,\n            \"minLength\": 0,\n            \"type\": \"string\"\
-    \n          },\n          \"code\": {\n            \"maxLength\": 50,\n      \
-    \      \"minLength\": 0,\n            \"type\": \"string\"\n          },\n   \
-    \       \"displayOrder\": {\n            \"type\": \"integer\",\n            \"\
-    format\": \"int32\"\n          }\n        }\n      },\n      \"DocumentCategoryResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
-    \           \"format\": \"uuid\"\n          },\n          \"name\": {\n      \
-    \      \"type\": \"string\"\n          },\n          \"code\": {\n           \
-    \ \"type\": \"string\"\n          },\n          \"isSystem\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"displayOrder\": {\n           \
-    \ \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n  \
-    \        \"isActive\": {\n            \"type\": \"boolean\"\n          },\n  \
-    \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"date-time\"\n          }\n        }\n      },\n      \"ContractRequest\":\
-    \ {\n        \"required\": [\n          \"contractTypeCode\",\n          \"startDate\"\
+    : \"string\"\n          },\n          \"workCenterId\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          }\n        }\n    \
+    \  },\n      \"EmployeeResponse\": {\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"id\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"firstName\": {\n    \
+    \        \"type\": \"string\"\n          },\n          \"lastName\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"email\": {\n         \
+    \   \"type\": \"string\"\n          },\n          \"department\": {\n        \
+    \    \"type\": \"string\"\n          },\n          \"salary\": {\n           \
+    \ \"type\": \"number\"\n          },\n          \"hireDate\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"date\"\n          },\n        \
+    \  \"seniorityDate\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"seniorityYears\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"status\": {\n            \"type\": \"\
+    string\"\n          },\n          \"phone\": {\n            \"type\": \"string\"\
+    \n          },\n          \"address\": {\n            \"type\": \"string\"\n \
+    \         },\n          \"workCenterId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"createdAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"updatedAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          }\n        }\n      },\n    \
+    \  \"DocumentCategoryRequest\": {\n        \"required\": [\n          \"name\"\
     \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
-    \     \"contractTypeCode\": {\n            \"maxLength\": 50,\n            \"\
-    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
-    startDate\": {\n            \"type\": \"string\",\n            \"format\": \"\
-    date\"\n          },\n          \"endDate\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"date\"\n          },\n          \"isCurrent\": {\n\
-    \            \"type\": \"boolean\"\n          },\n          \"grossSalary\": {\n\
-    \            \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n   \
-    \         \"type\": \"number\"\n          },\n          \"workPercentage\": {\n\
-    \            \"maximum\": 100.0,\n            \"exclusiveMaximum\": false,\n \
-    \           \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n    \
-    \        \"type\": \"number\"\n          },\n          \"notes\": {\n        \
-    \    \"maxLength\": 1000,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          }\n        }\n      },\n      \"ContractResponse\": {\n\
+    \     \"name\": {\n            \"maxLength\": 200,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"code\": {\n\
+    \            \"maxLength\": 50,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"displayOrder\": {\n            \"\
+    type\": \"integer\",\n            \"format\": \"int32\"\n          }\n       \
+    \ }\n      },\n      \"DocumentCategoryResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"code\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"isSystem\": {\n            \"type\": \"boolean\"\n          },\n     \
+    \     \"displayOrder\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"isActive\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"createdAt\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
+    \      },\n      \"ContractRequest\": {\n        \"required\": [\n          \"\
+    contractTypeCode\",\n          \"startDate\"\n        ],\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"contractTypeCode\": {\n    \
+    \        \"maxLength\": 50,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"startDate\": {\n            \"type\":\
+    \ \"string\",\n            \"format\": \"date\"\n          },\n          \"endDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"isCurrent\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"grossSalary\": {\n            \"minimum\": 0.0,\n   \
+    \         \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n   \
+    \       },\n          \"workPercentage\": {\n            \"maximum\": 100.0,\n\
+    \            \"exclusiveMaximum\": false,\n            \"minimum\": 0.0,\n   \
+    \         \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n   \
+    \       },\n          \"notes\": {\n            \"maxLength\": 1000,\n       \
+    \     \"minLength\": 0,\n            \"type\": \"string\"\n          }\n     \
+    \   }\n      },\n      \"ContractResponse\": {\n        \"type\": \"object\",\n\
+    \        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"contractTypeCode\": {\n            \"type\": \"string\"\n\
+    \          },\n          \"startDate\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"endDate\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"date\"\n         \
+    \ },\n          \"isCurrent\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"grossSalary\": {\n            \"type\": \"number\"\n      \
+    \    },\n          \"workPercentage\": {\n            \"type\": \"number\"\n \
+    \         },\n          \"notes\": {\n            \"type\": \"string\"\n     \
+    \     },\n          \"createdAt\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        }\n        }\n      },\n      \"WorkCalendarAssignmentRequest\": {\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"workCalendarId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       }\n        }\n      },\n      \"WorkCalendarAssignmentResponse\": {\n\
     \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
     \   },\n          \"employeeId\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"uuid\"\n          },\n          \"contractTypeCode\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"startDate\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
-    \   },\n          \"endDate\": {\n            \"type\": \"string\",\n        \
-    \    \"format\": \"date\"\n          },\n          \"isCurrent\": {\n        \
-    \    \"type\": \"boolean\"\n          },\n          \"grossSalary\": {\n     \
-    \       \"type\": \"number\"\n          },\n          \"workPercentage\": {\n\
-    \            \"type\": \"number\"\n          },\n          \"notes\": {\n    \
-    \        \"type\": \"string\"\n          },\n          \"createdAt\": {\n    \
-    \        \"type\": \"string\",\n            \"format\": \"date-time\"\n      \
-    \    },\n          \"updatedAt\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"date-time\"\n          }\n        }\n      },\n      \"\
-    EmployeeCreateRequest\": {\n        \"required\": [\n          \"department\"\
-    ,\n          \"email\",\n          \"firstName\",\n          \"hireDate\",\n \
-    \         \"lastName\",\n          \"salary\"\n        ],\n        \"type\": \"\
-    object\",\n        \"properties\": {\n          \"firstName\": {\n           \
-    \ \"maxLength\": 100,\n            \"minLength\": 0,\n            \"type\": \"\
-    string\"\n          },\n          \"lastName\": {\n            \"maxLength\":\
-    \ 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
-    \      },\n          \"email\": {\n            \"maxLength\": 100,\n         \
-    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
-    \    \"department\": {\n            \"maxLength\": 100,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"salary\": {\n\
-    \            \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n   \
-    \         \"type\": \"number\"\n          },\n          \"hireDate\": {\n    \
-    \        \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
-    \          \"seniorityDate\": {\n            \"type\": \"string\",\n         \
-    \   \"format\": \"date\"\n          },\n          \"phone\": {\n            \"\
-    maxLength\": 20,\n            \"minLength\": 0,\n            \"type\": \"string\"\
-    \n          },\n          \"address\": {\n            \"maxLength\": 255,\n  \
-    \          \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
-    \          \"status\": {\n            \"type\": \"string\"\n          }\n    \
-    \    }\n      },\n      \"Pageable\": {\n        \"type\": \"object\",\n     \
-    \   \"properties\": {\n          \"page\": {\n            \"minimum\": 0,\n  \
-    \          \"type\": \"integer\",\n            \"format\": \"int32\"\n       \
-    \   },\n          \"size\": {\n            \"minimum\": 1,\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    sort\": {\n            \"type\": \"array\",\n            \"items\": {\n      \
-    \        \"type\": \"string\"\n            }\n          }\n        }\n      },\n\
-    \      \"PageEmployeeResponse\": {\n        \"type\": \"object\",\n        \"\
-    properties\": {\n          \"totalElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int64\"\n          },\n          \"totalPages\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"size\": {\n            \"type\": \"integer\",\n    \
-    \        \"format\": \"int32\"\n          },\n          \"content\": {\n     \
-    \       \"type\": \"array\",\n            \"items\": {\n              \"$ref\"\
-    : \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n   \
-    \       \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
-    #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
-    \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
-    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
-    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
-    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \       \"format\": \"uuid\"\n          },\n          \"workCalendarId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"assignedAt\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date-time\"\n          },\n          \"removedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"active\": {\n            \"type\": \"boolean\"\n    \
+    \      }\n        }\n      },\n      \"EmployeeCreateRequest\": {\n        \"\
+    required\": [\n          \"department\",\n          \"email\",\n          \"firstName\"\
+    ,\n          \"hireDate\",\n          \"lastName\",\n          \"salary\"\n  \
+    \      ],\n        \"type\": \"object\",\n        \"properties\": {\n        \
+    \  \"firstName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"lastName\":\
+    \ {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"email\": {\n            \"\
+    maxLength\": 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"department\": {\n            \"maxLength\": 100,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"salary\": {\n            \"minimum\": 0.0,\n            \"exclusiveMinimum\"\
+    : false,\n            \"type\": \"number\"\n          },\n          \"hireDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"seniorityDate\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"phone\": {\n    \
+    \        \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"address\": {\n            \"maxLength\"\
+    : 255,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"status\": {\n            \"type\": \"string\"\n       \
+    \   },\n          \"workCenterId\": {\n            \"type\": \"string\",\n   \
+    \         \"format\": \"uuid\"\n          }\n        }\n      },\n      \"Pageable\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"page\"\
+    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"size\": {\n           \
+    \ \"minimum\": 1,\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"sort\": {\n            \"type\": \"array\"\
+    ,\n            \"items\": {\n              \"type\": \"string\"\n            }\n\
+    \          }\n        }\n      },\n      \"PageEmployeeResponse\": {\n       \
+    \ \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
     \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
     \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
