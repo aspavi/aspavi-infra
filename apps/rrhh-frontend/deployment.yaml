@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: rrhh-frontend
-          image: ghcr.io/aspavi/aspavi-rrhh-management-site:master-bc790d4
+          image: ghcr.io/aspavi/aspavi-rrhh-management-site:master-b961289
           imagePullPolicy: Always
           ports:
             - containerPort: 80
