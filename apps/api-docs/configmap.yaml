@@ -1729,28 +1729,30 @@ data:
     \ center management\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\": [\n \
     \   {\n      \"url\": \"https://api.aspavi.com/organization\"\n    }\n  ],\n \
     \ \"tags\": [\n    {\n      \"name\": \"Work Centers\",\n      \"description\"\
-    : \"Work centers management\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/work-centers/{id}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Work Centers\"\n     \
-    \   ],\n        \"summary\": \"Get work center by ID\",\n        \"operationId\"\
-    : \"getById\",\n        \"parameters\": [\n          {\n            \"name\":\
-    \ \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
-    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
-    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
-    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/WorkCenterResponse\"\n         \
-    \       }\n              }\n            }\n          }\n        },\n        \"\
-    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
-    \    ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Work Centers\"\
-    \n        ],\n        \"summary\": \"Update work center\",\n        \"operationId\"\
-    : \"update\",\n        \"parameters\": [\n          {\n            \"name\": \"\
-    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
-    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
-    : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
-    \          \"content\": {\n            \"application/json\": {\n             \
-    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/WorkCenterRequest\"\
-    \n              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Work centers management\"\n    },\n    {\n      \"name\": \"Job Positions\"\
+    ,\n      \"description\": \"Job positions catalogue management\"\n    }\n  ],\n\
+    \  \"paths\": {\n    \"/api/v1/work-centers/{id}\": {\n      \"get\": {\n    \
+    \    \"tags\": [\n          \"Work Centers\"\n        ],\n        \"summary\"\
+    : \"Get work center by ID\",\n        \"operationId\": \"getById\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\"\
+    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/WorkCenterResponse\"\n                }\n           \
+    \   }\n            }\n          }\n        },\n        \"security\": [\n     \
+    \     {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n  \
+    \    \"put\": {\n        \"tags\": [\n          \"Work Centers\"\n        ],\n\
+    \        \"summary\": \"Update work center\",\n        \"operationId\": \"update\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/WorkCenterRequest\"\n  \
+    \            }\n            }\n          },\n          \"required\": true\n  \
+    \      },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
     : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
     \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCenterResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
@@ -1760,6 +1762,40 @@ data:
     ,\n        \"operationId\": \"delete\",\n        \"parameters\": [\n         \
     \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
     \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/job-positions/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Job Positions\"\n    \
+    \    ],\n        \"summary\": \"Get job position by ID\",\n        \"operationId\"\
+    : \"getById_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/JobPositionResponse\"\n        \
+    \        }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Job Positions\"\
+    \n        ],\n        \"summary\": \"Update job position\",\n        \"operationId\"\
+    : \"update_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/JobPositionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/JobPositionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Job Positions\"\n        ],\n        \"summary\": \"Delete job position\"\
+    ,\n        \"operationId\": \"delete_1\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
     string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
     \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
     : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
@@ -1783,6 +1819,26 @@ data:
     \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCenterResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/job-positions\": {\n      \"\
+    get\": {\n        \"tags\": [\n          \"Job Positions\"\n        ],\n     \
+    \   \"summary\": \"Get all job positions\",\n        \"operationId\": \"getAll_1\"\
+    ,\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/JobPositionResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Job Positions\"\n        ],\n        \"summary\": \"Create job position\"\
+    ,\n        \"operationId\": \"create_1\",\n        \"requestBody\": {\n      \
+    \    \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/JobPositionRequest\"\n \
+    \             }\n            }\n          },\n          \"required\": true\n \
+    \       },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/JobPositionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
     : {\n      \"WorkCenterRequest\": {\n        \"required\": [\n          \"address\"\
     ,\n          \"city\",\n          \"name\",\n          \"postalCode\",\n     \
@@ -1793,27 +1849,70 @@ data:
     \  \"province\": {\n            \"type\": \"string\"\n          },\n         \
     \ \"postalCode\": {\n            \"type\": \"string\"\n          },\n        \
     \  \"country\": {\n            \"type\": \"string\"\n          },\n          \"\
-    isActive\": {\n            \"type\": \"boolean\"\n          },\n          \"workCalendarId\"\
+    isActive\": {\n            \"type\": \"boolean\"\n          },\n          \"code\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"workCalendarId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       }\n        }\n      },\n      \"WorkCenterResponse\": {\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"id\": {\n            \"\
-    type\": \"string\",\n            \"format\": \"uuid\"\n          },\n        \
-    \  \"name\": {\n            \"type\": \"string\"\n          },\n          \"address\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"city\": {\n \
-    \           \"type\": \"string\"\n          },\n          \"province\": {\n  \
-    \          \"type\": \"string\"\n          },\n          \"postalCode\": {\n \
-    \           \"type\": \"string\"\n          },\n          \"country\": {\n   \
-    \         \"type\": \"string\"\n          },\n          \"isActive\": {\n    \
-    \        \"type\": \"boolean\"\n          },\n          \"workCalendarId\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"createdAt\": {\n            \"type\": \"string\",\n      \
-    \      \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n \
-    \           \"type\": \"string\",\n            \"format\": \"date-time\"\n   \
-    \       }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"bearerAuth\"\
-    : {\n        \"type\": \"http\",\n        \"description\": \"Keycloak JWT access\
-    \ token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n  \
-    \      \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n \
-    \   }\n  }\n}"
+    \       },\n          \"responsableId\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"notes\": {\n    \
+    \        \"type\": \"string\"\n          }\n        }\n      },\n      \"WorkCenterResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"name\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"address\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"city\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"province\": {\n            \"type\": \"string\"\n          },\n      \
+    \    \"postalCode\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"country\": {\n            \"type\": \"string\"\n          },\n       \
+    \   \"isActive\": {\n            \"type\": \"boolean\"\n          },\n       \
+    \   \"code\": {\n            \"type\": \"string\"\n          },\n          \"\
+    workCalendarId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"responsableId\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"notes\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"createdAt\":\
+    \ {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"updatedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          }\n        }\n      },\n   \
+    \   \"JobPositionRequest\": {\n        \"required\": [\n          \"name\"\n \
+    \       ],\n        \"type\": \"object\",\n        \"properties\": {\n       \
+    \   \"name\": {\n            \"type\": \"string\"\n          },\n          \"\
+    code\": {\n            \"type\": \"string\"\n          },\n          \"department\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"level\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    JUNIOR\",\n              \"INTERMEDIO\",\n              \"SENIOR\",\n        \
+    \      \"LEAD\",\n              \"DIRECCION\"\n            ]\n          },\n \
+    \         \"description\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"convenioId\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"uuid\"\n          },\n          \"convenioCategoryId\": {\n      \
+    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"isActive\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"vacancies\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"functions\": {\n            \"\
+    type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\
+    \n            }\n          }\n        }\n      },\n      \"JobPositionResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"name\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"code\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"department\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"level\": {\n            \"type\": \"string\",\n            \"enum\"\
+    : [\n              \"JUNIOR\",\n              \"INTERMEDIO\",\n              \"\
+    SENIOR\",\n              \"LEAD\",\n              \"DIRECCION\"\n            ]\n\
+    \          },\n          \"description\": {\n            \"type\": \"string\"\n\
+    \          },\n          \"convenioId\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"convenioCategoryId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"isActive\": {\n            \"type\": \"boolean\"\n   \
+    \       },\n          \"vacancies\": {\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"functions\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    type\": \"string\"\n            }\n          },\n          \"createdAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"updatedAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          }\n        }\n      }\n    },\n\
+    \    \"securitySchemes\": {\n      \"bearerAuth\": {\n        \"type\": \"http\"\
+    ,\n        \"description\": \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
   payroll-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
     : \"Payroll Service API\",\n    \"description\": \"Microservicio de n\\u00f3minas\
     \ y cotizaciones sociales\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\"\
