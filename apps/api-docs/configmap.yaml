@@ -1375,37 +1375,36 @@ data:
     ,\n      \"description\": \"Employee work-calendar override API\"\n    },\n  \
     \  {\n      \"name\": \"Employees\",\n      \"description\": \"Employee management\
     \ API\"\n    },\n    {\n      \"name\": \"Document Categories\",\n      \"description\"\
-    : \"Document category management API\"\n    },\n    {\n      \"name\": \"Contracts\"\
-    ,\n      \"description\": \"Contract management API\"\n    }\n  ],\n  \"paths\"\
-    : {\n    \"/api/v1/employees/{id}\": {\n      \"get\": {\n        \"tags\": [\n\
-    \          \"Employees\"\n        ],\n        \"summary\": \"Get employee by ID\"\
-    ,\n        \"description\": \"Returns the employee if it belongs to the authenticated\
-    \ tenant\",\n        \"operationId\": \"getEmployeeById\",\n        \"parameters\"\
-    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
-    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
-    \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
-    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
-    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
-    \               }\n              }\n            }\n          },\n          \"\
-    200\": {\n            \"description\": \"Employee found\",\n            \"content\"\
+    : \"Document category management API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
+    \        \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
+    \ the employee if it belongs to the authenticated tenant\",\n        \"operationId\"\
+    : \"getEmployeeById\",\n        \"parameters\": [\n          {\n            \"\
+    name\": \"id\",\n            \"in\": \"path\",\n            \"description\": \"\
+    Employee UUID\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"responses\": {\n          \"404\"\
+    : {\n            \"description\": \"Employee not found\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
     \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
-    \   },\n      \"put\": {\n        \"tags\": [\n          \"Employees\"\n     \
-    \   ],\n        \"summary\": \"Update an employee\",\n        \"description\"\
-    : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
-    ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
-    \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
-    \          \"description\": \"Employee UUID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"string\",\n            \
-    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    \             }\n            }\n          },\n          \"401\": {\n         \
+    \   \"description\": \"Missing or invalid JWT token\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          },\n          \"200\": {\n         \
+    \   \"description\": \"Employee found\",\n            \"content\": {\n       \
+    \       \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          }\n        },\n        \"security\": [\n       \
+    \   {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n    \
+    \  \"put\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n    \
+    \    \"summary\": \"Update an employee\",\n        \"description\": \"Updates\
+    \ employee fields (partial update). Only non-null fields are applied.\",\n   \
+    \     \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n      \
+    \    {\n            \"name\": \"id\",\n            \"in\": \"path\",\n       \
+    \     \"description\": \"Employee UUID\",\n            \"required\": true,\n \
+    \           \"schema\": {\n              \"type\": \"string\",\n             \
+    \ \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
     : {\n          \"content\": {\n            \"application/json\": {\n         \
     \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
@@ -1500,40 +1499,7 @@ data:
     \         \"description\": \"Missing or invalid JWT token\"\n          },\n  \
     \        \"403\": {\n            \"description\": \"Cannot delete system category\"\
     \n          }\n        },\n        \"security\": [\n          {\n            \"\
-    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/contracts/{contractId}\"\
-    : {\n      \"put\": {\n        \"tags\": [\n          \"Contracts\"\n        ],\n\
-    \        \"summary\": \"Update a contract\",\n        \"description\": \"Updates\
-    \ contract fields (partial update). Only non-null fields are applied.\",\n   \
-    \     \"operationId\": \"updateContract\",\n        \"parameters\": [\n      \
-    \    {\n            \"name\": \"employeeId\",\n            \"in\": \"path\",\n\
-    \            \"description\": \"Employee UUID\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"string\",\n            \
-    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
-    \  \"name\": \"contractId\",\n            \"in\": \"path\",\n            \"description\"\
-    : \"Contract UUID\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
-    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
-    : {\n                \"$ref\": \"#/components/schemas/ContractRequest\"\n    \
-    \          }\n            }\n          },\n          \"required\": true\n    \
-    \    },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
-    : \"Validation error in request body\",\n            \"content\": {\n        \
-    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
-    \ \"#/components/schemas/ContractResponse\"\n                }\n             \
-    \ }\n            }\n          },\n          \"401\": {\n            \"description\"\
-    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
-    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    404\": {\n            \"description\": \"Employee or contract not found\",\n \
-    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\n \
-    \               }\n              }\n            }\n          },\n          \"\
-    200\": {\n            \"description\": \"Contract updated successfully\",\n  \
-    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\n \
-    \               }\n              }\n            }\n          }\n        },\n \
-    \       \"security\": [\n          {\n            \"bearerAuth\": []\n       \
-    \   }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}\"\
+    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
     \n        ],\n        \"summary\": \"Get the active calendar override for an employee\"\
     ,\n        \"description\": \"Returns the active override, or null if the employee\
@@ -1694,92 +1660,16 @@ data:
     : {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/contracts\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Contracts\"\n        ],\n\
-    \        \"summary\": \"List all contracts for an employee\",\n        \"description\"\
-    : \"Returns all contracts for the given employee, scoped to the authenticated\
-    \ tenant\",\n        \"operationId\": \"getAllContracts\",\n        \"parameters\"\
-    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
-    path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
-    \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
-    \         \"schema\": {\n                  \"type\": \"array\",\n            \
-    \      \"items\": {\n                    \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                  }\n                }\n              }\n            }\n   \
-    \       },\n          \"401\": {\n            \"description\": \"Missing or invalid\
-    \ JWT token\",\n            \"content\": {\n              \"*/*\": {\n       \
-    \         \"schema\": {\n                  \"type\": \"array\",\n            \
-    \      \"items\": {\n                    \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                  }\n                }\n              }\n            }\n   \
-    \       },\n          \"200\": {\n            \"description\": \"List returned\
-    \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
-    \            \"schema\": {\n                  \"type\": \"array\",\n         \
-    \         \"items\": {\n                    \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                  }\n                }\n              }\n            }\n   \
-    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
-    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
-    \          \"Contracts\"\n        ],\n        \"summary\": \"Create a new contract\
-    \ for an employee\",\n        \"description\": \"Creates a contract for the given\
-    \ employee in the authenticated tenant\",\n        \"operationId\": \"createContract\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
-    ,\n            \"in\": \"path\",\n            \"description\": \"Employee UUID\"\
-    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
-    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
-    \          \"application/json\": {\n              \"schema\": {\n            \
-    \    \"$ref\": \"#/components/schemas/ContractRequest\"\n              }\n   \
-    \         }\n          },\n          \"required\": true\n        },\n        \"\
-    responses\": {\n          \"400\": {\n            \"description\": \"Validation\
-    \ error in request body\",\n            \"content\": {\n              \"*/*\"\
-    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    404\": {\n            \"description\": \"Employee not found\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/ContractResponse\"\n           \
-    \     }\n              }\n            }\n          },\n          \"401\": {\n\
-    \            \"description\": \"Missing or invalid JWT token\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/ContractResponse\"\n           \
-    \     }\n              }\n            }\n          },\n          \"201\": {\n\
-    \            \"description\": \"Contract created successfully\",\n           \
-    \ \"content\": {\n              \"*/*\": {\n                \"schema\": {\n  \
-    \                \"$ref\": \"#/components/schemas/ContractResponse\"\n       \
-    \         }\n              }\n            }\n          }\n        },\n       \
-    \ \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
-    \        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/contracts/current\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Contracts\"\n        ],\n\
-    \        \"summary\": \"Get current contract for an employee\",\n        \"description\"\
-    : \"Returns the current (is_current=true) contract, or null if none exists\",\n\
-    \        \"operationId\": \"getCurrentContract\",\n        \"parameters\": [\n\
-    \          {\n            \"name\": \"employeeId\",\n            \"in\": \"path\"\
-    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
-    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
-    \ not found\",\n            \"content\": {\n              \"*/*\": {\n       \
-    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
-    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\n \
-    \               }\n              }\n            }\n          },\n          \"\
-    200\": {\n            \"description\": \"Contract found or null\",\n         \
-    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/ContractResponse\"\n     \
-    \           }\n              }\n            }\n          }\n        },\n     \
-    \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
-    \        ]\n      }\n    },\n    \"/api/v1/employees/paginated\": {\n      \"\
-    get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n        \"\
-    summary\": \"List employees with pagination\",\n        \"description\": \"Returns\
-    \ a page of employees for the authenticated tenant. Use standard Spring pageable\
-    \ params: ?page=0&size=20&sort=lastName,asc. Optional ?search= filters across\
-    \ firstName, lastName, email and department.\",\n        \"operationId\": \"getEmployeesPaginated\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"pageable\"\
-    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
-    \   \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\n\
-    \            }\n          },\n          {\n            \"name\": \"search\",\n\
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\": {\n \
+    \     \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n \
+    \       \"summary\": \"List employees with pagination\",\n        \"description\"\
+    : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
+    \ pageable params: ?page=0&size=20&sort=lastName,asc. Optional ?search= filters\
+    \ across firstName, lastName, email and department.\",\n        \"operationId\"\
+    : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
+    \     \"name\": \"pageable\",\n            \"in\": \"query\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
+    \n            }\n          },\n          {\n            \"name\": \"search\",\n\
     \            \"in\": \"query\",\n            \"description\": \"Free-text search\
     \ across firstName, lastName, email and department\",\n            \"required\"\
     : false,\n            \"schema\": {\n              \"type\": \"string\"\n    \
@@ -1892,98 +1782,68 @@ data:
     \ \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n  \
     \        \"isActive\": {\n            \"type\": \"boolean\"\n          },\n  \
     \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"date-time\"\n          }\n        }\n      },\n      \"ContractRequest\":\
-    \ {\n        \"required\": [\n          \"contractTypeCode\",\n          \"startDate\"\
-    \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
-    \     \"contractTypeCode\": {\n            \"maxLength\": 50,\n            \"\
-    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
-    startDate\": {\n            \"type\": \"string\",\n            \"format\": \"\
-    date\"\n          },\n          \"endDate\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"date\"\n          },\n          \"isCurrent\": {\n\
-    \            \"type\": \"boolean\"\n          },\n          \"grossSalary\": {\n\
-    \            \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n   \
-    \         \"type\": \"number\"\n          },\n          \"workPercentage\": {\n\
-    \            \"maximum\": 100.0,\n            \"exclusiveMaximum\": false,\n \
-    \           \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n    \
-    \        \"type\": \"number\"\n          },\n          \"notes\": {\n        \
-    \    \"maxLength\": 1000,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          }\n        }\n      },\n      \"ContractResponse\": {\n\
+    : \"date-time\"\n          }\n        }\n      },\n      \"WorkCalendarAssignmentRequest\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"workCalendarId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       }\n        }\n      },\n      \"WorkCalendarAssignmentResponse\": {\n\
     \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
     \   },\n          \"employeeId\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"uuid\"\n          },\n          \"contractTypeCode\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"startDate\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
-    \   },\n          \"endDate\": {\n            \"type\": \"string\",\n        \
-    \    \"format\": \"date\"\n          },\n          \"isCurrent\": {\n        \
-    \    \"type\": \"boolean\"\n          },\n          \"grossSalary\": {\n     \
-    \       \"type\": \"number\"\n          },\n          \"workPercentage\": {\n\
-    \            \"type\": \"number\"\n          },\n          \"notes\": {\n    \
-    \        \"type\": \"string\"\n          },\n          \"createdAt\": {\n    \
-    \        \"type\": \"string\",\n            \"format\": \"date-time\"\n      \
-    \    },\n          \"updatedAt\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"date-time\"\n          }\n        }\n      },\n      \"\
-    WorkCalendarAssignmentRequest\": {\n        \"type\": \"object\",\n        \"\
-    properties\": {\n          \"workCalendarId\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          }\n        }\n      },\n      \"\
-    WorkCalendarAssignmentResponse\": {\n        \"type\": \"object\",\n        \"\
-    properties\": {\n          \"id\": {\n            \"type\": \"string\",\n    \
-    \        \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n   \
-    \         \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"workCalendarId\": {\n            \"type\": \"string\",\n        \
-    \    \"format\": \"uuid\"\n          },\n          \"assignedAt\": {\n       \
-    \     \"type\": \"string\",\n            \"format\": \"date-time\"\n         \
-    \ },\n          \"removedAt\": {\n            \"type\": \"string\",\n        \
-    \    \"format\": \"date-time\"\n          },\n          \"active\": {\n      \
-    \      \"type\": \"boolean\"\n          }\n        }\n      },\n      \"EmployeeCreateRequest\"\
-    : {\n        \"required\": [\n          \"department\",\n          \"email\",\n\
-    \          \"firstName\",\n          \"hireDate\",\n          \"lastName\",\n\
-    \          \"salary\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"firstName\": {\n            \"maxLength\": 100,\n           \
-    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
-    \  \"lastName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"email\": {\n\
-    \            \"maxLength\": 100,\n            \"minLength\": 0,\n            \"\
-    type\": \"string\"\n          },\n          \"department\": {\n            \"\
-    maxLength\": 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\
-    \n          },\n          \"salary\": {\n            \"minimum\": 0.0,\n     \
-    \       \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n     \
-    \     },\n          \"hireDate\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"date\"\n          },\n          \"seniorityDate\": {\n \
-    \           \"type\": \"string\",\n            \"format\": \"date\"\n        \
-    \  },\n          \"phone\": {\n            \"maxLength\": 20,\n            \"\
-    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
-    address\": {\n            \"maxLength\": 255,\n            \"minLength\": 0,\n\
-    \            \"type\": \"string\"\n          },\n          \"status\": {\n   \
-    \         \"type\": \"string\"\n          },\n          \"workCenterId\": {\n\
+    \       \"format\": \"uuid\"\n          },\n          \"workCalendarId\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"jobPositionId\": {\n            \"type\": \"string\",\n  \
-    \          \"format\": \"uuid\"\n          }\n        }\n      },\n      \"Pageable\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"page\"\
-    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
-    \     \"format\": \"int32\"\n          },\n          \"size\": {\n           \
-    \ \"minimum\": 1,\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"sort\": {\n            \"type\": \"array\"\
-    ,\n            \"items\": {\n              \"type\": \"string\"\n            }\n\
-    \          }\n        }\n      },\n      \"PageEmployeeResponse\": {\n       \
-    \ \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
-    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
-    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
-    \ \"items\": {\n              \"$ref\": \"#/components/schemas/EmployeeResponse\"\
-    \n            }\n          },\n          \"number\": {\n            \"type\":\
-    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
-    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \   },\n          \"assignedAt\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date-time\"\n          },\n          \"removedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"active\": {\n            \"type\": \"boolean\"\n    \
+    \      }\n        }\n      },\n      \"EmployeeCreateRequest\": {\n        \"\
+    required\": [\n          \"department\",\n          \"email\",\n          \"firstName\"\
+    ,\n          \"hireDate\",\n          \"lastName\",\n          \"salary\"\n  \
+    \      ],\n        \"type\": \"object\",\n        \"properties\": {\n        \
+    \  \"firstName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"lastName\":\
+    \ {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"email\": {\n            \"\
+    maxLength\": 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"department\": {\n            \"maxLength\": 100,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"salary\": {\n            \"minimum\": 0.0,\n            \"exclusiveMinimum\"\
+    : false,\n            \"type\": \"number\"\n          },\n          \"hireDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"seniorityDate\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"phone\": {\n    \
+    \        \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"address\": {\n            \"maxLength\"\
+    : 255,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"status\": {\n            \"type\": \"string\"\n       \
+    \   },\n          \"workCenterId\": {\n            \"type\": \"string\",\n   \
+    \         \"format\": \"uuid\"\n          },\n          \"jobPositionId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   }\n        }\n      },\n      \"Pageable\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"page\": {\n            \"minimum\":\
+    \ 0,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
+    \          },\n          \"size\": {\n            \"minimum\": 1,\n          \
+    \  \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n \
+    \         \"sort\": {\n            \"type\": \"array\",\n            \"items\"\
+    : {\n              \"type\": \"string\"\n            }\n          }\n        }\n\
+    \      },\n      \"PageEmployeeResponse\": {\n        \"type\": \"object\",\n\
+    \        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
+    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    $ref\": \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n\
+    \          \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
+    #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
+    \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
+    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
+    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
+    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
+    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
+    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
     \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
     \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
