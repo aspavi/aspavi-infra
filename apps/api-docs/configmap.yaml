@@ -5,7 +5,8 @@ data:
     \   \"name\": \"Audit Service\"\n  },\n  {\n    \"url\": \"/specs/organization-service.json\"\
     ,\n    \"name\": \"Organization Service\"\n  },\n  {\n    \"url\": \"/specs/payroll-service.json\"\
     ,\n    \"name\": \"Payroll Service\"\n  },\n  {\n    \"url\": \"/specs/collective-agreements-service.json\"\
-    ,\n    \"name\": \"Collective Agreements Service\"\n  }\n]\n"
+    ,\n    \"name\": \"Collective Agreements Service\"\n  },\n  {\n    \"url\": \"\
+    /specs/contract-service.json\",\n    \"name\": \"Contract Service\"\n  }\n]\n"
 kind: ConfigMap
 metadata:
   name: api-docs-config
@@ -1135,6 +1136,232 @@ data:
     \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
     bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
     \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
+  contract-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Contract Service API\",\n    \"description\": \"REST API for work center management\"\
+    ,\n    \"version\": \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"\
+    https://api.aspavi.com/contract\"\n    }\n  ],\n  \"tags\": [\n    {\n      \"\
+    name\": \"Contracts\",\n      \"description\": \"Employee contract management\"\
+    \n    },\n    {\n      \"name\": \"Employee Status History\",\n      \"description\"\
+    : \"Employment-status change audit trail\"\n    }\n  ],\n  \"paths\": {\n    \"\
+    /api/v1/contracts/{id}\": {\n      \"get\": {\n        \"tags\": [\n         \
+    \ \"Contracts\"\n        ],\n        \"summary\": \"Get contract by ID\",\n  \
+    \      \"operationId\": \"getById\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"id\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"404\": {\n            \"description\":\
+    \ \"Not found\",\n            \"content\": {\n              \"*/*\": {\n     \
+    \           \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Found\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/ContractResponse\"\n                }\n       \
+    \       }\n            }\n          }\n        },\n        \"security\": [\n \
+    \         {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
+    \      \"put\": {\n        \"tags\": [\n          \"Contracts\"\n        ],\n\
+    \        \"summary\": \"Update a contract (partial)\",\n        \"operationId\"\
+    : \"update\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/ContractRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"404\": {\n            \"description\"\
+    : \"Not found\",\n            \"content\": {\n              \"*/*\": {\n     \
+    \           \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Updated\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/ContractResponse\"\n                }\n \
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"delete\": {\n        \"tags\": [\n          \"Contracts\"\n  \
+    \      ],\n        \"summary\": \"Delete a contract\",\n        \"operationId\"\
+    : \"delete\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"204\": {\n            \"description\": \"Deleted\"\n          },\n\
+    \          \"404\": {\n            \"description\": \"Not found\"\n          }\n\
+    \        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-status-history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Status History\"\
+    \n        ],\n        \"summary\": \"Get the status history for an employee (oldest\
+    \ first)\",\n        \"operationId\": \"history\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"employeeId\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/EmployeeStatusHistoryResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Employee Status History\"\n        ],\n        \"summary\": \"Record\
+    \ an employment-status change\",\n        \"operationId\": \"record\",\n     \
+    \   \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeStatusHistoryRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeStatusHistoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/contracts\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Contracts\"\n        ],\n        \"summary\"\
+    : \"List contracts; optionally filter by employee\",\n        \"operationId\"\
+    : \"list\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    employeeId\",\n            \"in\": \"query\",\n            \"description\": \"\
+    Optional employee UUID filter\",\n            \"required\": false,\n         \
+    \   \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"List returned\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/ContractResponse\"\n   \
+    \               }\n                }\n              }\n            }\n       \
+    \   },\n          \"401\": {\n            \"description\": \"Missing or invalid\
+    \ JWT\",\n            \"content\": {\n              \"*/*\": {\n             \
+    \   \"schema\": {\n                  \"type\": \"array\",\n                  \"\
+    items\": {\n                    \"$ref\": \"#/components/schemas/ContractResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Contracts\"\n        ],\n        \"summary\": \"Create a contract\"\
+    ,\n        \"operationId\": \"create\",\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/ContractRequest\"\n    \
+    \          }\n            }\n          },\n          \"required\": true\n    \
+    \    },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/ContractResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"201\"\
+    : {\n            \"description\": \"Created\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/ContractResponse\"\n                }\n       \
+    \       }\n            }\n          }\n        },\n        \"security\": [\n \
+    \         {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/contracts/current\": {\n      \"get\": {\n        \"tags\"\
+    : [\n          \"Contracts\"\n        ],\n        \"summary\": \"Get the current\
+    \ contract for an employee\",\n        \"description\": \"Returns the contract\
+    \ whose is_current flag is true, or null\",\n        \"operationId\": \"getCurrent\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"query\",\n            \"description\": \"Employee UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ContractResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"ContractRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"employeeId\": {\n            \"type\": \"string\",\n        \
+    \    \"format\": \"uuid\"\n          },\n          \"jobPositionId\": {\n    \
+    \        \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"collectiveAgreementId\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"uuid\"\n          },\n          \"professionalCategoryId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"contractTypeCode\": {\n            \"maxLength\": 50,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"startDate\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"date\"\n          },\n          \"endDate\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date\"\n          },\n          \"isCurrent\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"weeklyHours\"\
+    : {\n            \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n\
+    \            \"type\": \"number\"\n          },\n          \"fte\": {\n      \
+    \      \"maximum\": 100.0,\n            \"exclusiveMaximum\": false,\n       \
+    \     \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n          \
+    \  \"type\": \"number\"\n          },\n          \"trialPeriodUnit\": {\n    \
+    \        \"pattern\": \"^(DAYS|MONTHS)$\",\n            \"type\": \"string\"\n\
+    \          },\n          \"trialPeriodDuration\": {\n            \"minimum\":\
+    \ 0,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
+    \          },\n          \"baseSalary\": {\n            \"minimum\": 0.0,\n  \
+    \          \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n  \
+    \        },\n          \"payPeriodsPerYear\": {\n            \"minimum\": 12,\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"variableAmount\": {\n            \"minimum\": 0.0,\n   \
+    \         \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n   \
+    \       },\n          \"variableDescription\": {\n            \"maxLength\": 500,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"variablePeriodMonths\": {\n            \"minimum\": 0,\n        \
+    \    \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n\
+    \          \"notes\": {\n            \"maxLength\": 1000,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"salaryConcepts\"\
+    : {\n            \"type\": \"array\",\n            \"items\": {\n            \
+    \  \"$ref\": \"#/components/schemas/ContractSalaryConceptDto\"\n            }\n\
+    \          }\n        }\n      },\n      \"ContractSalaryConceptDto\": {\n   \
+    \     \"required\": [\n          \"amount\",\n          \"salaryConceptCode\"\n\
+    \        ],\n        \"type\": \"object\",\n        \"properties\": {\n      \
+    \    \"salaryConceptCode\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"amount\": {\n            \"type\": \"number\"\n          },\n   \
+    \       \"isPercentage\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"isAbsorbible\": {\n            \"type\": \"boolean\"\n          }\n\
+    \        }\n      },\n      \"ContractResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"jobPositionId\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"uuid\"\n          },\n          \"collectiveAgreementId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"professionalCategoryId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"contractTypeCode\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"startDate\":\
+    \ {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"endDate\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date\"\n          },\n          \"isCurrent\": {\n    \
+    \        \"type\": \"boolean\"\n          },\n          \"weeklyHours\": {\n \
+    \           \"type\": \"number\"\n          },\n          \"fte\": {\n       \
+    \     \"type\": \"number\"\n          },\n          \"trialPeriodUnit\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"trialPeriodDuration\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"trialPeriodEndDate\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"date\"\n          },\n          \"baseSalary\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"payPeriodsPerYear\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"variableAmount\": {\n            \"type\": \"number\"\
+    \n          },\n          \"variableDescription\": {\n            \"type\": \"\
+    string\"\n          },\n          \"variablePeriodMonths\": {\n            \"\
+    type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
+    \    \"nextVariablePaymentDate\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date\"\n          },\n          \"notes\": {\n         \
+    \   \"type\": \"string\"\n          },\n          \"salaryConcepts\": {\n    \
+    \        \"type\": \"array\",\n            \"items\": {\n              \"$ref\"\
+    : \"#/components/schemas/ContractSalaryConceptDto\"\n            }\n         \
+    \ },\n          \"totalAnnualRemuneration\": {\n            \"type\": \"number\"\
+    \n          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"EmployeeStatusHistoryRequest\": {\n\
+    \        \"required\": [\n          \"employeeId\",\n          \"status\"\n  \
+    \      ],\n        \"type\": \"object\",\n        \"properties\": {\n        \
+    \  \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"status\": {\n            \"maxLength\":\
+    \ 50,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
+    \     },\n          \"reason\": {\n            \"maxLength\": 500,\n         \
+    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
+    \    \"changedBy\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          }\n        }\n      },\n   \
+    \   \"EmployeeStatusHistoryResponse\": {\n        \"type\": \"object\",\n    \
+    \    \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"status\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"reason\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"changedAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"changedBy\": {\n            \"type\"\
+    : \"string\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
   employee-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
