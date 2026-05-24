@@ -1374,10 +1374,12 @@ data:
     \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Calendar Assignments\"\
     ,\n      \"description\": \"Employee work-calendar override API\"\n    },\n  \
     \  {\n      \"name\": \"Employees\",\n      \"description\": \"Employee management\
-    \ API\"\n    },\n    {\n      \"name\": \"Document Categories\",\n      \"description\"\
-    : \"Document category management API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
-    \        \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
+    \ API\"\n    },\n    {\n      \"name\": \"Employee Reporting\",\n      \"description\"\
+    : \"Reporting hierarchy between employees\"\n    },\n    {\n      \"name\": \"\
+    Document Categories\",\n      \"description\": \"Document category management\
+    \ API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\": {\n    \
+    \  \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n    \
+    \    \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
     \ the employee if it belongs to the authenticated tenant\",\n        \"operationId\"\
     : \"getEmployeeById\",\n        \"parameters\": [\n          {\n            \"\
     name\": \"id\",\n            \"in\": \"path\",\n            \"description\": \"\
@@ -1499,10 +1501,24 @@ data:
     \         \"description\": \"Missing or invalid JWT token\"\n          },\n  \
     \        \"403\": {\n            \"description\": \"Cannot delete system category\"\
     \n          }\n        },\n        \"security\": [\n          {\n            \"\
-    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
-    \n        ],\n        \"summary\": \"Get the active calendar override for an employee\"\
-    ,\n        \"description\": \"Returns the active override, or null if the employee\
+    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/{id}/primary\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Mark this reporting record as the primary\
+    \ manager\",\n        \"description\": \"Atomically demotes any other active primary\
+    \ for the same employee\",\n        \"operationId\": \"setPrimary\",\n       \
+    \ \"parameters\": [\n          {\n            \"name\": \"id\",\n            \"\
+    in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeReportingResponse\"\n                }\n    \
+    \          }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/calendar-assignments/{employeeId}\": {\n      \"get\":\
+    \ {\n        \"tags\": [\n          \"Calendar Assignments\"\n        ],\n   \
+    \     \"summary\": \"Get the active calendar override for an employee\",\n   \
+    \     \"description\": \"Returns the active override, or null if the employee\
     \ has none\",\n        \"operationId\": \"getActiveOverride\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
     path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
@@ -1660,6 +1676,44 @@ data:
     : {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting\": {\n  \
+    \    \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n     \
+    \   ],\n        \"summary\": \"Active managers of an employee\",\n        \"description\"\
+    : \"Returns every active reporting relationship where the employee reports to\
+    \ someone\",\n        \"operationId\": \"directReports\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"managerId\",\n            \"in\": \"\
+    query\",\n            \"description\": \"Manager (employee) UUID\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          },\n \
+    \         {\n            \"name\": \"employeeId\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Employee Reporting\"\n        ],\n        \"summary\": \"Create a\
+    \ reporting relationship\",\n        \"operationId\": \"create\",\n        \"\
+    requestBody\": {\n          \"content\": {\n            \"application/json\":\
+    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeReportingRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"404\": {\n            \"description\"\
+    : \"Employee or manager not found\",\n            \"content\": {\n           \
+    \   \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/EmployeeReportingResponse\"\n                }\n        \
+    \      }\n            }\n          },\n          \"400\": {\n            \"description\"\
+    : \"Validation error or reporting cycle\",\n            \"content\": {\n     \
+    \         \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeReportingResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"201\": {\n            \"\
+    description\": \"Created\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\": {\n \
     \     \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n \
     \       \"summary\": \"List employees with pagination\",\n        \"description\"\
@@ -1683,14 +1737,48 @@ data:
     \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n\
-    \      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\n \
-    \       ],\n        \"summary\": \"List all active calendar overrides for the\
-    \ tenant\",\n        \"operationId\": \"getActiveOverrides\",\n        \"responses\"\
-    : {\n          \"401\": {\n            \"description\": \"Missing or invalid JWT\
-    \ token\",\n            \"content\": {\n              \"*/*\": {\n           \
-    \     \"schema\": {\n                  \"type\": \"array\",\n                \
-    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Reporting history for an employee (active\
+    \ + ended, oldest first)\",\n        \"operationId\": \"history\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"employeeId\",\n        \
+    \    \"in\": \"query\",\n            \"description\": \"Employee UUID\",\n   \
+    \         \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/can-approve\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Whether an actor is in the DIRECT reporting\
+    \ chain of a requester\",\n        \"description\": \"Walks the DIRECT chain upwards\
+    \ from the requester. Foundation for the future approval flow.\",\n        \"\
+    operationId\": \"canApprove\",\n        \"parameters\": [\n          {\n     \
+    \       \"name\": \"actorId\",\n            \"in\": \"query\",\n            \"\
+    description\": \"Actor (the would-be approver)\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
+    \  \"name\": \"requesterId\",\n            \"in\": \"query\",\n            \"\
+    description\": \"Requester (whose chain we walk)\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"object\",\n                  \"additionalProperties\"\
+    : {\n                    \"type\": \"boolean\"\n                  }\n        \
+    \        }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Calendar Assignments\"\n        ],\n   \
+    \     \"summary\": \"List all active calendar overrides for the tenant\",\n  \
+    \      \"operationId\": \"getActiveOverrides\",\n        \"responses\": {\n  \
+    \        \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
     \n                  }\n                }\n              }\n            }\n   \
     \       },\n          \"200\": {\n            \"description\": \"List returned\
     \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
@@ -1722,10 +1810,23 @@ data:
     \      \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
     \n                  }\n                }\n              }\n            }\n   \
     \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
-    : []\n          }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"\
-    schemas\": {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"firstName\": {\n            \"maxLength\"\
-    : 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/{id}\"\
+    : {\n      \"delete\": {\n        \"tags\": [\n          \"Employee Reporting\"\
+    \n        ],\n        \"summary\": \"Close a reporting relationship (sets ended_at\
+    \ = today)\",\n        \"description\": \"Append-only: the record is preserved\
+    \ for audit purposes\",\n        \"operationId\": \"close\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"firstName\": {\n            \"maxLength\":\
+    \ 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
     \      },\n          \"lastName\": {\n            \"maxLength\": 100,\n      \
     \      \"minLength\": 0,\n            \"type\": \"string\"\n          },\n   \
     \       \"email\": {\n            \"maxLength\": 100,\n            \"minLength\"\
@@ -1782,6 +1883,20 @@ data:
     \ \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n  \
     \        \"isActive\": {\n            \"type\": \"boolean\"\n          },\n  \
     \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          }\n        }\n      },\n      \"EmployeeReportingResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"uuid\"\n          },\n          \"managerId\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"uuid\"\n        \
+    \  },\n          \"kind\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"isPrimary\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\n     \
+    \     },\n          \"startedAt\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date\"\n          },\n          \"endedAt\": {\n      \
+    \      \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"active\": {\n            \"type\": \"boolean\"\n          },\n  \
+    \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
     : \"date-time\"\n          }\n        }\n      },\n      \"WorkCalendarAssignmentRequest\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"workCalendarId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
@@ -1818,37 +1933,47 @@ data:
     \   },\n          \"workCenterId\": {\n            \"type\": \"string\",\n   \
     \         \"format\": \"uuid\"\n          },\n          \"jobPositionId\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   }\n        }\n      },\n      \"Pageable\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"page\": {\n            \"minimum\":\
-    \ 0,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
-    \          },\n          \"size\": {\n            \"minimum\": 1,\n          \
-    \  \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n \
-    \         \"sort\": {\n            \"type\": \"array\",\n            \"items\"\
-    : {\n              \"type\": \"string\"\n            }\n          }\n        }\n\
-    \      },\n      \"PageEmployeeResponse\": {\n        \"type\": \"object\",\n\
-    \        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
-    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
-    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
-    \            \"type\": \"array\",\n            \"items\": {\n              \"\
-    $ref\": \"#/components/schemas/EmployeeResponse\"\n            }\n          },\n\
-    \          \"number\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"pageable\": {\n            \"$ref\": \"\
-    #/components/schemas/PageableObject\"\n          },\n          \"sort\": {\n \
-    \           \"$ref\": \"#/components/schemas/SortObject\"\n          },\n    \
-    \      \"numberOfElements\": {\n            \"type\": \"integer\",\n         \
-    \   \"format\": \"int32\"\n          },\n          \"first\": {\n            \"\
-    type\": \"boolean\"\n          },\n          \"last\": {\n            \"type\"\
-    : \"boolean\"\n          },\n          \"empty\": {\n            \"type\": \"\
-    boolean\"\n          }\n        }\n      },\n      \"PageableObject\": {\n   \
-    \     \"type\": \"object\",\n        \"properties\": {\n          \"offset\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \   }\n        }\n      },\n      \"EmployeeReportingRequest\": {\n        \"\
+    required\": [\n          \"employeeId\",\n          \"managerId\"\n        ],\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"employeeId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"managerId\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"uuid\"\n          },\n          \"kind\": {\n       \
+    \     \"pattern\": \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"type\": \"\
+    string\"\n          },\n          \"isPrimary\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"startedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          }\n        }\n      },\n      \"\
+    Pageable\": {\n        \"type\": \"object\",\n        \"properties\": {\n    \
+    \      \"page\": {\n            \"minimum\": 0,\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"size\": {\n  \
+    \          \"minimum\": 1,\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"sort\": {\n            \"type\"\
+    : \"array\",\n            \"items\": {\n              \"type\": \"string\"\n \
+    \           }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"pageNumber\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageSize\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
