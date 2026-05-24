@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: audit-service-db-bootstrap
+  namespace: rrhh-system
+  annotations:
+    # ArgoCD PreSync hook — runs before the Service/Deployment is reconciled.
+    # The previous Job (if any) is deleted right before the new one is created.
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: audit-service-db-bootstrap
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: psql
+          image: postgres:17-alpine
+          env:
+            - name: PGHOST
+              value: postgresql.rrhh-data
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+            - name: PGDATABASE
+              value: postgres
+            - name: TARGET_DB
+              value: audit_db
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Ensuring database '$TARGET_DB' exists and is owned by app_user…"
+              # Idempotent CREATE DATABASE using psql's \gexec — no-op if it exists.
+              psql -v ON_ERROR_STOP=1 <<SQL
+              SELECT 'CREATE DATABASE "' || '$TARGET_DB' || '" OWNER app_user'
+              WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$TARGET_DB')\gexec
+
+              SELECT 'ALTER DATABASE "' || '$TARGET_DB' || '" OWNER TO app_user'\gexec
+              SQL
+              echo "Done."
