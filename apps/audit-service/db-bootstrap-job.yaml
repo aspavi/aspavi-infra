@@ -26,12 +26,12 @@ spec:
             - name: PGPORT
               value: "5432"
             - name: PGUSER
-              value: postgres
+              value: app_user
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgresql-helm-secrets
-                  key: postgres-password
+                  key: app-password
             - name: PGDATABASE
               value: postgres
             - name: TARGET_DB

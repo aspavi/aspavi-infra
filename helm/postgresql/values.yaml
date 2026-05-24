@@ -22,6 +22,11 @@ primary:
         -- Ownership gives app_user full CREATE/DDL rights in the public schema,
         -- so Flyway can run migrations without any manual GRANT steps.
         -- To add a new service: create the database here and redeploy PostgreSQL.
+        -- Allow app_user to create new databases (needed by the
+        -- per-service db-bootstrap Jobs that run in rrhh-system,
+        -- where only the app_user's password is available).
+        ALTER USER app_user CREATEDB;
+
         CREATE DATABASE employee_db;
         ALTER DATABASE employee_db OWNER TO app_user;
 
