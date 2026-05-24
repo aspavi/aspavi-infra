@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contract-service
+  namespace: rrhh-system
+  labels:
+    app: contract-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contract-service
+  template:
+    metadata:
+      labels:
+        app: contract-service
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: contract-service
+          image: ghcr.io/aspavi/aspavi-contract-service:main-pending
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://postgresql.rrhh-data:5432/contract_db"
+            - name: DB_USERNAME
+              value: "app_user"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: app-password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "validate"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aspavi"
+            - name: KEYCLOAK_BASE_URL
+              value: "https://keycloak.aspavi.com"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contract-service
+  namespace: rrhh-system
+  labels:
+    app: contract-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: contract-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: contract-service
+  namespace: rrhh-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: rrhh-system-cors-headers@kubernetescrd,rrhh-system-contract-strip-prefix@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.aspavi.com
+      secretName: contract-service-tls
+  rules:
+    - host: api.aspavi.com
+      http:
+        paths:
+          - path: /contract
+            pathType: Prefix
+            backend:
+              service:
+                name: contract-service
+                port:
+                  number: 80

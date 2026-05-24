@@ -37,6 +37,9 @@ primary:
         CREATE DATABASE collective_agreements_db;
         ALTER DATABASE collective_agreements_db OWNER TO app_user;
 
+        CREATE DATABASE contract_db;
+        ALTER DATABASE contract_db OWNER TO app_user;
+
 readReplicas:
   replicaCount: 0
 
