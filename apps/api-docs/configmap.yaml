@@ -203,7 +203,44 @@ data:
     string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
     \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
     : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
-    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{calendarId}/holidays/{holidayId}\"\
+    \        \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{id}/jornada-adjustment\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Work Calendars\"\n   \
+    \     ],\n        \"summary\": \"Set (or replace) the jornada adjustment for a\
+    \ work calendar\",\n        \"description\": \"Creates the adjustment row on first\
+    \ call; overwrites on subsequent calls. adjustmentDays is a signed fractional\
+    \ delta vs. the convenio base. effectiveHms is the resulting daily time in HH:MM:SS.\"\
+    ,\n        \"operationId\": \"setAdjustment\",\n        \"parameters\": [\n  \
+    \        {\n            \"name\": \"id\",\n            \"in\": \"path\",\n   \
+    \         \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"requestBody\": {\n          \"content\": {\n          \
+    \  \"application/json\": {\n              \"schema\": {\n                \"$ref\"\
+    : \"#/components/schemas/WorkCalendarAdjustmentDto\"\n              }\n      \
+    \      }\n          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"400\": {\n            \"description\": \"Validation error\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAdjustmentDto\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Calendar not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarAdjustmentDto\"\n  \
+    \              }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"Adjustment saved\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/WorkCalendarAdjustmentDto\"\n           \
+    \     }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"delete\": {\n        \"tags\": [\n          \"Work Calendars\"\
+    \n        ],\n        \"summary\": \"Remove the jornada adjustment (revert to\
+    \ base jornada)\",\n        \"operationId\": \"clearAdjustment\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\"\
+    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"responses\": {\n          \"204\"\
+    : {\n            \"description\": \"Adjustment removed\"\n          },\n     \
+    \     \"404\": {\n            \"description\": \"Calendar not found\"\n      \
+    \    }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-calendars/{calendarId}/holidays/{holidayId}\"\
     : {\n      \"put\": {\n        \"tags\": [\n          \"Holidays\"\n        ],\n\
     \        \"summary\": \"Update a holiday inside an ACTIVE calendar (partial)\"\
     ,\n        \"operationId\": \"update_1\",\n        \"parameters\": [\n       \
@@ -633,22 +670,28 @@ data:
     ,\n        \"properties\": {\n          \"code\": {\n            \"type\": \"\
     string\"\n          },\n          \"name\": {\n            \"type\": \"string\"\
     \n          },\n          \"ccaa\": {\n            \"$ref\": \"#/components/schemas/CcaaResponse\"\
-    \n          }\n        }\n      },\n      \"WorkCalendarComputed\": {\n      \
-    \  \"type\": \"object\",\n        \"properties\": {\n          \"daysInYear\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"saturdaysInYear\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"sundaysInYear\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"holidaysNotWeekend\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          }\n        }\n      },\n     \
-    \ \"WorkCalendarResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"uuid\"\n          },\n          \"year\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"locality\": {\n\
-    \            \"$ref\": \"#/components/schemas/LocalityResponse\"\n          },\n\
-    \          \"collectiveAgreementId\": {\n            \"type\": \"string\",\n \
-    \           \"format\": \"uuid\"\n          },\n          \"status\": {\n    \
-    \        \"type\": \"string\",\n            \"enum\": [\n              \"ACTIVE\"\
+    \n          }\n        }\n      },\n      \"WorkCalendarAdjustmentDto\": {\n \
+    \       \"required\": [\n          \"adjustmentDays\",\n          \"effectiveHms\"\
+    \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
+    \     \"adjustmentDays\": {\n            \"type\": \"number\"\n          },\n\
+    \          \"effectiveHms\": {\n            \"pattern\": \"^\\\\d{2}:[0-5]\\\\\
+    d:[0-5]\\\\d$\",\n            \"type\": \"string\"\n          }\n        }\n \
+    \     },\n      \"WorkCalendarComputed\": {\n        \"type\": \"object\",\n \
+    \       \"properties\": {\n          \"daysInYear\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    saturdaysInYear\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          },\n          \"sundaysInYear\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    holidaysNotWeekend\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          }\n        }\n      },\n      \"WorkCalendarResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"year\": {\n            \"type\": \"integer\",\n      \
+    \      \"format\": \"int32\"\n          },\n          \"locality\": {\n      \
+    \      \"$ref\": \"#/components/schemas/LocalityResponse\"\n          },\n   \
+    \       \"collectiveAgreementId\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"status\": {\n       \
+    \     \"type\": \"string\",\n            \"enum\": [\n              \"ACTIVE\"\
     ,\n              \"ARCHIVED\"\n            ]\n          },\n          \"archivedAt\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
     \          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
@@ -659,104 +702,105 @@ data:
     \          },\n          \"holidays\": {\n            \"type\": \"array\",\n \
     \           \"items\": {\n              \"$ref\": \"#/components/schemas/HolidayResponse\"\
     \n            }\n          },\n          \"computed\": {\n            \"$ref\"\
-    : \"#/components/schemas/WorkCalendarComputed\"\n          }\n        }\n    \
-    \  },\n      \"HolidayRequest\": {\n        \"required\": [\n          \"date\"\
-    ,\n          \"name\",\n          \"scope\"\n        ],\n        \"type\": \"\
-    object\",\n        \"properties\": {\n          \"date\": {\n            \"type\"\
-    : \"string\",\n            \"format\": \"date\"\n          },\n          \"name\"\
-    : {\n            \"maxLength\": 200,\n            \"minLength\": 0,\n        \
-    \    \"type\": \"string\"\n          },\n          \"scope\": {\n            \"\
-    type\": \"string\",\n            \"enum\": [\n              \"LOCAL\",\n     \
-    \         \"PROVINCIAL\",\n              \"AUTONOMICO\",\n              \"NACIONAL\"\
-    ,\n              \"CONVENIO\",\n              \"EMPRESA\"\n            ]\n   \
-    \       },\n          \"isPaid\": {\n            \"type\": \"boolean\"\n     \
-    \     },\n          \"isRecoverable\": {\n            \"type\": \"boolean\"\n\
-    \          }\n        }\n      },\n      \"AgreementCategoryRequest\": {\n   \
-    \     \"required\": [\n          \"cargo\"\n        ],\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"cargo\": {\n            \"maxLength\"\
-    : 150,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
-    \      },\n          \"grupo\": {\n            \"maxLength\": 60,\n          \
-    \  \"minLength\": 0,\n            \"type\": \"string\"\n          },\n       \
-    \   \"nivel\": {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n\
-    \            \"type\": \"string\"\n          },\n          \"categoria\": {\n\
-    \            \"maxLength\": 120,\n            \"minLength\": 0,\n            \"\
-    type\": \"string\"\n          },\n          \"descripcion\": {\n            \"\
-    type\": \"string\"\n          },\n          \"salarioBase\": {\n            \"\
-    type\": \"number\"\n          },\n          \"plusConvenio\": {\n            \"\
-    type\": \"number\"\n          },\n          \"pagas\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    complementos\": {\n            \"type\": \"array\",\n            \"items\": {\n\
-    \              \"type\": \"string\"\n            }\n          },\n          \"\
-    observaciones\": {\n            \"type\": \"string\"\n          }\n        }\n\
-    \      },\n      \"AgreementExcedenciaRequest\": {\n        \"required\": [\n\
-    \          \"tipo\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"tipo\": {\n            \"maxLength\": 120,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"causa\": {\n\
-    \            \"maxLength\": 200,\n            \"minLength\": 0,\n            \"\
-    type\": \"string\"\n          },\n          \"duracion\": {\n            \"maxLength\"\
-    : 150,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
-    \      },\n          \"reincorporacion\": {\n            \"maxLength\": 300,\n\
+    : \"#/components/schemas/WorkCalendarComputed\"\n          },\n          \"jornadaAdjustment\"\
+    : {\n            \"$ref\": \"#/components/schemas/WorkCalendarAdjustmentDto\"\n\
+    \          }\n        }\n      },\n      \"HolidayRequest\": {\n        \"required\"\
+    : [\n          \"date\",\n          \"name\",\n          \"scope\"\n        ],\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"date\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"name\": {\n            \"maxLength\": 200,\n         \
+    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
+    \    \"scope\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
+    \              \"LOCAL\",\n              \"PROVINCIAL\",\n              \"AUTONOMICO\"\
+    ,\n              \"NACIONAL\",\n              \"CONVENIO\",\n              \"\
+    EMPRESA\"\n            ]\n          },\n          \"isPaid\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"isRecoverable\": {\n          \
+    \  \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementCategoryRequest\"\
+    : {\n        \"required\": [\n          \"cargo\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"cargo\": {\n           \
+    \ \"maxLength\": 150,\n            \"minLength\": 0,\n            \"type\": \"\
+    string\"\n          },\n          \"grupo\": {\n            \"maxLength\": 60,\n\
     \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
-    \          \"reservaPuesto\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"computa\": {\n            \"type\": \"boolean\"\n          },\n \
-    \         \"observaciones\": {\n            \"type\": \"string\"\n          }\n\
-    \        }\n      },\n      \"AgreementLeaveRequest\": {\n        \"required\"\
-    : [\n          \"nombre\"\n        ],\n        \"type\": \"object\",\n       \
-    \ \"properties\": {\n          \"causa\": {\n            \"maxLength\": 120,\n\
-    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
-    \          \"nombre\": {\n            \"maxLength\": 200,\n            \"minLength\"\
+    \          \"nivel\": {\n            \"maxLength\": 60,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"categoria\"\
+    : {\n            \"maxLength\": 120,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"descripcion\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"salarioBase\": {\n    \
+    \        \"type\": \"number\"\n          },\n          \"plusConvenio\": {\n \
+    \           \"type\": \"number\"\n          },\n          \"pagas\": {\n     \
+    \       \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n\
+    \          \"complementos\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"type\": \"string\"\n            }\n          },\n\
+    \          \"observaciones\": {\n            \"type\": \"string\"\n          }\n\
+    \        }\n      },\n      \"AgreementExcedenciaRequest\": {\n        \"required\"\
+    : [\n          \"tipo\"\n        ],\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"tipo\": {\n            \"maxLength\": 120,\n    \
+    \        \"minLength\": 0,\n            \"type\": \"string\"\n          },\n \
+    \         \"causa\": {\n            \"maxLength\": 200,\n            \"minLength\"\
     : 0,\n            \"type\": \"string\"\n          },\n          \"duracion\":\
     \ {\n            \"maxLength\": 150,\n            \"minLength\": 0,\n        \
-    \    \"type\": \"string\"\n          },\n          \"retribuido\": {\n       \
-    \     \"type\": \"boolean\"\n          },\n          \"observaciones\": {\n  \
-    \          \"type\": \"string\"\n          }\n        }\n      },\n      \"AgreementRemunerationRequest\"\
-    : {\n        \"required\": [\n          \"concepto\"\n        ],\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"concepto\": {\n        \
-    \    \"maxLength\": 150,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          },\n          \"categoria\": {\n            \"type\":\
-    \ \"string\",\n            \"enum\": [\n              \"SALARIAL\",\n        \
-    \      \"EXTRA_SALARIAL\",\n              \"VARIABLE\"\n            ]\n      \
-    \    },\n          \"periodicidad\": {\n            \"type\": \"string\",\n  \
-    \          \"enum\": [\n              \"MENSUAL\",\n              \"TRIMESTRAL\"\
-    ,\n              \"ANUAL\",\n              \"PUNTUAL\",\n              \"UNICO\"\
-    \n            ]\n          },\n          \"tipo\": {\n            \"type\": \"\
-    string\",\n            \"enum\": [\n              \"VALOR\",\n              \"\
-    FORMULA\"\n            ]\n          },\n          \"cuantia\": {\n           \
-    \ \"maxLength\": 300,\n            \"minLength\": 0,\n            \"type\": \"\
-    string\"\n          },\n          \"pagas\": {\n            \"type\": \"array\"\
-    ,\n            \"items\": {\n              \"type\": \"string\"\n            }\n\
-    \          },\n          \"absorbible\": {\n            \"type\": \"boolean\"\n\
-    \          },\n          \"limite\": {\n            \"maxLength\": 200,\n    \
-    \        \"minLength\": 0,\n            \"type\": \"string\"\n          },\n \
-    \         \"observaciones\": {\n            \"type\": \"string\"\n          }\n\
-    \        }\n      },\n      \"AgreementRequest\": {\n        \"required\": [\n\
-    \          \"name\",\n          \"scope\"\n        ],\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"code\": {\n            \"maxLength\"\
-    : 60,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
-    \     },\n          \"name\": {\n            \"maxLength\": 200,\n           \
-    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
-    \  \"scope\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
-    \              \"SECTORIAL\",\n              \"TERRITORIAL\",\n              \"\
-    EMPRESA\"\n            ]\n          },\n          \"scopeDetail\": {\n       \
+    \    \"type\": \"string\"\n          },\n          \"reincorporacion\": {\n  \
+    \          \"maxLength\": 300,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"reservaPuesto\": {\n           \
+    \ \"type\": \"string\"\n          },\n          \"computa\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"observaciones\": {\n          \
+    \  \"type\": \"string\"\n          }\n        }\n      },\n      \"AgreementLeaveRequest\"\
+    : {\n        \"required\": [\n          \"nombre\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"causa\": {\n           \
+    \ \"maxLength\": 120,\n            \"minLength\": 0,\n            \"type\": \"\
+    string\"\n          },\n          \"nombre\": {\n            \"maxLength\": 200,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"duracion\": {\n            \"maxLength\": 150,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"retribuido\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"observaciones\"\
+    : {\n            \"type\": \"string\"\n          }\n        }\n      },\n    \
+    \  \"AgreementRemunerationRequest\": {\n        \"required\": [\n          \"\
+    concepto\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"concepto\": {\n            \"maxLength\": 150,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
+    categoria\": {\n            \"type\": \"string\",\n            \"enum\": [\n \
+    \             \"SALARIAL\",\n              \"EXTRA_SALARIAL\",\n             \
+    \ \"VARIABLE\"\n            ]\n          },\n          \"periodicidad\": {\n \
+    \           \"type\": \"string\",\n            \"enum\": [\n              \"MENSUAL\"\
+    ,\n              \"TRIMESTRAL\",\n              \"ANUAL\",\n              \"PUNTUAL\"\
+    ,\n              \"UNICO\"\n            ]\n          },\n          \"tipo\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    VALOR\",\n              \"FORMULA\"\n            ]\n          },\n          \"\
+    cuantia\": {\n            \"maxLength\": 300,\n            \"minLength\": 0,\n\
+    \            \"type\": \"string\"\n          },\n          \"pagas\": {\n    \
+    \        \"type\": \"array\",\n            \"items\": {\n              \"type\"\
+    : \"string\"\n            }\n          },\n          \"absorbible\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"limite\": {\n       \
     \     \"maxLength\": 200,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          },\n          \"sectorCnae\": {\n            \"maxLength\"\
-    : 40,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
-    \     },\n          \"language\": {\n            \"maxLength\": 5,\n         \
-    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
-    \    \"boe\": {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n\
-    \            \"type\": \"string\"\n          },\n          \"boeDate\": {\n  \
+    : \"string\"\n          },\n          \"observaciones\": {\n            \"type\"\
+    : \"string\"\n          }\n        }\n      },\n      \"AgreementRequest\": {\n\
+    \        \"required\": [\n          \"name\",\n          \"scope\"\n        ],\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"code\"\
+    : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"name\": {\n            \"\
+    maxLength\": 200,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"scope\": {\n            \"type\": \"string\",\n  \
+    \          \"enum\": [\n              \"SECTORIAL\",\n              \"TERRITORIAL\"\
+    ,\n              \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\"\
+    : {\n            \"maxLength\": 200,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"sectorCnae\": {\n       \
+    \     \"maxLength\": 40,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"language\": {\n            \"maxLength\"\
+    : 5,\n            \"minLength\": 0,\n            \"type\": \"string\"\n      \
+    \    },\n          \"boe\": {\n            \"maxLength\": 60,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
+    boeDate\": {\n            \"type\": \"string\",\n            \"format\": \"date\"\
+    \n          },\n          \"validFrom\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"validTo\": {\n  \
     \          \"type\": \"string\",\n            \"format\": \"date\"\n         \
-    \ },\n          \"validFrom\": {\n            \"type\": \"string\",\n        \
-    \    \"format\": \"date\"\n          },\n          \"validTo\": {\n          \
-    \  \"type\": \"string\",\n            \"format\": \"date\"\n          },\n   \
-    \       \"prorroga\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"AUTOMATICA\",\n              \"MANUAL\",\n              \"\
-    NO_PRORROGABLE\"\n            ]\n          },\n          \"revisionMonth\": {\n\
-    \            \"maximum\": 12,\n            \"minimum\": 1,\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    ownerName\": {\n            \"maxLength\": 150,\n            \"minLength\": 0,\n\
-    \            \"type\": \"string\"\n          },\n          \"internalNotes\":\
-    \ {\n            \"type\": \"string\"\n          },\n          \"status\": {\n\
+    \ },\n          \"prorroga\": {\n            \"type\": \"string\",\n         \
+    \   \"enum\": [\n              \"AUTOMATICA\",\n              \"MANUAL\",\n  \
+    \            \"NO_PRORROGABLE\"\n            ]\n          },\n          \"revisionMonth\"\
+    : {\n            \"maximum\": 12,\n            \"minimum\": 1,\n            \"\
+    type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
+    \    \"ownerName\": {\n            \"maxLength\": 150,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"internalNotes\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"status\": {\n\
     \            \"type\": \"string\",\n            \"enum\": [\n              \"\
     BORRADOR\",\n              \"VIGENTE\",\n              \"ARCHIVADO\"\n       \
     \     ]\n          },\n          \"signatories\": {\n            \"type\": \"\
@@ -980,18 +1024,18 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"pageNumber\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageSize\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
@@ -1009,21 +1053,21 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementSummaryResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
-    \  },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"scope\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"SECTORIAL\",\n              \"TERRITORIAL\",\n          \
-    \    \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"boe\": {\n      \
-    \      \"type\": \"string\"\n          },\n          \"status\": {\n         \
-    \   \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementSummaryResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"code\": {\n            \"type\": \"string\"\
+    \n          },\n          \"name\": {\n            \"type\": \"string\"\n    \
+    \      },\n          \"scope\": {\n            \"type\": \"string\",\n       \
+    \     \"enum\": [\n              \"SECTORIAL\",\n              \"TERRITORIAL\"\
+    ,\n              \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"boe\": {\n  \
+    \          \"type\": \"string\"\n          },\n          \"status\": {\n     \
+    \       \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
     ,\n              \"VIGENTE\",\n              \"ARCHIVADO\"\n            ]\n  \
     \        },\n          \"version\": {\n            \"type\": \"integer\",\n  \
     \          \"format\": \"int32\"\n          },\n          \"hasUnsavedChanges\"\
@@ -1071,23 +1115,23 @@ data:
     \        \"format\": \"int32\"\n          },\n          \"pageable\": {\n    \
     \        \"$ref\": \"#/components/schemas/PageableObject\"\n          },\n   \
     \       \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementVersionResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"versionNumber\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"effectiveFrom\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
-    \       },\n          \"summary\": {\n            \"type\": \"string\"\n     \
-    \     },\n          \"changeCount\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"publishedBy\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"publishedAt\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
-    \        },\n          \"current\": {\n            \"type\": \"boolean\"\n   \
-    \       },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementVersionResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"versionNumber\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    effectiveFrom\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\
+    \n          },\n          \"changeCount\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"publishedBy\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"publishedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"current\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
     \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
     bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
     \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
