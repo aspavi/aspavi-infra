@@ -457,9 +457,9 @@ data:
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
   attendance-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
-    : \"Collective Agreements Service API\",\n    \"description\": \"Microservicio\
-    \ para gestion de convenios colectivos\",\n    \"contact\": {\n      \"name\"\
-    : \"Aspavi\",\n      \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\
+    : \"Attendance Service API\",\n    \"description\": \"Microservicio para registro\
+    \ de jornada y fichajes\",\n    \"contact\": {\n      \"name\": \"Aspavi\",\n\
+    \      \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\
     \n    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\":\
     \ \"https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\"\
     : \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com/attendance\"\
