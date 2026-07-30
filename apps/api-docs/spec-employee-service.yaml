@@ -1,0 +1,845 @@
+apiVersion: v1
+data:
+  employee-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Employee Service API\",\n    \"description\": \"Microservicio CRUD para gesti\\\
+    u00f3n de empleados\",\n    \"contact\": {\n      \"name\": \"Aspavi\",\n    \
+    \  \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\n\
+    \    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\": \"\
+    https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\": \"\
+    1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com\"\
+    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Calendar Assignments\"\
+    ,\n      \"description\": \"Employee work-calendar override API\"\n    },\n  \
+    \  {\n      \"name\": \"Employees\",\n      \"description\": \"Employee management\
+    \ API\"\n    },\n    {\n      \"name\": \"Employee Reporting\",\n      \"description\"\
+    : \"Reporting hierarchy between employees\"\n    },\n    {\n      \"name\": \"\
+    Tax Profile\",\n      \"description\": \"Modelo 145 declarations\"\n    },\n \
+    \   {\n      \"name\": \"Document Categories\",\n      \"description\": \"Document\
+    \ category management API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
+    \        \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
+    \ the employee if it belongs to the authenticated tenant\",\n        \"operationId\"\
+    : \"getEmployeeById\",\n        \"parameters\": [\n          {\n            \"\
+    name\": \"id\",\n            \"in\": \"path\",\n            \"description\": \"\
+    Employee UUID\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"responses\": {\n          \"404\"\
+    : {\n            \"description\": \"Employee not found\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          },\n          \"401\": {\n         \
+    \   \"description\": \"Missing or invalid JWT token\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          },\n          \"200\": {\n         \
+    \   \"description\": \"Employee found\",\n            \"content\": {\n       \
+    \       \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          }\n        },\n        \"security\": [\n       \
+    \   {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n    \
+    \  \"put\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n    \
+    \    \"summary\": \"Update an employee\",\n        \"description\": \"Updates\
+    \ employee fields (partial update). Only non-null fields are applied.\",\n   \
+    \     \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n      \
+    \    {\n            \"name\": \"id\",\n            \"in\": \"path\",\n       \
+    \     \"description\": \"Employee UUID\",\n            \"required\": true,\n \
+    \           \"schema\": {\n              \"type\": \"string\",\n             \
+    \ \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"Employee not found\",\n            \"content\": {\n              \"*/*\":\
+    \ {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Employee updated successfully\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"New email already in use within this\
+    \ tenant\",\n            \"content\": {\n              \"*/*\": {\n          \
+    \      \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Employees\"\n        ],\n        \"summary\": \"Delete an employee\",\n\
+    \        \"description\": \"Deletes the employee if it belongs to the authenticated\
+    \ tenant\",\n        \"operationId\": \"deleteEmployee\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    \ not found\"\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\"\n          },\n          \"204\": {\n     \
+    \       \"description\": \"Employee deleted successfully\"\n          }\n    \
+    \    },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/document-categories/{categoryId}\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Document Categories\"\n\
+    \        ],\n        \"summary\": \"Update a custom document category\",\n   \
+    \     \"description\": \"Updates a custom category (partial update). Only non-null\
+    \ fields are applied. System categories cannot be updated.\",\n        \"operationId\"\
+    : \"updateCategory\",\n        \"parameters\": [\n          {\n            \"\
+    name\": \"employeeId\",\n            \"in\": \"path\",\n            \"description\"\
+    : \"Employee UUID\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          },\n          {\n            \"name\": \"categoryId\"\
+    ,\n            \"in\": \"path\",\n            \"description\": \"Category UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/DocumentCategoryRequest\"\n            \
+    \  }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"400\": {\n            \"description\":\
+    \ \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/DocumentCategoryResponse\"\n                }\n     \
+    \         }\n            }\n          },\n          \"200\": {\n            \"\
+    description\": \"Category updated successfully\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/DocumentCategoryResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"404\": {\n        \
+    \    \"description\": \"Employee or category not found\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\n            \
+    \    }\n              }\n            }\n          },\n          \"401\": {\n \
+    \           \"description\": \"Missing or invalid JWT token\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\n   \
+    \             }\n              }\n            }\n          },\n          \"403\"\
+    : {\n            \"description\": \"Cannot update system category\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Document Categories\"\n        ],\n        \"summary\": \"Delete a custom\
+    \ document category\",\n        \"description\": \"Deletes a custom category.\
+    \ System categories cannot be deleted.\",\n        \"operationId\": \"deleteCategory\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"path\",\n            \"description\": \"Employee UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     },\n          {\n            \"name\": \"categoryId\",\n            \"in\"\
+    : \"path\",\n            \"description\": \"Category UUID\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"204\": {\n            \"description\": \"Category\
+    \ deleted successfully\"\n          },\n          \"404\": {\n            \"description\"\
+    : \"Employee or category not found\"\n          },\n          \"401\": {\n   \
+    \         \"description\": \"Missing or invalid JWT token\"\n          },\n  \
+    \        \"403\": {\n            \"description\": \"Cannot delete system category\"\
+    \n          }\n        },\n        \"security\": [\n          {\n            \"\
+    bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/{id}/primary\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Mark this reporting record as the primary\
+    \ manager\",\n        \"description\": \"Atomically demotes any other active primary\
+    \ for the same employee\",\n        \"operationId\": \"setPrimary\",\n       \
+    \ \"parameters\": [\n          {\n            \"name\": \"id\",\n            \"\
+    in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeReportingResponse\"\n                }\n    \
+    \          }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/calendar-assignments/{employeeId}\": {\n      \"get\":\
+    \ {\n        \"tags\": [\n          \"Calendar Assignments\"\n        ],\n   \
+    \     \"summary\": \"Get the active calendar override for an employee\",\n   \
+    \     \"description\": \"Returns the active override, or null if the employee\
+    \ has none\",\n        \"operationId\": \"getActiveOverride\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
+    path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"Override\
+    \ found or null\",\n            \"content\": {\n              \"*/*\": {\n   \
+    \             \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Employee not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Calendar Assignments\"\n        ],\n        \"summary\": \"Set the employee's\
+    \ calendar override\",\n        \"description\": \"Assigns the employee directly\
+    \ to a calendar. A null workCalendarId sets an explicit 'detached' override (the\
+    \ employee follows no calendar).\",\n        \"operationId\": \"setOverride\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"path\",\n            \"description\": \"Employee UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentRequest\"\n      \
+    \        }\n            }\n          },\n          \"required\": true\n      \
+    \  },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Override set successfully\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Employee not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
+    \    \"Calendar Assignments\"\n        ],\n        \"summary\": \"Clear the calendar\
+    \ override\",\n        \"description\": \"Removes the override; the employee falls\
+    \ back to the calendar inherited from their work center.\",\n        \"operationId\"\
+    : \"clearOverride\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"employeeId\",\n            \"in\": \"path\",\n            \"description\"\
+    : \"Employee UUID\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    404\": {\n            \"description\": \"Employee not found\"\n          },\n\
+    \          \"204\": {\n            \"description\": \"Override cleared successfully\"\
+    \n          },\n          \"401\": {\n            \"description\": \"Missing or\
+    \ invalid JWT token\"\n          }\n        },\n        \"security\": [\n    \
+    \      {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n  \
+    \  },\n    \"/api/v1/employees\": {\n      \"get\": {\n        \"tags\": [\n \
+    \         \"Employees\"\n        ],\n        \"summary\": \"List all employees\"\
+    ,\n        \"description\": \"Returns all employees belonging to the authenticated\
+    \ tenant\",\n        \"operationId\": \"getAllEmployees\",\n        \"responses\"\
+    : {\n          \"401\": {\n            \"description\": \"Missing or invalid JWT\
+    \ token\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"type\": \"array\",\n                \
+    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"List returned\
+    \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
+    \            \"schema\": {\n                  \"type\": \"array\",\n         \
+    \         \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Employees\"\n        ],\n        \"summary\": \"Create a new employee\"\
+    ,\n        \"description\": \"Creates an employee for the tenant identified in\
+    \ the Bearer token\",\n        \"operationId\": \"createEmployee\",\n        \"\
+    requestBody\": {\n          \"content\": {\n            \"application/json\":\
+    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeCreateRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"409\": {\n            \"description\"\
+    : \"Email already exists for this tenant\",\n            \"content\": {\n    \
+    \          \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Employee created successfully\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\n \
+    \               }\n              }\n            }\n          }\n        },\n \
+    \       \"security\": [\n          {\n            \"bearerAuth\": []\n       \
+    \   }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/tax-profile\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Tax Profile\"\n      \
+    \  ],\n        \"summary\": \"Declaration currently in force\",\n        \"operationId\"\
+    : \"getCurrent\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"employeeId\",\n            \"in\": \"path\",\n            \"description\"\
+    : \"Employee id\",\n            \"required\": true,\n            \"schema\": {\n\
+    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
+    \         }\n          }\n        ],\n        \"responses\": {\n          \"404\"\
+    : {\n            \"description\": \"Employee unknown, or nothing on file\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TaxProfileResponse\"\n\
+    \                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Declaration found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/TaxProfileResponse\"\n         \
+    \       }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"post\": {\n        \"tags\": [\n          \"Tax Profile\"\
+    \n        ],\n        \"summary\": \"File a new declaration, superseding the one\
+    \ in force\",\n        \"operationId\": \"file\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"employeeId\",\n            \"in\": \"path\"\
+    ,\n            \"description\": \"Employee id\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/TaxProfileRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Invalid, or back-dated over the one in force\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TaxProfileResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"201\": {\n        \
+    \    \"description\": \"Declaration filed\",\n            \"content\": {\n   \
+    \           \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/TaxProfileResponse\"\n                }\n           \
+    \   }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"Employee unknown\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/TaxProfileResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/document-categories\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Document Categories\"\n\
+    \        ],\n        \"summary\": \"List all document categories for an employee\"\
+    ,\n        \"description\": \"Returns all categories (system and custom) for the\
+    \ given employee, ordered by displayOrder\",\n        \"operationId\": \"getAllCategories\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"path\",\n            \"description\": \"Employee UUID\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"404\": {\n        \
+    \    \"description\": \"Employee not found\",\n            \"content\": {\n  \
+    \            \"*/*\": {\n                \"schema\": {\n                  \"type\"\
+    : \"array\",\n                  \"items\": {\n                    \"$ref\": \"\
+    #/components/schemas/DocumentCategoryResponse\"\n                  }\n       \
+    \         }\n              }\n            }\n          },\n          \"401\":\
+    \ {\n            \"description\": \"Missing or invalid JWT token\",\n        \
+    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"type\": \"array\",\n                  \"items\": {\n    \
+    \                \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\n\
+    \                  }\n                }\n              }\n            }\n    \
+    \      },\n          \"200\": {\n            \"description\": \"List returned\
+    \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
+    \            \"schema\": {\n                  \"type\": \"array\",\n         \
+    \         \"items\": {\n                    \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Document Categories\"\n        ],\n        \"summary\": \"Create\
+    \ a custom document category for an employee\",\n        \"description\": \"Creates\
+    \ a custom (non-system) category for the given employee. System categories are\
+    \ created automatically and cannot be created via API.\",\n        \"operationId\"\
+    : \"createCategory\",\n        \"parameters\": [\n          {\n            \"\
+    name\": \"employeeId\",\n            \"in\": \"path\",\n            \"description\"\
+    : \"Employee UUID\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/DocumentCategoryRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Validation error in request body\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/DocumentCategoryResponse\"\n                }\n     \
+    \         }\n            }\n          },\n          \"404\": {\n            \"\
+    description\": \"Employee not found\",\n            \"content\": {\n         \
+    \     \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/DocumentCategoryResponse\"\n                }\n         \
+    \     }\n            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Category code already exists for this\
+    \ employee\",\n            \"content\": {\n              \"*/*\": {\n        \
+    \        \"schema\": {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Category created successfully\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting\": {\n  \
+    \    \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n     \
+    \   ],\n        \"summary\": \"Active managers of an employee\",\n        \"description\"\
+    : \"Returns every active reporting relationship where the employee reports to\
+    \ someone\",\n        \"operationId\": \"directReports\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"managerId\",\n            \"in\": \"\
+    query\",\n            \"description\": \"Manager (employee) UUID\",\n        \
+    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          },\n \
+    \         {\n            \"name\": \"employeeId\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Employee UUID\",\n            \"required\":\
+    \ true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Employee Reporting\"\n        ],\n        \"summary\": \"Create a\
+    \ reporting relationship\",\n        \"operationId\": \"create\",\n        \"\
+    requestBody\": {\n          \"content\": {\n            \"application/json\":\
+    \ {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeReportingRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"404\": {\n            \"description\"\
+    : \"Employee or manager not found\",\n            \"content\": {\n           \
+    \   \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/EmployeeReportingResponse\"\n                }\n        \
+    \      }\n            }\n          },\n          \"400\": {\n            \"description\"\
+    : \"Validation error or reporting cycle\",\n            \"content\": {\n     \
+    \         \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/EmployeeReportingResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"201\": {\n            \"\
+    description\": \"Created\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/tax-profile/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Tax Profile\"\n      \
+    \  ],\n        \"summary\": \"Every declaration ever filed, most recent first\"\
+    ,\n        \"operationId\": \"getHistory\",\n        \"parameters\": [\n     \
+    \     {\n            \"name\": \"employeeId\",\n            \"in\": \"path\",\n\
+    \            \"description\": \"Employee id\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/TaxProfileResponse\"\n           \
+    \       }\n                }\n              }\n            }\n          }\n  \
+    \      },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
+    \          }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
+    \        \"summary\": \"List employees with pagination\",\n        \"description\"\
+    : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
+    \ pageable params: ?page=0&size=20&sort=lastName,asc. Optional ?search= filters\
+    \ across firstName, lastName, email and department.\",\n        \"operationId\"\
+    : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
+    \     \"name\": \"pageable\",\n            \"in\": \"query\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
+    \n            }\n          },\n          {\n            \"name\": \"search\",\n\
+    \            \"in\": \"query\",\n            \"description\": \"Free-text search\
+    \ across firstName, lastName, email and department\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"type\": \"string\"\n    \
+    \        }\n          }\n        ],\n        \"responses\": {\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid JWT token\",\n        \
+    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Page returned successfully\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Reporting history for an employee (active\
+    \ + ended, oldest first)\",\n        \"operationId\": \"history\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"employeeId\",\n        \
+    \    \"in\": \"query\",\n            \"description\": \"Employee UUID\",\n   \
+    \         \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/can-approve\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
+    \        ],\n        \"summary\": \"Whether an actor is in the DIRECT reporting\
+    \ chain of a requester\",\n        \"description\": \"Walks the DIRECT chain upwards\
+    \ from the requester. Foundation for the future approval flow.\",\n        \"\
+    operationId\": \"canApprove\",\n        \"parameters\": [\n          {\n     \
+    \       \"name\": \"actorId\",\n            \"in\": \"query\",\n            \"\
+    description\": \"Actor (the would-be approver)\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
+    \  \"name\": \"requesterId\",\n            \"in\": \"query\",\n            \"\
+    description\": \"Requester (whose chain we walk)\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"object\",\n                  \"additionalProperties\"\
+    : {\n                    \"type\": \"boolean\"\n                  }\n        \
+    \        }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Calendar Assignments\"\n        ],\n   \
+    \     \"summary\": \"List all active calendar overrides for the tenant\",\n  \
+    \      \"operationId\": \"getActiveOverrides\",\n        \"responses\": {\n  \
+    \        \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"List returned\
+    \ successfully\",\n            \"content\": {\n              \"*/*\": {\n    \
+    \            \"schema\": {\n                  \"type\": \"array\",\n         \
+    \         \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
+    \n        ],\n        \"summary\": \"Get the alta/baja history of calendar overrides\
+    \ for an employee\",\n        \"operationId\": \"getHistory_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
+    path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"History\
+    \ returned successfully\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
+    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"404\": {\n            \"description\": \"Employee not\
+    \ found\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"type\": \"array\",\n                \
+    \  \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"401\": {\n            \"description\": \"Missing or invalid\
+    \ JWT token\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"type\": \"array\",\n            \
+    \      \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/{id}\"\
+    : {\n      \"delete\": {\n        \"tags\": [\n          \"Employee Reporting\"\
+    \n        ],\n        \"summary\": \"Close a reporting relationship (sets ended_at\
+    \ = today)\",\n        \"description\": \"Append-only: the record is preserved\
+    \ for audit purposes\",\n        \"operationId\": \"close\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeReportingResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"EmployeeUpdateRequest\": {\n        \"type\": \"object\",\n     \
+    \   \"properties\": {\n          \"firstName\": {\n            \"maxLength\":\
+    \ 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"lastName\": {\n            \"maxLength\": 100,\n      \
+    \      \"minLength\": 0,\n            \"type\": \"string\"\n          },\n   \
+    \       \"email\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"department\"\
+    : {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"hireDate\": {\n         \
+    \   \"type\": \"string\",\n            \"format\": \"date\"\n          },\n  \
+    \        \"seniorityDate\": {\n            \"type\": \"string\",\n           \
+    \ \"format\": \"date\"\n          },\n          \"phone\": {\n            \"maxLength\"\
+    : 20,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
+    \     },\n          \"address\": {\n            \"maxLength\": 255,\n        \
+    \    \"minLength\": 0,\n            \"type\": \"string\"\n          },\n     \
+    \     \"status\": {\n            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\"\
+    ,\n            \"type\": \"string\"\n          },\n          \"workCenterId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"jobPositionId\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"birthDate\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
+    \   },\n          \"nationalId\": {\n            \"maxLength\": 20,\n        \
+    \    \"minLength\": 0,\n            \"type\": \"string\"\n          },\n     \
+    \     \"socialSecurityNumber\": {\n            \"maxLength\": 30,\n          \
+    \  \"minLength\": 0,\n            \"type\": \"string\"\n          },\n       \
+    \   \"gender\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
+    \              \"FEMALE\",\n              \"MALE\",\n              \"OTHER\",\n\
+    \              \"UNDISCLOSED\"\n            ]\n          },\n          \"maritalStatus\"\
+    : {\n            \"type\": \"string\",\n            \"enum\": [\n            \
+    \  \"SINGLE\",\n              \"MARRIED\",\n              \"PARTNER\",\n     \
+    \         \"DIVORCED\",\n              \"WIDOWED\"\n            ]\n          },\n\
+    \          \"nationality\": {\n            \"maxLength\": 60,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
+    preferredName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"personalEmail\"\
+    : {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"personalPhone\": {\n    \
+    \        \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"addressStreet\": {\n            \"maxLength\"\
+    : 150,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"addressCity\": {\n            \"maxLength\": 100,\n   \
+    \         \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"addressProvince\": {\n            \"maxLength\": 100,\n         \
+    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
+    \    \"addressPostal\": {\n            \"maxLength\": 10,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"addressCountry\"\
+    : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"emergencyName\": {\n     \
+    \       \"maxLength\": 150,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"emergencyRelation\": {\n            \"\
+    maxLength\": 60,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"emergencyPhone\": {\n            \"maxLength\": 20,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"workMode\": {\n            \"type\": \"string\",\n            \"\
+    enum\": [\n              \"ONSITE\",\n              \"HYBRID\",\n            \
+    \  \"REMOTE\"\n            ]\n          },\n          \"bankIban\": {\n      \
+    \      \"maxLength\": 34,\n            \"minLength\": 0,\n            \"pattern\"\
+    : \"^$|^[A-Z]{2}[0-9A-Z ]{13,32}$\",\n            \"type\": \"string\"\n     \
+    \     },\n          \"bankHolder\": {\n            \"maxLength\": 150,\n     \
+    \       \"minLength\": 0,\n            \"type\": \"string\"\n          }\n   \
+    \     }\n      },\n      \"EmployeeResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"firstName\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"lastName\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"email\": {\n     \
+    \       \"type\": \"string\"\n          },\n          \"department\": {\n    \
+    \        \"type\": \"string\"\n          },\n          \"hireDate\": {\n     \
+    \       \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"seniorityDate\": {\n            \"type\": \"string\",\n         \
+    \   \"format\": \"date\"\n          },\n          \"seniorityYears\": {\n    \
+    \        \"type\": \"number\"\n          },\n          \"status\": {\n       \
+    \     \"type\": \"string\"\n          },\n          \"phone\": {\n           \
+    \ \"type\": \"string\"\n          },\n          \"address\": {\n            \"\
+    type\": \"string\",\n            \"deprecated\": true\n          },\n        \
+    \  \"workCenterId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"jobPositionId\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"birthDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"nationalId\": {\n            \"type\": \"string\"\n  \
+    \        },\n          \"socialSecurityNumber\": {\n            \"type\": \"string\"\
+    \n          },\n          \"gender\": {\n            \"type\": \"string\",\n \
+    \           \"enum\": [\n              \"FEMALE\",\n              \"MALE\",\n\
+    \              \"OTHER\",\n              \"UNDISCLOSED\"\n            ]\n    \
+    \      },\n          \"maritalStatus\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"SINGLE\",\n              \"MARRIED\"\
+    ,\n              \"PARTNER\",\n              \"DIVORCED\",\n              \"WIDOWED\"\
+    \n            ]\n          },\n          \"nationality\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"preferredName\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"personalEmail\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"personalPhone\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"addressStreet\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"addressCity\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"addressProvince\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"addressPostal\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"addressCountry\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"emergencyName\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"emergencyRelation\": {\n            \"\
+    type\": \"string\"\n          },\n          \"emergencyPhone\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"workMode\": {\n           \
+    \ \"type\": \"string\",\n            \"enum\": [\n              \"ONSITE\",\n\
+    \              \"HYBRID\",\n              \"REMOTE\"\n            ]\n        \
+    \  },\n          \"bankIban\": {\n            \"type\": \"string\"\n         \
+    \ },\n          \"bankHolder\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"createdAt\": {\n            \"type\": \"string\",\n       \
+    \     \"format\": \"date-time\"\n          },\n          \"updatedAt\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"date-time\"\n    \
+    \      }\n        }\n      },\n      \"DocumentCategoryRequest\": {\n        \"\
+    required\": [\n          \"name\"\n        ],\n        \"type\": \"object\",\n\
+    \        \"properties\": {\n          \"name\": {\n            \"maxLength\":\
+    \ 200,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"code\": {\n            \"maxLength\": 50,\n           \
+    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
+    \  \"displayOrder\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          }\n        }\n      },\n      \"DocumentCategoryResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"uuid\"\n          },\n          \"name\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"code\": {\n           \
+    \ \"type\": \"string\"\n          },\n          \"isSystem\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"displayOrder\": {\n           \
+    \ \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n  \
+    \        \"isActive\": {\n            \"type\": \"boolean\"\n          },\n  \
+    \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          }\n        }\n      },\n      \"EmployeeReportingResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"uuid\"\n          },\n          \"managerId\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"uuid\"\n        \
+    \  },\n          \"kind\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"isPrimary\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\n     \
+    \     },\n          \"startedAt\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date\"\n          },\n          \"endedAt\": {\n      \
+    \      \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"active\": {\n            \"type\": \"boolean\"\n          },\n  \
+    \        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          }\n        }\n      },\n      \"WorkCalendarAssignmentRequest\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"workCalendarId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       }\n        }\n      },\n      \"WorkCalendarAssignmentResponse\": {\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"employeeId\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"uuid\"\n          },\n          \"workCalendarId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"assignedAt\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"date-time\"\n          },\n          \"removedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"active\": {\n            \"type\": \"boolean\"\n    \
+    \      }\n        }\n      },\n      \"EmployeeCreateRequest\": {\n        \"\
+    required\": [\n          \"department\",\n          \"email\",\n          \"firstName\"\
+    ,\n          \"hireDate\",\n          \"lastName\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"firstName\": {\n       \
+    \     \"maxLength\": 100,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"lastName\": {\n            \"maxLength\"\
+    : 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"email\": {\n            \"maxLength\": 100,\n         \
+    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
+    \    \"department\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"hireDate\":\
+    \ {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"seniorityDate\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"phone\": {\n    \
+    \        \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"address\": {\n            \"maxLength\"\
+    : 255,\n            \"minLength\": 0,\n            \"type\": \"string\",\n   \
+    \         \"deprecated\": true\n          },\n          \"status\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"workCenterId\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"jobPositionId\": {\n            \"type\": \"string\",\n         \
+    \   \"format\": \"uuid\"\n          },\n          \"birthDate\": {\n         \
+    \   \"type\": \"string\",\n            \"format\": \"date\"\n          },\n  \
+    \        \"nationalId\": {\n            \"maxLength\": 20,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"socialSecurityNumber\"\
+    : {\n            \"maxLength\": 30,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"gender\": {\n            \"\
+    type\": \"string\",\n            \"enum\": [\n              \"FEMALE\",\n    \
+    \          \"MALE\",\n              \"OTHER\",\n              \"UNDISCLOSED\"\n\
+    \            ]\n          },\n          \"maritalStatus\": {\n            \"type\"\
+    : \"string\",\n            \"enum\": [\n              \"SINGLE\",\n          \
+    \    \"MARRIED\",\n              \"PARTNER\",\n              \"DIVORCED\",\n \
+    \             \"WIDOWED\"\n            ]\n          },\n          \"nationality\"\
+    : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"preferredName\": {\n     \
+    \       \"maxLength\": 100,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"personalEmail\": {\n            \"maxLength\"\
+    : 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"personalPhone\": {\n            \"maxLength\": 20,\n  \
+    \          \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"addressStreet\": {\n            \"maxLength\": 150,\n           \
+    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
+    \  \"addressCity\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"addressProvince\"\
+    : {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"addressPostal\": {\n    \
+    \        \"maxLength\": 10,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"addressCountry\": {\n            \"maxLength\"\
+    : 60,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
+    \     },\n          \"emergencyName\": {\n            \"maxLength\": 150,\n  \
+    \          \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"emergencyRelation\": {\n            \"maxLength\": 60,\n        \
+    \    \"minLength\": 0,\n            \"type\": \"string\"\n          },\n     \
+    \     \"emergencyPhone\": {\n            \"maxLength\": 20,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"workMode\":\
+    \ {\n            \"type\": \"string\",\n            \"enum\": [\n            \
+    \  \"ONSITE\",\n              \"HYBRID\",\n              \"REMOTE\"\n        \
+    \    ]\n          },\n          \"bankIban\": {\n            \"maxLength\": 34,\n\
+    \            \"minLength\": 0,\n            \"pattern\": \"^$|^[A-Z]{2}[0-9A-Z\
+    \ ]{13,32}$\",\n            \"type\": \"string\"\n          },\n          \"bankHolder\"\
+    : {\n            \"maxLength\": 150,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          }\n        }\n      },\n      \"TaxProfileRequest\"\
+    : {\n        \"required\": [\n          \"familySituation\"\n        ],\n    \
+    \    \"type\": \"object\",\n        \"properties\": {\n          \"familySituation\"\
+    : {\n            \"maximum\": 3,\n            \"minimum\": 1,\n            \"\
+    type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
+    \    \"spouseNationalId\": {\n            \"maxLength\": 20,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"childrenCount\"\
+    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"childrenDisabledCount\"\
+    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"childrenSharedCustody\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"ascendantsCount\"\
+    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"ascendantsDisabledCount\"\
+    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"disabilityPercentage\"\
+    : {\n            \"maximum\": 100,\n            \"minimum\": 0,\n            \"\
+    type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
+    \    \"reducedMobility\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"geographicMobility\": {\n            \"type\": \"boolean\"\n    \
+    \      },\n          \"spousalSupportAnnual\": {\n            \"minimum\": 0.0,\n\
+    \            \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n\
+    \          },\n          \"childSupportAnnual\": {\n            \"minimum\": 0.0,\n\
+    \            \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n\
+    \          },\n          \"housingLoan\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"validFrom\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"declaredAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
+    \   },\n          \"notes\": {\n            \"maxLength\": 500,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          }\n        }\n  \
+    \    },\n      \"TaxProfileResponse\": {\n        \"type\": \"object\",\n    \
+    \    \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"familySituation\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"familySituationLabel\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"spouseNationalId\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"childrenCount\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"childrenDisabledCount\": {\n            \"type\": \"\
+    integer\",\n            \"format\": \"int32\"\n          },\n          \"childrenSharedCustody\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"ascendantsCount\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"ascendantsDisabledCount\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    disabilityPercentage\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"reducedMobility\": {\n        \
+    \    \"type\": \"boolean\"\n          },\n          \"geographicMobility\": {\n\
+    \            \"type\": \"boolean\"\n          },\n          \"spousalSupportAnnual\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"childSupportAnnual\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"housingLoan\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"validFrom\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"validTo\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date\"\n          },\n          \"declaredAt\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"current\": {\n            \"type\": \"boolean\"\n          },\n \
+    \         \"notes\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
+    \      },\n      \"EmployeeReportingRequest\": {\n        \"required\": [\n  \
+    \        \"employeeId\",\n          \"managerId\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"employeeId\": {\n      \
+    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"managerId\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"uuid\"\n          },\n          \"kind\": {\n            \"pattern\"\
+    : \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"type\": \"string\"\n      \
+    \    },\n          \"isPrimary\": {\n            \"type\": \"boolean\"\n     \
+    \     },\n          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"startedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          }\n        }\n      },\n      \"\
+    Pageable\": {\n        \"type\": \"object\",\n        \"properties\": {\n    \
+    \      \"page\": {\n            \"minimum\": 0,\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"size\": {\n  \
+    \          \"minimum\": 1,\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"sort\": {\n            \"type\"\
+    : \"array\",\n            \"items\": {\n              \"type\": \"string\"\n \
+    \           }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
+    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
+    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
+kind: ConfigMap
+metadata:
+  name: api-docs-spec-employee-service
+  namespace: rrhh-docs
