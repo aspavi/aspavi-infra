@@ -16,3 +16,8 @@ spec:
     automated:
       prune: false
       selfHeal: true
+    # The bundled OpenAPI specs outgrew the 256 KiB cap on metadata.annotations,
+    # which a client-side apply hits because it stores the whole object in
+    # last-applied-configuration. Server-side apply never writes that annotation.
+    syncOptions:
+      - ServerSideApply=true
