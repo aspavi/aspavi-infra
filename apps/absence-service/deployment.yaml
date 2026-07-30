@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: absence-service
-          image: ghcr.io/aspavi/aspavi-absence-service:master-f8521d8
+          image: ghcr.io/aspavi/aspavi-absence-service:main-415dbdd
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
