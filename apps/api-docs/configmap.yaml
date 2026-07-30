@@ -2691,9 +2691,11 @@ data:
     \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
     \   },\n          \"nationalId\": {\n            \"maxLength\": 20,\n        \
     \    \"minLength\": 0,\n            \"type\": \"string\"\n          },\n     \
-    \     \"gender\": {\n            \"type\": \"string\",\n            \"enum\":\
-    \ [\n              \"FEMALE\",\n              \"MALE\",\n              \"OTHER\"\
-    ,\n              \"UNDISCLOSED\"\n            ]\n          },\n          \"maritalStatus\"\
+    \     \"socialSecurityNumber\": {\n            \"maxLength\": 30,\n          \
+    \  \"minLength\": 0,\n            \"type\": \"string\"\n          },\n       \
+    \   \"gender\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
+    \              \"FEMALE\",\n              \"MALE\",\n              \"OTHER\",\n\
+    \              \"UNDISCLOSED\"\n            ]\n          },\n          \"maritalStatus\"\
     : {\n            \"type\": \"string\",\n            \"enum\": [\n            \
     \  \"SINGLE\",\n              \"MARRIED\",\n              \"PARTNER\",\n     \
     \         \"DIVORCED\",\n              \"WIDOWED\"\n            ]\n          },\n\
@@ -2745,12 +2747,13 @@ data:
     : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"birthDate\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
     \       },\n          \"nationalId\": {\n            \"type\": \"string\"\n  \
-    \        },\n          \"gender\": {\n            \"type\": \"string\",\n    \
-    \        \"enum\": [\n              \"FEMALE\",\n              \"MALE\",\n   \
-    \           \"OTHER\",\n              \"UNDISCLOSED\"\n            ]\n       \
-    \   },\n          \"maritalStatus\": {\n            \"type\": \"string\",\n  \
-    \          \"enum\": [\n              \"SINGLE\",\n              \"MARRIED\",\n\
-    \              \"PARTNER\",\n              \"DIVORCED\",\n              \"WIDOWED\"\
+    \        },\n          \"socialSecurityNumber\": {\n            \"type\": \"string\"\
+    \n          },\n          \"gender\": {\n            \"type\": \"string\",\n \
+    \           \"enum\": [\n              \"FEMALE\",\n              \"MALE\",\n\
+    \              \"OTHER\",\n              \"UNDISCLOSED\"\n            ]\n    \
+    \      },\n          \"maritalStatus\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"SINGLE\",\n              \"MARRIED\"\
+    ,\n              \"PARTNER\",\n              \"DIVORCED\",\n              \"WIDOWED\"\
     \n            ]\n          },\n          \"nationality\": {\n            \"type\"\
     : \"string\"\n          },\n          \"preferredName\": {\n            \"type\"\
     : \"string\"\n          },\n          \"personalEmail\": {\n            \"type\"\
@@ -2840,13 +2843,15 @@ data:
     \   \"format\": \"uuid\"\n          },\n          \"birthDate\": {\n         \
     \   \"type\": \"string\",\n            \"format\": \"date\"\n          },\n  \
     \        \"nationalId\": {\n            \"maxLength\": 20,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"gender\": {\n\
-    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
-    FEMALE\",\n              \"MALE\",\n              \"OTHER\",\n              \"\
-    UNDISCLOSED\"\n            ]\n          },\n          \"maritalStatus\": {\n \
-    \           \"type\": \"string\",\n            \"enum\": [\n              \"SINGLE\"\
-    ,\n              \"MARRIED\",\n              \"PARTNER\",\n              \"DIVORCED\"\
-    ,\n              \"WIDOWED\"\n            ]\n          },\n          \"nationality\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"socialSecurityNumber\"\
+    : {\n            \"maxLength\": 30,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"gender\": {\n            \"\
+    type\": \"string\",\n            \"enum\": [\n              \"FEMALE\",\n    \
+    \          \"MALE\",\n              \"OTHER\",\n              \"UNDISCLOSED\"\n\
+    \            ]\n          },\n          \"maritalStatus\": {\n            \"type\"\
+    : \"string\",\n            \"enum\": [\n              \"SINGLE\",\n          \
+    \    \"MARRIED\",\n              \"PARTNER\",\n              \"DIVORCED\",\n \
+    \             \"WIDOWED\"\n            ]\n          },\n          \"nationality\"\
     : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
     \   \"type\": \"string\"\n          },\n          \"preferredName\": {\n     \
     \       \"maxLength\": 100,\n            \"minLength\": 0,\n            \"type\"\
@@ -2904,18 +2909,18 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"pageNumber\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \     },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
