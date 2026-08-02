@@ -24,6 +24,8 @@ calendario laboral, así que su convenio no resolvía.
 | `5_absence.sql` | `absence_db` | 30 saldos de vacaciones y 50 solicitudes |
 | `6_attendance.sql` | `attendance_db` | Julio 2026 completo: 1.720 fichajes y 619 jornadas |
 | `7_ssn.sql` | `employee_db` | Números de la Seguridad Social (requiere la V13 de employee-service) |
+| `8_tax_profile.sql` | `employee_db` | Declaraciones del modelo 145 (requiere la V14) |
+| `9_fix_sanidad_weekly_hours.sql` | `contract_db` | Corrección puntual: la jornada de Sanidad Privada era 37,5 en vez de 37,0 |
 
 ## Cómo aplicarlo
 
@@ -61,5 +63,11 @@ real — si alguno cambia, hay que actualizarlos ahí.
   personas con la jornada abierta a la hora de generarlo.
 - **Los NAF llevan dígitos de control reales** (el número de 10 cifras módulo
   97) y la provincia corresponde al centro de trabajo.
+- **La jornada sale del convenio, no al revés.** Cada empleado se declara con
+  su FTE (1,0 · 0,8 · 0,5) y las horas se derivan de la jornada completa que
+  fija su convenio. Así nadie puede acabar contratado por encima del tope,
+  que es justo lo que pasó cuando las horas iban a mano: los 16 contratos de
+  sanidad estaban a 37,5 h contra un maximo de 37,0, y de ahí salio el
+  `9_fix_...`.
 - **payroll no se toca.** Nóminas sigue con mocks por decisión de producto, y
   los 13 periodos que ya existían se dejan como están.

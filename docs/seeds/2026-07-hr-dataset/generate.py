@@ -2,8 +2,8 @@
 """
 Demo-data generator for the aspavi cluster databases.
 
-Emits one SQL file per database into ./out. Deterministic (seeded RNG) so a
-re-run produces identical statements. Every script is transactional and
+Emits one SQL file per database beside this script. Deterministic (seeded
+RNG) so a re-run produces identical statements. Every script is transactional and
 deletes only what it itself generates (scoped to tenants acme/test on tables
 that were verified empty, or to fixed ids it owns).
 """
@@ -13,8 +13,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 rng = random.Random(2026)
-OUT = Path(__file__).parent / 'out'
-OUT.mkdir(exist_ok=True)
+OUT = Path(__file__).parent
 
 NOW = "2026-07-30 17:00:00+00"
 TODAY = date(2026, 7, 30)
@@ -64,6 +63,11 @@ def make_iban(seedn: int) -> str:
 
 AG_OFI = '11111111-1111-1111-1111-111111111111'   # Oficinas y Despachos VLC, 23 días laborables, 14 pagas
 AG_SAN = '22222222-2222-2222-2222-222222222222'   # Sanidad Privada, 30 días naturales, 14 pagas
+
+# Full-time week each agreement fixes, straight from collective_agreement.
+# A contract may not exceed it, and the FTE is measured against it — so the
+# part-timers below are written as a fraction of this, never as loose hours.
+FULL_WEEK = {AG_OFI: 38.5, AG_SAN: 37.0}
 
 CAT = {  # category id, annual base, group
     'recepcionista': ('11111111-0001-0000-0000-000000000001', 16800, 'IV'),
@@ -177,13 +181,16 @@ def naturales(start: date, end: date) -> int:
 E = 'e0000001-0000-4000-8000-0000000000'
 
 
-def emp(idsuf, first, last, gender, center, pos, cat, conv, weekly, ctype,
+def emp(idsuf, first, last, gender, center, pos, cat, conv, fte, ctype,
         pluses, variable, marital, hire, *, preferred=None, nationality='Española',
         nie=False, seniority=None, dept=None):
+    """`fte` is the fraction of the agreement's full-time week, not hours:
+    hours follow from it, so nobody can end up contracted above the cap."""
     return dict(
         id=(E + idsuf) if len(idsuf) == 2 else idsuf,
         first=first, last=last, gender=gender, center=center, pos=pos, cat=cat,
-        conv=conv, weekly=weekly, ctype=ctype, pluses=pluses, variable=variable,
+        conv=conv, fte=round(fte, 2), weekly=round(FULL_WEEK[conv] * fte, 2),
+        ctype=ctype, pluses=pluses, variable=variable,
         marital=marital, hire=date.fromisoformat(hire), preferred=preferred,
         nationality=nationality, nie=nie,
         seniority=date.fromisoformat(seniority) if seniority else date.fromisoformat(hire),
@@ -193,79 +200,79 @@ def emp(idsuf, first, last, gender, center, pos, cat, conv, weekly, ctype,
 
 EMPLOYEES = [
     # ── Sede Central València · oficinas ──
-    emp('11', 'Sofía', 'Álvarez Muñoz', 'FEMALE', 'sede_vlc', 'resp_admin', 'jefe_admin', AG_OFI, 38.5,
+    emp('11', 'Sofía', 'Álvarez Muñoz', 'FEMALE', 'sede_vlc', 'resp_admin', 'jefe_admin', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_RESPONSABILIDAD'], 4000, 'MARRIED', '2020-04-01',
         preferred='Sofi', dept='Administración'),
-    emp('13', 'Carmen', 'Navarro Domínguez', 'FEMALE', 'sede_vlc', 'administrativo', 'oficial', AG_OFI, 38.5,
+    emp('13', 'Carmen', 'Navarro Domínguez', 'FEMALE', 'sede_vlc', 'administrativo', 'oficial', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_IDIOMAS'], None, 'MARRIED', '2019-11-04', dept='Administración'),
-    emp('15', 'Lucía', 'Domínguez Torres', 'FEMALE', 'sede_vlc', 'contable', 'contable', AG_OFI, 38.5,
+    emp('15', 'Lucía', 'Domínguez Torres', 'FEMALE', 'sede_vlc', 'contable', 'contable', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_CONVENIO'], None, 'SINGLE', '2020-02-03', dept='Administración'),
-    emp('16', 'Marcos', 'Vázquez Ruiz', 'MALE', 'sede_vlc', 'contable', 'contable', AG_OFI, 38.5,
+    emp('16', 'Marcos', 'Vázquez Ruiz', 'MALE', 'sede_vlc', 'contable', 'contable', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_CONVENIO'], None, 'PARTNER', '2020-08-03', dept='Administración'),
-    emp('17', 'Isabel', 'Ramos Martín', 'FEMALE', 'sede_vlc', 'administrativo', 'admin', AG_OFI, 38.5,
+    emp('17', 'Isabel', 'Ramos Martín', 'FEMALE', 'sede_vlc', 'administrativo', 'admin', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2023-02-01', preferred='Isa', dept='Administración'),
-    emp('14', 'Javier', 'Morales Jiménez', 'MALE', 'sede_vlc', 'administrativo', 'admin', AG_OFI, 38.5,
+    emp('14', 'Javier', 'Morales Jiménez', 'MALE', 'sede_vlc', 'administrativo', 'admin', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2022-03-01', dept='Administración'),
     # ── Centro de Día La Marina · sanidad ──
-    emp('01', 'María', 'García López', 'FEMALE', 'la_marina', 'director', 'supervisor', AG_SAN, 37.5,
+    emp('01', 'María', 'García López', 'FEMALE', 'la_marina', 'director', 'supervisor', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_RESPONSABILIDAD'], 3000, 'MARRIED', '2019-03-01',
         seniority='2018-06-01', dept='Dirección'),
-    emp('02', 'Carlos', 'Martínez Ruiz', 'MALE', 'la_marina', 'cuidador', 'celador', AG_SAN, 37.5,
+    emp('02', 'Carlos', 'Martínez Ruiz', 'MALE', 'la_marina', 'cuidador', 'celador', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'MARRIED', '2019-06-01',
         seniority='2019-01-07', dept='Atención directa'),
-    emp('03', 'Elena', 'Rodríguez Fernández', 'FEMALE', 'la_marina', 'aux_enfermeria', 'tcae', AG_SAN, 37.5,
+    emp('03', 'Elena', 'Rodríguez Fernández', 'FEMALE', 'la_marina', 'aux_enfermeria', 'tcae', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'DIVORCED', '2020-01-15', dept='Atención directa'),
-    emp('04', 'Ana', 'González Pérez', 'FEMALE', 'la_marina', 'monitor', 'celador', AG_SAN, 37.5,
+    emp('04', 'Ana', 'González Pérez', 'FEMALE', 'la_marina', 'monitor', 'celador', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2020-09-01', dept='Atención directa'),
-    emp('05', 'David', 'López Sánchez', 'MALE', 'la_marina', 'cuidador', 'celador', AG_SAN, 37.5,
+    emp('05', 'David', 'López Sánchez', 'MALE', 'la_marina', 'cuidador', 'celador', AG_SAN, 1.0,
         'TEMPORAL', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'SINGLE', '2021-03-01', dept='Atención directa'),
     # ── Residencia Mediterráneo Gandia · sanidad ──
-    emp('06', 'Francisco', 'Hernández Martínez', 'MALE', 'residencia', 'director', 'supervisor', AG_SAN, 37.5,
+    emp('06', 'Francisco', 'Hernández Martínez', 'MALE', 'residencia', 'director', 'supervisor', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_RESPONSABILIDAD'], 3000, 'MARRIED', '2021-01-15', dept='Dirección'),
-    emp('07', 'Laura', 'Gómez Díaz', 'FEMALE', 'residencia', 'enfermero', 'due', AG_SAN, 37.5,
+    emp('07', 'Laura', 'Gómez Díaz', 'FEMALE', 'residencia', 'enfermero', 'due', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD', 'PLUS_ESPECIALIDAD'], None, 'PARTNER', '2022-02-01',
         dept='Atención sanitaria'),
-    emp('08', 'Sergio', 'Castillo Blanco', 'MALE', 'residencia', 'enfermero', 'due', AG_SAN, 37.5,
+    emp('08', 'Sergio', 'Castillo Blanco', 'MALE', 'residencia', 'enfermero', 'due', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD', 'PLUS_ESPECIALIDAD'], None, 'SINGLE', '2022-06-01',
         dept='Atención sanitaria'),
-    emp('09', 'Beatriz', 'Vargas Romero', 'FEMALE', 'residencia', 'aux_enfermeria', 'tcae', AG_SAN, 37.5,
+    emp('09', 'Beatriz', 'Vargas Romero', 'FEMALE', 'residencia', 'aux_enfermeria', 'tcae', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD', 'PLUS_FESTIVOS'], None, 'SINGLE', '2023-09-04',
         preferred='Bea', dept='Atención directa'),
-    emp('10', 'Miguel', 'Torres Romero', 'MALE', 'residencia', 'aux_enfermeria', 'tcae', AG_SAN, 37.5,
+    emp('10', 'Miguel', 'Torres Romero', 'MALE', 'residencia', 'aux_enfermeria', 'tcae', AG_SAN, 1.0,
         'TEMPORAL', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'SINGLE', '2023-01-16', dept='Atención directa'),
-    emp('22', 'Fernando', 'Ortega García', 'MALE', 'residencia', 'fisio', 'fisio', AG_SAN, 37.5,
+    emp('22', 'Fernando', 'Ortega García', 'MALE', 'residencia', 'fisio', 'fisio', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_ESPECIALIDAD'], None, 'WIDOWED', '2020-07-01',
         dept='Atención terapéutica'),
-    emp('23', 'Raquel', 'Romero Jiménez', 'FEMALE', 'residencia', 'cuidador', 'celador', AG_SAN, 30,
+    emp('23', 'Raquel', 'Romero Jiménez', 'FEMALE', 'residencia', 'cuidador', 'celador', AG_SAN, 0.8,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'MARRIED', '2021-11-02', dept='Atención directa'),
-    emp('24', 'Alberto', 'Medina Torres', 'MALE', 'residencia', 'cuidador', 'celador', AG_SAN, 37.5,
+    emp('24', 'Alberto', 'Medina Torres', 'MALE', 'residencia', 'cuidador', 'celador', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD', 'PLUS_FESTIVOS'], None, 'PARTNER', '2022-08-01',
         dept='Atención directa'),
     # ── Centro Ocupacional Túria Paterna · sanidad ──
-    emp('12', 'Pablo', 'Jiménez Moreno', 'MALE', 'turia', 'director', 'supervisor', AG_SAN, 37.5,
+    emp('12', 'Pablo', 'Jiménez Moreno', 'MALE', 'turia', 'director', 'supervisor', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_RESPONSABILIDAD'], 2500, 'MARRIED', '2021-07-01', dept='Dirección'),
-    emp('19', 'Roberto', 'Serrano García', 'MALE', 'turia', 'monitor', 'celador', AG_SAN, 37.5,
+    emp('19', 'Roberto', 'Serrano García', 'MALE', 'turia', 'monitor', 'celador', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2020-10-01', dept='Atención directa'),
-    emp('20', 'Pilar', 'Blanco López', 'FEMALE', 'turia', 'monitor', 'celador', AG_SAN, 18.75,
+    emp('20', 'Pilar', 'Blanco López', 'FEMALE', 'turia', 'monitor', 'celador', AG_SAN, 0.5,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'MARRIED', '2021-09-01', dept='Atención directa'),
-    emp('21', 'Alejandro', 'Molina Sanz', 'MALE', 'turia', 'fisio', 'fisio', AG_SAN, 37.5,
+    emp('21', 'Alejandro', 'Molina Sanz', 'MALE', 'turia', 'fisio', 'fisio', AG_SAN, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE', 'PLUS_ESPECIALIDAD'], None, 'MARRIED', '2023-03-01',
         preferred='Álex', dept='Atención terapéutica'),
-    emp('25', 'Natalia', 'Delgado Vega', 'FEMALE', 'turia', 'cuidador', 'celador', AG_SAN, 37.5,
+    emp('25', 'Natalia', 'Delgado Vega', 'FEMALE', 'turia', 'cuidador', 'celador', AG_SAN, 1.0,
         'TEMPORAL', ['PLUS_TRANSPORTE', 'PLUS_TURNICIDAD'], None, 'SINGLE', '2023-06-05',
         nationality='Argentina', nie=True, dept='Atención directa'),
     # ── Delegación Castelló · oficinas ──
-    emp('18', 'Cristina', 'Castro Morales', 'FEMALE', 'castello', 'administrativo', 'admin', AG_OFI, 38.5,
+    emp('18', 'Cristina', 'Castro Morales', 'FEMALE', 'castello', 'administrativo', 'admin', AG_OFI, 1.0,
         'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'MARRIED', '2021-05-03', dept='Administración'),
     emp('6ce85cae-4bac-4e58-9dea-232ebabdfacc', 'Andres', 'Lopez', 'MALE', 'castello', 'recepcionista',
-        'recepcionista', AG_OFI, 38.5, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2026-03-23',
+        'recepcionista', AG_OFI, 1.0, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2026-03-23',
         dept='Administración'),
     # ── Oficinas Madrid / Barcelona · oficinas ──
     emp('637b9e22-17fa-4433-9329-802ad76652ca', 'Pablo', 'Carrascal', 'MALE', 'madrid', 'administrativo',
-        'oficial', AG_OFI, 38.5, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2026-03-23',
+        'oficial', AG_OFI, 1.0, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'SINGLE', '2026-03-23',
         dept='Administración'),
     emp('4804acda-e3e3-4279-83fd-82a0ebb663b7', 'Javier', 'Tebas', 'MALE', 'barcelona', 'administrativo',
-        'admin', AG_OFI, 38.5, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'PARTNER', '2026-03-23',
+        'admin', AG_OFI, 1.0, 'INDEFINIDO', ['PLUS_TRANSPORTE'], None, 'PARTNER', '2026-03-23',
         dept='Administración'),
 ]
 assert len(EMPLOYEES) == 28, len(EMPLOYEES)
@@ -452,8 +459,7 @@ sql = ["BEGIN;",
 for e in EMPLOYEES:
     cid = u()
     cat_id, base, grupo = CAT[e['cat']]
-    full = 38.5 if e['conv'] == AG_OFI else 37.5
-    fte = round(e['weekly'] / full, 2)
+    fte = e['fte']
     base_pro = round(base * fte)
     trial_m = 6 if grupo in ('I', 'II') else 2
     end = "'2026-12-31'" if e['ctype'] == 'TEMPORAL' else 'NULL'
