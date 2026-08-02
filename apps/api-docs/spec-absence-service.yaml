@@ -1,0 +1,445 @@
+apiVersion: v1
+data:
+  absence-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Absence Service API\",\n    \"description\": \"Microservicio para gestion\
+    \ de ausencias y vacaciones\",\n    \"contact\": {\n      \"name\": \"Aspavi\"\
+    ,\n      \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\
+    \n    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\":\
+    \ \"https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\"\
+    : \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com/absence\"\
+    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Absence types\",\n    \
+    \  \"description\": \"Catalogue of absence kinds per tenant\"\n    },\n    {\n\
+    \      \"name\": \"Absence requests\",\n      \"description\": \"Time-off requests\
+    \ and their approval lifecycle\"\n    },\n    {\n      \"name\": \"Vacation balances\"\
+    ,\n      \"description\": \"Entitlement vs. days taken, per employee and year\"\
+    \n    }\n  ],\n  \"paths\": {\n    \"/api/v1/vacation-balances\": {\n      \"\
+    get\": {\n        \"tags\": [\n          \"Vacation balances\"\n        ],\n \
+    \       \"summary\": \"List balances for a year (defaults to the current one)\"\
+    ,\n        \"operationId\": \"list\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"year\",\n            \"in\": \"query\",\n           \
+    \ \"required\": false,\n            \"schema\": {\n              \"type\": \"\
+    integer\",\n              \"format\": \"int32\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/VacationBalanceResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n\
+    \          \"Vacation balances\"\n        ],\n        \"summary\": \"Create or\
+    \ update the balance for an employee and year\",\n        \"operationId\": \"\
+    upsert\",\n        \"requestBody\": {\n          \"content\": {\n            \"\
+    application/json\": {\n              \"schema\": {\n                \"$ref\":\
+    \ \"#/components/schemas/VacationBalanceRequest\"\n              }\n         \
+    \   }\n          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/VacationBalanceResponse\"\n    \
+    \            }\n              }\n            }\n          }\n        },\n    \
+    \    \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/absence-types/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Absence types\"\n        ],\n        \"\
+    summary\": \"Get an absence type\",\n        \"operationId\": \"get\",\n     \
+    \   \"parameters\": [\n          {\n            \"name\": \"id\",\n          \
+    \  \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\n  \
+    \              }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"Found\",\n            \"content\": {\n   \
+    \           \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/AbsenceTypeResponse\"\n                }\n          \
+    \    }\n            }\n          }\n        },\n        \"security\": [\n    \
+    \      {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n \
+    \     \"put\": {\n        \"tags\": [\n          \"Absence types\"\n        ],\n\
+    \        \"summary\": \"Update an absence type\",\n        \"operationId\": \"\
+    update\",\n        \"parameters\": [\n          {\n            \"name\": \"id\"\
+    ,\n            \"in\": \"path\",\n            \"required\": true,\n          \
+    \  \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/AbsenceTypeRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Updated\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Code already used in this tenant\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\n\
+    \                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\n  \
+    \              }\n              }\n            }\n          }\n        },\n  \
+    \      \"security\": [\n          {\n            \"bearerAuth\": []\n        \
+    \  }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n        \
+    \  \"Absence types\"\n        ],\n        \"summary\": \"Delete an absence type\"\
+    ,\n        \"operationId\": \"delete\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
+    \      ],\n        \"responses\": {\n          \"409\": {\n            \"description\"\
+    : \"Type has requests \\u2014 deactivate instead\"\n          },\n          \"\
+    204\": {\n            \"description\": \"Deleted\"\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\"\n        \
+    \  }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/absence-requests/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Absence requests\"\n \
+    \       ],\n        \"summary\": \"Get a request\",\n        \"operationId\":\
+    \ \"get_1\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"404\": {\n            \"description\": \"Not found in this tenant\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Found\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/AbsenceRequestResponse\"\n                }\n \
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"put\": {\n        \"tags\": [\n          \"Absence requests\"\n\
+    \        ],\n        \"summary\": \"Update a pending request\",\n        \"operationId\"\
+    : \"update_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/AbsenceRequestRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
+    : \"Already decided, or overlaps another absence\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"400\": {\n   \
+    \         \"description\": \"Invalid range or yearly cap exceeded\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n\
+    \                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Updated\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"404\": {\n   \
+    \         \"description\": \"Not found in this tenant\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"delete\": {\n        \"tags\": [\n          \"Absence requests\"\
+    \n        ],\n        \"summary\": \"Delete a request\",\n        \"operationId\"\
+    : \"delete_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"204\": {\n            \"description\": \"Deleted\"\n        \
+    \  },\n          \"404\": {\n            \"description\": \"Not found in this\
+    \ tenant\"\n          }\n        },\n        \"security\": [\n          {\n  \
+    \          \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n    \"\
+    /api/v1/absence-types\": {\n      \"get\": {\n        \"tags\": [\n          \"\
+    Absence types\"\n        ],\n        \"summary\": \"List absence types\",\n  \
+    \      \"operationId\": \"list_1\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"activeOnly\",\n            \"in\": \"query\",\n     \
+    \       \"required\": false,\n            \"schema\": {\n              \"type\"\
+    : \"boolean\"\n            }\n          }\n        ],\n        \"responses\":\
+    \ {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\n          \
+    \        }\n                }\n              }\n            }\n          }\n \
+    \       },\n        \"security\": [\n          {\n            \"bearerAuth\":\
+    \ []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Absence types\"\n        ],\n        \"summary\": \"Create an absence\
+    \ type\",\n        \"operationId\": \"create\",\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/AbsenceTypeRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"201\": {\n            \"description\"\
+    : \"Created\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Code already used in this tenant\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceTypeResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/absence-requests\": {\n    \
+    \  \"get\": {\n        \"tags\": [\n          \"Absence requests\"\n        ],\n\
+    \        \"summary\": \"List requests, optionally filtered by employee and status\"\
+    ,\n        \"operationId\": \"list_2\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"employeeId\",\n            \"in\": \"query\",\n \
+    \           \"required\": false,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     },\n          {\n            \"name\": \"status\",\n            \"in\":\
+    \ \"query\",\n            \"required\": false,\n            \"schema\": {\n  \
+    \            \"type\": \"string\",\n              \"enum\": [\n              \
+    \  \"PENDING\",\n                \"APPROVED\",\n                \"REJECTED\",\n\
+    \                \"CANCELLED\"\n              ]\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Absence requests\"\n        ],\n        \"summary\": \"Create a request.\
+    \ Types that need no approval are born approved\",\n        \"operationId\": \"\
+    create_1\",\n        \"requestBody\": {\n          \"content\": {\n          \
+    \  \"application/json\": {\n              \"schema\": {\n                \"$ref\"\
+    : \"#/components/schemas/AbsenceRequestRequest\"\n              }\n          \
+    \  }\n          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"404\": {\n            \"description\": \"Absence type not found\
+    \ in this tenant\",\n            \"content\": {\n              \"*/*\": {\n  \
+    \              \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    400\": {\n            \"description\": \"Invalid range or yearly cap exceeded\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Created\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"409\": {\n   \
+    \         \"description\": \"Overlaps another absence of the same employee\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/absence-requests/{id}/reject\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Absence requests\"\n\
+    \        ],\n        \"summary\": \"Reject a pending request\",\n        \"operationId\"\
+    : \"reject\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/AbsenceDecisionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
+    : \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Rejected\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"404\": {\n   \
+    \         \"description\": \"Not found in this tenant\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n              \
+    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/absence-requests/{id}/cancel\": {\n      \"post\"\
+    : {\n        \"tags\": [\n          \"Absence requests\"\n        ],\n       \
+    \ \"summary\": \"Cancel a request that has not started yet\",\n        \"operationId\"\
+    : \"cancel\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"Cancelled\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n\
+    \                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n\
+    \                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Already closed, or the absence has started\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/absence-requests/{id}/approve\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Absence requests\"\n\
+    \        ],\n        \"summary\": \"Approve a pending request\",\n        \"operationId\"\
+    : \"approve\",\n        \"parameters\": [\n          {\n            \"name\":\
+    \ \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/AbsenceDecisionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Approved\",\n            \"content\": {\n              \"*/*\": {\n      \
+    \          \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Already decided, or now overlaps another\
+    \ absence\",\n            \"content\": {\n              \"*/*\": {\n         \
+    \       \"schema\": {\n                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/vacation-balances/{employeeId}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Vacation balances\"\n\
+    \        ],\n        \"summary\": \"Balance of one employee. Returns zeros when\
+    \ nothing has been granted yet\",\n        \"operationId\": \"get_2\",\n     \
+    \   \"parameters\": [\n          {\n            \"name\": \"employeeId\",\n  \
+    \          \"in\": \"path\",\n            \"required\": true,\n            \"\
+    schema\": {\n              \"type\": \"string\",\n              \"format\": \"\
+    uuid\"\n            }\n          },\n          {\n            \"name\": \"year\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"integer\",\n              \"format\"\
+    : \"int32\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"200\": {\n            \"description\": \"OK\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/VacationBalanceResponse\"\n             \
+    \   }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/absence-requests/overlapping\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Absence requests\"\n        ],\n       \
+    \ \"summary\": \"Requests overlapping a date range \\u2014 who is away, and when\"\
+    ,\n        \"operationId\": \"overlapping\",\n        \"parameters\": [\n    \
+    \      {\n            \"name\": \"from\",\n            \"in\": \"query\",\n  \
+    \          \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"date\"\n            }\n          },\n\
+    \          {\n            \"name\": \"to\",\n            \"in\": \"query\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"date\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
+    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/AbsenceRequestResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/vacation-balances/{id}\"\
+    : {\n      \"delete\": {\n        \"tags\": [\n          \"Vacation balances\"\
+    \n        ],\n        \"summary\": \"Delete a balance row\",\n        \"operationId\"\
+    : \"delete_2\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"204\": {\n            \"description\": \"Deleted\"\n        \
+    \  },\n          \"404\": {\n            \"description\": \"Not found in this\
+    \ tenant\"\n          }\n        },\n        \"security\": [\n          {\n  \
+    \          \"bearerAuth\": []\n          }\n        ]\n      }\n    }\n  },\n\
+    \  \"components\": {\n    \"schemas\": {\n      \"VacationBalanceRequest\": {\n\
+    \        \"required\": [\n          \"employeeId\",\n          \"year\"\n    \
+    \    ],\n        \"type\": \"object\",\n        \"properties\": {\n          \"\
+    employeeId\": {\n            \"type\": \"string\",\n            \"format\": \"\
+    uuid\"\n          },\n          \"year\": {\n            \"maximum\": 2100,\n\
+    \            \"minimum\": 2000,\n            \"type\": \"integer\",\n        \
+    \    \"format\": \"int32\"\n          },\n          \"entitledDays\": {\n    \
+    \        \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n       \
+    \     \"type\": \"number\"\n          },\n          \"carriedDays\": {\n     \
+    \       \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n        \
+    \    \"type\": \"number\"\n          },\n          \"extraDays\": {\n        \
+    \    \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n           \
+    \ \"type\": \"number\"\n          },\n          \"notes\": {\n            \"maxLength\"\
+    : 500,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      }\n        }\n      },\n      \"VacationBalanceResponse\": {\n        \"\
+    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
+    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
+    \         \"employeeId\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"uuid\"\n          },\n          \"year\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    entitledDays\": {\n            \"type\": \"number\"\n          },\n          \"\
+    carriedDays\": {\n            \"type\": \"number\"\n          },\n          \"\
+    extraDays\": {\n            \"type\": \"number\"\n          },\n          \"totalDays\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"usedDays\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"pendingDays\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"remainingDays\":\
+    \ {\n            \"type\": \"number\"\n          },\n          \"notes\": {\n\
+    \            \"type\": \"string\"\n          }\n        }\n      },\n      \"\
+    AbsenceTypeRequest\": {\n        \"required\": [\n          \"code\",\n      \
+    \    \"name\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"code\": {\n            \"maxLength\": 40,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"name\": {\n\
+    \            \"maxLength\": 120,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"description\": {\n            \"\
+    maxLength\": 500,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"consumesVacation\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"isPaid\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"requiresDocument\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"requiresApproval\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"maxDaysPerYear\": {\n            \"minimum\": 0.5,\n\
+    \            \"exclusiveMinimum\": false,\n            \"type\": \"number\"\n\
+    \          },\n          \"colour\": {\n            \"type\": \"string\",\n  \
+    \          \"enum\": [\n              \"DEFAULT\",\n              \"ACCENT\",\n\
+    \              \"SAGE\",\n              \"SKY\",\n              \"PLUM\",\n  \
+    \            \"AMBER\"\n            ]\n          },\n          \"isActive\": {\n\
+    \            \"type\": \"boolean\"\n          },\n          \"sortOrder\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     }\n        }\n      },\n      \"AbsenceTypeResponse\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"id\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"uuid\"\n          },\n        \
+    \  \"code\": {\n            \"type\": \"string\"\n          },\n          \"name\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"consumesVacation\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"isPaid\": {\n\
+    \            \"type\": \"boolean\"\n          },\n          \"requiresDocument\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"requiresApproval\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"maxDaysPerYear\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"colour\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    DEFAULT\",\n              \"ACCENT\",\n              \"SAGE\",\n             \
+    \ \"SKY\",\n              \"PLUM\",\n              \"AMBER\"\n            ]\n\
+    \          },\n          \"isActive\": {\n            \"type\": \"boolean\"\n\
+    \          },\n          \"sortOrder\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"createdAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"updatedAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          }\n        }\n      },\n    \
+    \  \"AbsenceRequestRequest\": {\n        \"required\": [\n          \"absenceTypeId\"\
+    ,\n          \"days\",\n          \"employeeId\",\n          \"endDate\",\n  \
+    \        \"startDate\"\n        ],\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"employeeId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"absenceTypeId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"startDate\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date\"\n          },\n          \"endDate\": {\n    \
+    \        \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"days\": {\n            \"minimum\": 0.5,\n            \"exclusiveMinimum\"\
+    : false,\n            \"type\": \"number\"\n          },\n          \"halfDayStart\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"halfDayEnd\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"reason\": {\n\
+    \            \"maxLength\": 500,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"documentId\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"uuid\"\n          }\n        }\n\
+    \      },\n      \"AbsenceRequestResponse\": {\n        \"type\": \"object\",\n\
+    \        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"absenceTypeId\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"uuid\"\n          },\n          \"absenceTypeCode\":\
+    \ {\n            \"type\": \"string\"\n          },\n          \"absenceTypeName\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"absenceTypeColour\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"consumesVacation\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"startDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"endDate\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date\"\n          },\n          \"days\": {\n         \
+    \   \"type\": \"number\"\n          },\n          \"halfDayStart\": {\n      \
+    \      \"type\": \"boolean\"\n          },\n          \"halfDayEnd\": {\n    \
+    \        \"type\": \"boolean\"\n          },\n          \"status\": {\n      \
+    \      \"type\": \"string\",\n            \"enum\": [\n              \"PENDING\"\
+    ,\n              \"APPROVED\",\n              \"REJECTED\",\n              \"\
+    CANCELLED\"\n            ]\n          },\n          \"reason\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"approverId\": {\n         \
+    \   \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n  \
+    \        \"decidedAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"decisionNote\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"documentId\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"requestedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"AbsenceDecisionRequest\": {\n     \
+    \   \"required\": [\n          \"approverId\"\n        ],\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"approverId\": {\n          \
+    \  \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n   \
+    \       \"decisionNote\": {\n            \"maxLength\": 500,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          }\n        }\n      }\n    },\n\
+    \    \"securitySchemes\": {\n      \"bearerAuth\": {\n        \"type\": \"http\"\
+    ,\n        \"description\": \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
+kind: ConfigMap
+metadata:
+  name: api-docs-spec-absence-service
+  namespace: rrhh-docs
