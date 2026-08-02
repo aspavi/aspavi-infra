@@ -1,0 +1,162 @@
+apiVersion: v1
+data:
+  events-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Events Service API\",\n    \"description\": \"Microservicio para la linea\
+    \ temporal de eventos de RRHH\",\n    \"contact\": {\n      \"name\": \"Aspavi\"\
+    ,\n      \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\
+    \n    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\":\
+    \ \"https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\"\
+    : \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com/events\"\
+    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Events\",\n      \"description\"\
+    : \"HR timeline: authored events plus events projected from other services\"\n\
+    \    }\n  ],\n  \"paths\": {\n    \"/api/v1/events/{id}\": {\n      \"get\": {\n\
+    \        \"tags\": [\n          \"Events\"\n        ],\n        \"summary\": \"\
+    Get an event\",\n        \"operationId\": \"get\",\n        \"parameters\": [\n\
+    \          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n \
+    \           \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"404\": {\n            \"description\"\
+    : \"Not found in this tenant\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EventResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Found\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/EventResponse\"\n                }\n          \
+    \    }\n            }\n          }\n        },\n        \"security\": [\n    \
+    \      {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n \
+    \     \"put\": {\n        \"tags\": [\n          \"Events\"\n        ],\n    \
+    \    \"summary\": \"Update an authored event\",\n        \"operationId\": \"update\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/EventRequest\"\n       \
+    \       }\n            }\n          },\n          \"required\": true\n       \
+    \ },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"Updated\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/EventResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"The event is projected from another service;\
+    \ change it at the source\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EventResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/EventResponse\"\n        \
+    \        }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"delete\": {\n        \"tags\": [\n          \"Events\"\
+    \n        ],\n        \"summary\": \"Delete an authored event\",\n        \"operationId\"\
+    : \"delete\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"204\": {\n            \"description\": \"Deleted\"\n          },\n\
+    \          \"409\": {\n            \"description\": \"The event is projected from\
+    \ another service; change it at the source\"\n          },\n          \"404\"\
+    : {\n            \"description\": \"Not found in this tenant\"\n          }\n\
+    \        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/events\": {\n   \
+    \   \"get\": {\n        \"tags\": [\n          \"Events\"\n        ],\n      \
+    \  \"summary\": \"Events in a date range, optionally filtered\",\n        \"description\"\
+    : \"Defaults to the next 240 days from today. A workCenterId filter also returns\
+    \ company-wide events, which concern every center.\",\n        \"operationId\"\
+    : \"list\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    from\",\n            \"in\": \"query\",\n            \"required\": false,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"date\"\n            }\n          },\n          {\n            \"name\"\
+    : \"to\",\n            \"in\": \"query\",\n            \"required\": false,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"date\"\n            }\n          },\n          {\n          \
+    \  \"name\": \"kind\",\n            \"in\": \"query\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"type\": \"string\"\n    \
+    \        }\n          },\n          {\n            \"name\": \"workCenterId\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          },\n          {\n            \"name\": \"\
+    employeeId\",\n            \"in\": \"query\",\n            \"required\": false,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/EventResponse\"\n                \
+    \  }\n                }\n              }\n            }\n          }\n       \
+    \ },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n \
+    \         }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n   \
+    \       \"Events\"\n        ],\n        \"summary\": \"Create an event\",\n  \
+    \      \"operationId\": \"create\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"createdBy\",\n            \"in\": \"query\",\n      \
+    \      \"required\": false,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"requestBody\": {\n          \"content\": {\n          \
+    \  \"application/json\": {\n              \"schema\": {\n                \"$ref\"\
+    : \"#/components/schemas/EventRequest\"\n              }\n            }\n    \
+    \      },\n          \"required\": true\n        },\n        \"responses\": {\n\
+    \          \"400\": {\n            \"description\": \"Invalid times or missing\
+    \ fields\",\n            \"content\": {\n              \"*/*\": {\n          \
+    \      \"schema\": {\n                  \"$ref\": \"#/components/schemas/EventResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Created\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EventResponse\"\n                }\n    \
+    \          }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"EventRequest\"\
+    : {\n        \"required\": [\n          \"date\",\n          \"kind\",\n     \
+    \     \"title\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"kind\": {\n            \"maxLength\": 40,\n            \"minLength\"\
+    : 0,\n            \"pattern\": \"^[a-z][a-z0-9_]*$\",\n            \"type\": \"\
+    string\"\n          },\n          \"title\": {\n            \"maxLength\": 200,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"subtitle\": {\n            \"maxLength\": 300,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"date\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
+    \   },\n          \"startTime\": {\n            \"$ref\": \"#/components/schemas/LocalTime\"\
+    \n          },\n          \"endTime\": {\n            \"$ref\": \"#/components/schemas/LocalTime\"\
+    \n          },\n          \"allDay\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"workCenterId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"note\": {\n            \"maxLength\": 1000,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          }\n        }\n  \
+    \    },\n      \"LocalTime\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"hour\": {\n            \"type\": \"integer\",\n            \"\
+    format\": \"int32\"\n          },\n          \"minute\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    second\": {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\
+    \n          },\n          \"nano\": {\n            \"type\": \"integer\",\n  \
+    \          \"format\": \"int32\"\n          }\n        }\n      },\n      \"EventResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"kind\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"title\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"subtitle\": {\n            \"type\": \"string\"\n          },\n \
+    \         \"date\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"startTime\": {\n            \"$ref\": \"\
+    #/components/schemas/LocalTime\"\n          },\n          \"endTime\": {\n   \
+    \         \"$ref\": \"#/components/schemas/LocalTime\"\n          },\n       \
+    \   \"allDay\": {\n            \"type\": \"boolean\"\n          },\n         \
+    \ \"workCenterId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"employeeId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"note\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"source\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    AUTHORED\",\n              \"PROJECTED\"\n            ]\n          },\n      \
+    \    \"sourceService\": {\n            \"type\": \"string\"\n          },\n  \
+    \        \"sourceRef\": {\n            \"type\": \"string\"\n          },\n  \
+    \        \"editable\": {\n            \"type\": \"boolean\"\n          },\n  \
+    \        \"createdBy\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"createdAt\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
+    bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
+    \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
+kind: ConfigMap
+metadata:
+  name: api-docs-spec-events-service
+  namespace: rrhh-docs
