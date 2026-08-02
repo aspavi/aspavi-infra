@@ -14,5 +14,8 @@ spec:
     namespace: argocd
   syncPolicy:
     automated:
-      prune: false
+      # prune se omite a proposito. Es false por defecto, y este objeto no
+      # llega a guardar el campo: algo lo descarta al reconciliarlo, asi que
+      # declararlo dejaba a cluster-config OutOfSync para siempre pidiendo una
+      # diferencia que no existe. Comportamiento identico, sin el ruido.
       selfHeal: true
