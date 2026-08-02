@@ -57,8 +57,32 @@ spec:
               readOnly: true
       volumes:
         - name: specs
-          configMap:
-            name: api-docs-specs
+          projected:
+            sources:
+              - configMap:
+                  name: api-docs-spec-absence-service
+              - configMap:
+                  name: api-docs-spec-attendance-service
+              - configMap:
+                  name: api-docs-spec-collective-agreements-service
+              - configMap:
+                  name: api-docs-spec-contract-service
+              - configMap:
+                  name: api-docs-spec-employee-service
+              - configMap:
+                  name: api-docs-spec-events-service
+              # Legado: solo los servicios cuyo pipeline aún no publica su
+              # ConfigMap api-docs-spec-<servicio>. El filtro items evita
+              # colisiones de rutas (el kubelet rechaza duplicados en projected).
+              - configMap:
+                  name: api-docs-specs
+                  items:
+                    - key: audit-service.json
+                      path: audit-service.json
+                    - key: organization-service.json
+                      path: organization-service.json
+                    - key: payroll-service.json
+                      path: payroll-service.json
 ---
 apiVersion: v1
 kind: Service
