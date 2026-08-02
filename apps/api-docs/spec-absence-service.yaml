@@ -329,21 +329,26 @@ data:
     \       \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n        \
     \    \"type\": \"number\"\n          },\n          \"extraDays\": {\n        \
     \    \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n           \
-    \ \"type\": \"number\"\n          },\n          \"notes\": {\n            \"maxLength\"\
-    : 500,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
-    \      }\n        }\n      },\n      \"VacationBalanceResponse\": {\n        \"\
-    type\": \"object\",\n        \"properties\": {\n          \"id\": {\n        \
-    \    \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n \
-    \         \"employeeId\": {\n            \"type\": \"string\",\n            \"\
-    format\": \"uuid\"\n          },\n          \"year\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    entitledDays\": {\n            \"type\": \"number\"\n          },\n          \"\
-    carriedDays\": {\n            \"type\": \"number\"\n          },\n          \"\
-    extraDays\": {\n            \"type\": \"number\"\n          },\n          \"totalDays\"\
-    : {\n            \"type\": \"number\"\n          },\n          \"usedDays\": {\n\
-    \            \"type\": \"number\"\n          },\n          \"pendingDays\": {\n\
-    \            \"type\": \"number\"\n          },\n          \"remainingDays\":\
-    \ {\n            \"type\": \"number\"\n          },\n          \"notes\": {\n\
+    \ \"type\": \"number\"\n          },\n          \"carriedExpiresOn\": {\n    \
+    \        \"maxLength\": 500,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\",\n            \"format\": \"date\"\n          },\n          \"notes\"\
+    : {\n            \"type\": \"string\"\n          }\n        }\n      },\n    \
+    \  \"VacationBalanceResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"employeeId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"year\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"entitledDays\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"carriedDays\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"extraDays\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"totalDays\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"usedDays\": {\n            \"type\": \"number\"\n \
+    \         },\n          \"pendingDays\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"remainingDays\": {\n            \"type\": \"number\"\
+    \n          },\n          \"carriedExpiresOn\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"date\"\n          },\n          \"carriedExpired\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"carriedLost\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"notes\": {\n\
     \            \"type\": \"string\"\n          }\n        }\n      },\n      \"\
     AbsenceTypeRequest\": {\n        \"required\": [\n          \"code\",\n      \
     \    \"name\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
