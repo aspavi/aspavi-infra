@@ -682,8 +682,10 @@ data:
     minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
     vacationTo\": {\n            \"maxLength\": 10,\n            \"minLength\": 0,\n\
     \            \"type\": \"string\"\n          },\n          \"vacationCriteria\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"vacacionesObs\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"trialValue\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"personalDaysPerYear\"\
+    : {\n            \"minimum\": 0.0,\n            \"exclusiveMinimum\": false,\n\
+    \            \"type\": \"number\"\n          },\n          \"vacacionesObs\":\
+    \ {\n            \"type\": \"string\"\n          },\n          \"trialValue\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
     \         },\n          \"trialUnit\": {\n            \"type\": \"string\",\n\
     \            \"enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n\
@@ -816,18 +818,19 @@ data:
     \n            ]\n          },\n          \"vacationFrom\": {\n            \"type\"\
     : \"string\"\n          },\n          \"vacationTo\": {\n            \"type\"\
     : \"string\"\n          },\n          \"vacationCriteria\": {\n            \"\
-    type\": \"string\"\n          },\n          \"vacacionesObs\": {\n           \
-    \ \"type\": \"string\"\n          },\n          \"trialValue\": {\n          \
-    \  \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n \
-    \         \"trialUnit\": {\n            \"type\": \"string\",\n            \"\
-    enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n             \
-    \ \"MESES\"\n            ]\n          },\n          \"noticeValue\": {\n     \
-    \       \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n\
-    \          \"noticeUnit\": {\n            \"type\": \"string\",\n            \"\
-    enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n             \
-    \ \"MESES\"\n            ]\n          },\n          \"contratoObs\": {\n     \
-    \       \"type\": \"string\"\n          },\n          \"sundayRestActive\": {\n\
-    \            \"type\": \"boolean\"\n          },\n          \"sundayRestType\"\
+    type\": \"string\"\n          },\n          \"personalDaysPerYear\": {\n     \
+    \       \"type\": \"number\"\n          },\n          \"vacacionesObs\": {\n \
+    \           \"type\": \"string\"\n          },\n          \"trialValue\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"trialUnit\": {\n            \"type\": \"string\",\n    \
+    \        \"enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n  \
+    \            \"MESES\"\n            ]\n          },\n          \"noticeValue\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"noticeUnit\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n\
+    \              \"MESES\"\n            ]\n          },\n          \"contratoObs\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"sundayRestActive\"\
+    : {\n            \"type\": \"boolean\"\n          },\n          \"sundayRestType\"\
     : {\n            \"type\": \"string\",\n            \"enum\": [\n            \
     \  \"MULTIPLICADOR\",\n              \"VALOR\"\n            ]\n          },\n\
     \          \"sundayRestAmount\": {\n            \"type\": \"number\"\n       \
