@@ -167,46 +167,49 @@ data:
     \    \"salaryConceptCode\": {\n            \"type\": \"string\"\n          },\n\
     \          \"amount\": {\n            \"type\": \"number\"\n          },\n   \
     \       \"isPercentage\": {\n            \"type\": \"boolean\"\n          },\n\
-    \          \"isAbsorbible\": {\n            \"type\": \"boolean\"\n          }\n\
-    \        }\n      },\n      \"ContractResponse\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \          \"isAbsorbible\": {\n            \"type\": \"boolean\"\n          },\n\
+    \          \"isExtraordinary\": {\n            \"type\": \"boolean\"\n       \
+    \   },\n          \"accrualMonth\": {\n            \"maximum\": 12,\n        \
+    \    \"minimum\": 1,\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int32\"\n          }\n        }\n      },\n      \"ContractResponse\": {\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"jobPositionId\": {\n            \"type\": \"string\",\n  \
-    \          \"format\": \"uuid\"\n          },\n          \"collectiveAgreementId\"\
+    \   },\n          \"employeeId\": {\n            \"type\": \"string\",\n     \
+    \       \"format\": \"uuid\"\n          },\n          \"jobPositionId\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"uuid\"\n        \
+    \  },\n          \"collectiveAgreementId\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"professionalCategoryId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"professionalCategoryId\": {\n            \"type\": \"\
-    string\",\n            \"format\": \"uuid\"\n          },\n          \"contractTypeCode\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"startDate\":\
-    \ {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
-    \       },\n          \"endDate\": {\n            \"type\": \"string\",\n    \
-    \        \"format\": \"date\"\n          },\n          \"isCurrent\": {\n    \
-    \        \"type\": \"boolean\"\n          },\n          \"weeklyHours\": {\n \
-    \           \"type\": \"number\"\n          },\n          \"fte\": {\n       \
-    \     \"type\": \"number\"\n          },\n          \"trialPeriodUnit\": {\n \
-    \           \"type\": \"string\"\n          },\n          \"trialPeriodDuration\"\
+    \       },\n          \"contractTypeCode\": {\n            \"type\": \"string\"\
+    \n          },\n          \"startDate\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date\"\n          },\n          \"endDate\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"date\"\n         \
+    \ },\n          \"isCurrent\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"weeklyHours\": {\n            \"type\": \"number\"\n      \
+    \    },\n          \"fte\": {\n            \"type\": \"number\"\n          },\n\
+    \          \"trialPeriodUnit\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"trialPeriodDuration\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"trialPeriodEndDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"baseSalary\": {\n            \"type\": \"number\"\n  \
+    \        },\n          \"payPeriodsPerYear\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"variableAmount\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"variableDescription\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"variablePeriodMonths\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"trialPeriodEndDate\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"date\"\n          },\n          \"baseSalary\": {\n\
-    \            \"type\": \"number\"\n          },\n          \"payPeriodsPerYear\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"variableAmount\": {\n            \"type\": \"number\"\
-    \n          },\n          \"variableDescription\": {\n            \"type\": \"\
-    string\"\n          },\n          \"variablePeriodMonths\": {\n            \"\
-    type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
-    \    \"nextVariablePaymentDate\": {\n            \"type\": \"string\",\n     \
-    \       \"format\": \"date\"\n          },\n          \"notes\": {\n         \
-    \   \"type\": \"string\"\n          },\n          \"salaryConcepts\": {\n    \
-    \        \"type\": \"array\",\n            \"items\": {\n              \"$ref\"\
-    : \"#/components/schemas/ContractSalaryConceptDto\"\n            }\n         \
-    \ },\n          \"totalAnnualRemuneration\": {\n            \"type\": \"number\"\
-    \n          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
-    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
-    \          }\n        }\n      },\n      \"EmployeeStatusHistoryRequest\": {\n\
-    \        \"required\": [\n          \"employeeId\",\n          \"status\"\n  \
-    \      ],\n        \"type\": \"object\",\n        \"properties\": {\n        \
-    \  \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
+    \         },\n          \"nextVariablePaymentDate\": {\n            \"type\":\
+    \ \"string\",\n            \"format\": \"date\"\n          },\n          \"notes\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"salaryConcepts\"\
+    : {\n            \"type\": \"array\",\n            \"items\": {\n            \
+    \  \"$ref\": \"#/components/schemas/ContractSalaryConceptDto\"\n            }\n\
+    \          },\n          \"totalAnnualRemuneration\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"createdAt\": {\n            \"type\":\
+    \ \"string\",\n            \"format\": \"date-time\"\n          },\n         \
+    \ \"updatedAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          }\n        }\n      },\n      \"EmployeeStatusHistoryRequest\"\
+    : {\n        \"required\": [\n          \"employeeId\",\n          \"status\"\n\
+    \        ],\n        \"type\": \"object\",\n        \"properties\": {\n      \
+    \    \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
     : \"uuid\"\n          },\n          \"status\": {\n            \"maxLength\":\
     \ 50,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
     \     },\n          \"reason\": {\n            \"maxLength\": 500,\n         \
