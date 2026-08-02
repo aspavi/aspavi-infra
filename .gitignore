@@ -16,3 +16,7 @@ kubeconfig*
 # Claude Code: instrucciones, notas y scripts de datos de prueba.
 # Local, no forma parte del proyecto.
 .claude/
+
+# Instrucciones de proyecto para Claude Code. Vive en la raiz porque es donde
+# se carga automaticamente, pero es local: cada uno tiene las suyas.
+/CLAUDE.md
