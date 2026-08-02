@@ -9,41 +9,42 @@ data:
     1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com\"\
     \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Calendar Assignments\"\
     ,\n      \"description\": \"Employee work-calendar override API\"\n    },\n  \
-    \  {\n      \"name\": \"Employees\",\n      \"description\": \"Employee management\
-    \ API\"\n    },\n    {\n      \"name\": \"Employee Reporting\",\n      \"description\"\
-    : \"Reporting hierarchy between employees\"\n    },\n    {\n      \"name\": \"\
-    Tax Profile\",\n      \"description\": \"Modelo 145 declarations\"\n    },\n \
-    \   {\n      \"name\": \"Document Categories\",\n      \"description\": \"Document\
-    \ category management API\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/employees/{id}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
-    \        \"summary\": \"Get employee by ID\",\n        \"description\": \"Returns\
-    \ the employee if it belongs to the authenticated tenant\",\n        \"operationId\"\
-    : \"getEmployeeById\",\n        \"parameters\": [\n          {\n            \"\
-    name\": \"id\",\n            \"in\": \"path\",\n            \"description\": \"\
-    Employee UUID\",\n            \"required\": true,\n            \"schema\": {\n\
-    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
-    \         }\n          }\n        ],\n        \"responses\": {\n          \"404\"\
-    : {\n            \"description\": \"Employee not found\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"401\": {\n         \
-    \   \"description\": \"Missing or invalid JWT token\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"200\": {\n         \
-    \   \"description\": \"Employee found\",\n            \"content\": {\n       \
-    \       \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    \  {\n      \"name\": \"Bank Accounts\",\n      \"description\": \"Payroll bank\
+    \ accounts, historicised\"\n    },\n    {\n      \"name\": \"Employees\",\n  \
+    \    \"description\": \"Employee management API\"\n    },\n    {\n      \"name\"\
+    : \"Employee Reporting\",\n      \"description\": \"Reporting hierarchy between\
+    \ employees\"\n    },\n    {\n      \"name\": \"Tax Profile\",\n      \"description\"\
+    : \"Modelo 145 declarations\"\n    },\n    {\n      \"name\": \"Document Categories\"\
+    ,\n      \"description\": \"Document category management API\"\n    }\n  ],\n\
+    \  \"paths\": {\n    \"/api/v1/employees/{id}\": {\n      \"get\": {\n       \
+    \ \"tags\": [\n          \"Employees\"\n        ],\n        \"summary\": \"Get\
+    \ employee by ID\",\n        \"description\": \"Returns the employee if it belongs\
+    \ to the authenticated tenant\",\n        \"operationId\": \"getEmployeeById\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"description\": \"Employee UUID\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"404\": {\n        \
+    \    \"description\": \"Employee not found\",\n            \"content\": {\n  \
+    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
     : \"#/components/schemas/EmployeeResponse\"\n                }\n             \
-    \ }\n            }\n          }\n        },\n        \"security\": [\n       \
-    \   {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n    \
-    \  \"put\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n    \
-    \    \"summary\": \"Update an employee\",\n        \"description\": \"Updates\
-    \ employee fields (partial update). Only non-null fields are applied.\",\n   \
-    \     \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n      \
-    \    {\n            \"name\": \"id\",\n            \"in\": \"path\",\n       \
-    \     \"description\": \"Employee UUID\",\n            \"required\": true,\n \
-    \           \"schema\": {\n              \"type\": \"string\",\n             \
-    \ \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    \ }\n            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid JWT token\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/EmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Employee found\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/EmployeeResponse\"\n                }\n \
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   },\n      \"put\": {\n        \"tags\": [\n          \"Employees\"\n     \
+    \   ],\n        \"summary\": \"Update an employee\",\n        \"description\"\
+    : \"Updates employee fields (partial update). Only non-null fields are applied.\"\
+    ,\n        \"operationId\": \"updateEmployee\",\n        \"parameters\": [\n \
+    \         {\n            \"name\": \"id\",\n            \"in\": \"path\",\n  \
+    \          \"description\": \"Employee UUID\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
     : {\n          \"content\": {\n            \"application/json\": {\n         \
     \     \"schema\": {\n                \"$ref\": \"#/components/schemas/EmployeeUpdateRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
@@ -353,6 +354,44 @@ data:
     : {\n                  \"$ref\": \"#/components/schemas/DocumentCategoryResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/bank-accounts\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Bank Accounts\"\n    \
+    \    ],\n        \"summary\": \"Accounts currently in use \\u2014 empty list when\
+    \ none is on file\",\n        \"operationId\": \"getCurrent_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
+    path\",\n            \"description\": \"Employee id\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/BankAccountResponse\"\n\
+    \                  }\n                }\n              }\n            }\n    \
+    \      }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Bank Accounts\"\n        ],\n        \"summary\": \"File a new account,\
+    \ superseding the ones in use\",\n        \"operationId\": \"file_1\",\n     \
+    \   \"parameters\": [\n          {\n            \"name\": \"employeeId\",\n  \
+    \          \"in\": \"path\",\n            \"description\": \"Employee id\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/BankAccountRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"404\": {\n            \"description\": \"Employee\
+    \ unknown\",\n            \"content\": {\n              \"*/*\": {\n         \
+    \       \"schema\": {\n                  \"$ref\": \"#/components/schemas/BankAccountResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Account filed\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/BankAccountResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"400\": {\n        \
+    \    \"description\": \"Invalid, or back-dated under the account in use\",\n \
+    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/BankAccountResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting\": {\n  \
     \    \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n     \
     \   ],\n        \"summary\": \"Active managers of an employee\",\n        \"description\"\
@@ -405,7 +444,21 @@ data:
     \          \"$ref\": \"#/components/schemas/TaxProfileResponse\"\n           \
     \       }\n                }\n              }\n            }\n          }\n  \
     \      },\n        \"security\": [\n          {\n            \"bearerAuth\": []\n\
-    \          }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\"\
+    \          }\n        ]\n      }\n    },\n    \"/api/v1/employees/{employeeId}/bank-accounts/history\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Bank Accounts\"\n    \
+    \    ],\n        \"summary\": \"Every account ever used, most recent first\",\n\
+    \        \"operationId\": \"getHistory_1\",\n        \"parameters\": [\n     \
+    \     {\n            \"name\": \"employeeId\",\n            \"in\": \"path\",\n\
+    \            \"description\": \"Employee id\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/BankAccountResponse\"\n          \
+    \        }\n                }\n              }\n            }\n          }\n \
+    \       },\n        \"security\": [\n          {\n            \"bearerAuth\":\
+    \ []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employees/paginated\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Employees\"\n        ],\n\
     \        \"summary\": \"List employees with pagination\",\n        \"description\"\
     : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
@@ -480,7 +533,7 @@ data:
     : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments/{employeeId}/history\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\
     \n        ],\n        \"summary\": \"Get the alta/baja history of calendar overrides\
-    \ for an employee\",\n        \"operationId\": \"getHistory_1\",\n        \"parameters\"\
+    \ for an employee\",\n        \"operationId\": \"getHistory_2\",\n        \"parameters\"\
     : [\n          {\n            \"name\": \"employeeId\",\n            \"in\": \"\
     path\",\n            \"description\": \"Employee UUID\",\n            \"required\"\
     : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
@@ -788,24 +841,55 @@ data:
     \     \"createdAt\": {\n            \"type\": \"string\",\n            \"format\"\
     : \"date-time\"\n          },\n          \"updatedAt\": {\n            \"type\"\
     : \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n\
-    \      },\n      \"EmployeeReportingRequest\": {\n        \"required\": [\n  \
-    \        \"employeeId\",\n          \"managerId\"\n        ],\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"employeeId\": {\n      \
-    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"managerId\": {\n            \"type\": \"string\",\n            \"\
-    format\": \"uuid\"\n          },\n          \"kind\": {\n            \"pattern\"\
-    : \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"type\": \"string\"\n      \
-    \    },\n          \"isPrimary\": {\n            \"type\": \"boolean\"\n     \
-    \     },\n          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\
-    \n          },\n          \"startedAt\": {\n            \"type\": \"string\",\n\
+    \      },\n      \"BankAccountRequest\": {\n        \"required\": [\n        \
+    \  \"holderName\",\n          \"iban\"\n        ],\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"iban\": {\n            \"maxLength\"\
+    : 34,\n            \"minLength\": 0,\n            \"pattern\": \"[A-Za-z]{2}[0-9A-Za-z\
+    \ \\\\t]{12,32}\",\n            \"type\": \"string\"\n          },\n         \
+    \ \"holderName\": {\n            \"maxLength\": 200,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"bic\": {\n \
+    \           \"maxLength\": 11,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          },\n          \"splitPercent\": {\n            \"\
+    maximum\": 100.0,\n            \"exclusiveMaximum\": false,\n            \"minimum\"\
+    : 0.01,\n            \"exclusiveMinimum\": false,\n            \"type\": \"number\"\
+    \n          },\n          \"validFrom\": {\n            \"type\": \"string\",\n\
     \            \"format\": \"date\"\n          }\n        }\n      },\n      \"\
-    Pageable\": {\n        \"type\": \"object\",\n        \"properties\": {\n    \
-    \      \"page\": {\n            \"minimum\": 0,\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"size\": {\n  \
-    \          \"minimum\": 1,\n            \"type\": \"integer\",\n            \"\
-    format\": \"int32\"\n          },\n          \"sort\": {\n            \"type\"\
-    : \"array\",\n            \"items\": {\n              \"type\": \"string\"\n \
-    \           }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
+    BankAccountResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"employeeId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"iban\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"holderName\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"bic\": {\n  \
+    \          \"type\": \"string\"\n          },\n          \"splitPercent\": {\n\
+    \            \"type\": \"number\"\n          },\n          \"status\": {\n   \
+    \         \"type\": \"string\"\n          },\n          \"validFrom\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"date\"\n          },\n\
+    \          \"validTo\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"current\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"verifiedBy\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"verifiedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"createdAt\": {\n            \"type\": \"string\",\n \
+    \           \"format\": \"date-time\"\n          },\n          \"updatedAt\":\
+    \ {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          }\n        }\n      },\n      \"EmployeeReportingRequest\": {\n   \
+    \     \"required\": [\n          \"employeeId\",\n          \"managerId\"\n  \
+    \      ],\n        \"type\": \"object\",\n        \"properties\": {\n        \
+    \  \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"managerId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"kind\"\
+    : {\n            \"pattern\": \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"\
+    type\": \"string\"\n          },\n          \"isPrimary\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"canApproveTimeoff\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"startedAt\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"date\"\n          }\n        }\n\
+    \      },\n      \"Pageable\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"page\": {\n            \"minimum\": 0,\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    size\": {\n            \"minimum\": 1,\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"sort\": {\n     \
+    \       \"type\": \"array\",\n            \"items\": {\n              \"type\"\
+    : \"string\"\n            }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
     \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
