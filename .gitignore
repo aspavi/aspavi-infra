@@ -9,3 +9,10 @@ kubeconfig*
 
 
 .idea
+
+# macOS
+.DS_Store
+
+# Claude Code: instrucciones, notas y scripts de datos de prueba.
+# Local, no forma parte del proyecto.
+.claude/
