@@ -1,0 +1,130 @@
+apiVersion: v1
+data:
+  audit-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\"\
+    : \"Audit Service API\",\n    \"description\": \"Microservicio de auditor\\u00eda\
+    \ y registro de eventos\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\": [\n\
+    \    {\n      \"url\": \"https://api.aspavi.com\"\n    }\n  ],\n  \"security\"\
+    : [\n    {\n      \"Bearer\": []\n    }\n  ],\n  \"tags\": [\n    {\n      \"\
+    name\": \"Audit Logs\",\n      \"description\": \"API for managing audit logs\
+    \ and events\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/audit-logs\": {\n \
+    \     \"get\": {\n        \"tags\": [\n          \"Audit Logs\"\n        ],\n\
+    \        \"summary\": \"Find all audit logs\",\n        \"description\": \"Find\
+    \ all audit logs with optional filters (paged)\",\n        \"operationId\": \"\
+    findAll\",\n        \"parameters\": [\n          {\n            \"name\": \"page\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"integer\",\n              \"format\"\
+    : \"int32\",\n              \"default\": 0\n            }\n          },\n    \
+    \      {\n            \"name\": \"size\",\n            \"in\": \"query\",\n  \
+    \          \"required\": false,\n            \"schema\": {\n              \"type\"\
+    : \"integer\",\n              \"format\": \"int32\",\n              \"default\"\
+    : 20\n            }\n          },\n          {\n            \"name\": \"entityType\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"string\"\n            }\n      \
+    \    },\n          {\n            \"name\": \"entityId\",\n            \"in\"\
+    : \"query\",\n            \"required\": false,\n            \"schema\": {\n  \
+    \            \"type\": \"string\",\n              \"format\": \"uuid\"\n     \
+    \       }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/PageAuditLogResponse\"\n                }\n         \
+    \     }\n            }\n          }\n        },\n        \"security\": [\n   \
+    \       {\n            \"Bearer\": []\n          }\n        ]\n      },\n    \
+    \  \"post\": {\n        \"tags\": [\n          \"Audit Logs\"\n        ],\n  \
+    \      \"summary\": \"Record an audit event\",\n        \"description\": \"Internal\
+    \ endpoint for other microservices to record events\",\n        \"operationId\"\
+    : \"recordEvent\",\n        \"requestBody\": {\n          \"content\": {\n   \
+    \         \"application/json\": {\n              \"schema\": {\n             \
+    \   \"$ref\": \"#/components/schemas/AuditLogRequest\"\n              }\n    \
+    \        }\n          },\n          \"required\": true\n        },\n        \"\
+    responses\": {\n          \"200\": {\n            \"description\": \"OK\",\n \
+    \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/AuditLogResponse\"\n \
+    \               }\n              }\n            }\n          }\n        },\n \
+    \       \"security\": [\n          {\n            \"Bearer\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/audit-logs/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Audit Logs\"\n        ],\n        \"summary\"\
+    : \"Get audit log by ID\",\n        \"operationId\": \"findById\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\"\
+    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/AuditLogResponse\"\n                }\n             \
+    \ }\n            }\n          }\n        },\n        \"security\": [\n       \
+    \   {\n            \"Bearer\": []\n          }\n        ]\n      }\n    },\n \
+    \   \"/api/v1/audit-logs/entity/{entityId}\": {\n      \"get\": {\n        \"\
+    tags\": [\n          \"Audit Logs\"\n        ],\n        \"summary\": \"Get complete\
+    \ history of an entity\",\n        \"operationId\": \"findByEntityId\",\n    \
+    \    \"parameters\": [\n          {\n            \"name\": \"entityId\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    type\": \"array\",\n                  \"items\": {\n                    \"$ref\"\
+    : \"#/components/schemas/AuditLogResponse\"\n                  }\n           \
+    \     }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"Bearer\": []\n          }\n        ]\n      }\n\
+    \    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"AuditLogRequest\"\
+    : {\n        \"required\": [\n          \"action\",\n          \"changedBy\",\n\
+    \          \"entityId\",\n          \"entityType\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"entityType\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"entityId\": {\n       \
+    \     \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"action\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"changedBy\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"oldValues\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"newValues\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"ipAddress\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"userAgent\": {\n            \"type\": \"string\"\n          }\n    \
+    \    }\n      },\n      \"AuditLogResponse\": {\n        \"type\": \"object\"\
+    ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"tenantId\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"entityType\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"entityId\": {\n \
+    \           \"type\": \"string\",\n            \"format\": \"uuid\"\n        \
+    \  },\n          \"action\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"changedBy\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"changedAt\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"date-time\"\n          },\n          \"oldValues\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"newValues\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"ipAddress\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"userAgent\": {\n          \
+    \  \"type\": \"string\"\n          }\n        }\n      },\n      \"PageAuditLogResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/AuditLogResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
+    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
+    \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
+    \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
+    \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"Bearer\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"JWT token from Keycloak\",\n        \"scheme\": \"bearer\",\n        \"bearerFormat\"\
+    : \"JWT\"\n      }\n    }\n  }\n}"
+kind: ConfigMap
+metadata:
+  name: api-docs-spec-audit-service
+  namespace: rrhh-docs
