@@ -137,11 +137,17 @@ spec:
     namespace: rrhh-data
 
 ---
-### Solo leer sus dos colas. Sin `write`: este servicio consume, no publica —
+### Solo sus dos colas. Sin `write`: este servicio consume, no publica —
 ### y si algún día publica, será un cambio explícito aquí y no un permiso que
-### ya estaba puesto por si acaso. Sin `configure`: la topología la define este
-### repo. El rebote a la DLX lo hace el broker por su cuenta, no el consumidor,
-### así que no necesita permiso para escribir en ella.
+### ya estaba puesto por si acaso. El rebote a la DLX lo hace el broker por su
+### cuenta, no el consumidor, así que no necesita permiso para escribir en ella.
+###
+### `configure` acotado al mismo patrón: no es para crear topología (la define
+### este repo), sino porque el consumidor verifica su cola con un declare
+### PASIVO al arrancar, y RabbitMQ pasa todo queue.declare —pasivo o no— por el
+### permiso configure. Sin él, el listener muere con ACCESS_REFUSED antes de
+### consumir nada. Redeclarar con otros argumentos fallaría igualmente, así que
+### esto no le deja cambiar nada que este repo declare.
 apiVersion: rabbitmq.com/v1beta1
 kind: Permission
 metadata:
@@ -153,6 +159,7 @@ spec:
     name: events-service
   permissions:
     read: "^events-service\\.timeline(\\.dlq)?$"
+    configure: "^events-service\\.timeline(\\.dlq)?$"
   rabbitmqClusterReference:
     name: rabbitmq
     namespace: rrhh-data
