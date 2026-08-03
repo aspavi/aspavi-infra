@@ -1,0 +1,42 @@
+### Los dos operadores de RabbitMQ, fijados por versión.
+###
+### Van vendorizados en apps/rabbitmq-operator/ y no como chart referenciado
+### —a diferencia de postgresql o cert-manager— por tres razones: son los
+### manifiestos oficiales del equipo de RabbitMQ y no un reempaquetado, la
+### variante del topology operator que usamos delega sus certificados en el
+### cert-manager que ya corre en este clúster, y subir de versión queda como
+### un diff revisable en vez de un número de chart.
+###
+### Va en una Application aparte del clúster a propósito: los CRDs tienen que
+### existir antes que el RabbitmqCluster que los usa, y así el operador se
+### puede actualizar sin tocar el clúster ni al revés.
+###
+### Para subir de versión, reemplazar los dos ficheros por los assets de la
+### release correspondiente:
+###   cluster-operator.yml            → releases/download/vX.Y.Z/cluster-operator.yml
+###   messaging-topology-operator.yaml → releases/download/vX.Y.Z/messaging-topology-operator-with-certmanager.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmq-operator
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/vmorera/aspavi-infra.git
+    targetRevision: master
+    path: apps/rabbitmq-operator
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rabbitmq-system
+  syncPolicy:
+    automated:
+      # prune: false, como el resto de la infraestructura. Podar aquí
+      # borraría los CRDs, y con ellos el clúster y toda su topología.
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # Los CRDs de RabbitMQ superan el límite de 262144 bytes de la
+      # anotación last-applied-configuration de kubectl.
+      - ServerSideApply=true

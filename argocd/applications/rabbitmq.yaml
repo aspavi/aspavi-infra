@@ -1,0 +1,28 @@
+### El clúster de RabbitMQ, en rrhh-data junto a Postgres: los dos son estado
+### compartido del ecosistema, no de un servicio concreto.
+###
+### La topología no vive aquí. El exchange compartido y sus políticas vendrán
+### en apps/rabbitmq/, pero las colas de cada consumidor van en
+### apps/<servicio>/, para que ArgoCD sincronice la cola con el servicio que la
+### lee: si viven separadas, un consumidor nuevo son dos PRs y arranca antes de
+### que exista su cola, y al retirarlo la cola se queda huérfana.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmq
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/vmorera/aspavi-infra.git
+    targetRevision: master
+    path: apps/rabbitmq
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rrhh-data
+  syncPolicy:
+    automated:
+      # prune: false — podar aquí se llevaría el RabbitmqCluster, y con él los
+      # PVCs, que en local-path significa perder los datos sin vuelta atrás.
+      prune: false
+      selfHeal: true

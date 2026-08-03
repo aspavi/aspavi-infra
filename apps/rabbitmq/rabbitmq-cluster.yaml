@@ -1,0 +1,94 @@
+### =====================================================================
+### RabbitMQ — el bus de eventos de dominio del ecosistema aspavi-*
+###
+### No hay chart ni values que mantener: con el Cluster Operator el clúster
+### ES este recurso. Se describe lo que se quiere y el operador construye el
+### StatefulSet, el Service, los secretos y la configuración.
+###
+### PARA QUÉ EXISTE
+###
+### Hoy la línea temporal de RRHH se arma a medias: events-service guarda los
+### eventos que escribe una persona, y el navegador deriva los demás (festivos,
+### antigüedades) pidiendo datos a cuatro servicios. El destino acordado es que
+### cada servicio publique sus eventos de dominio aquí y events-service los
+### materialice como filas PROJECTED. Este clúster es el primer paso.
+###
+### TRES RÉPLICAS, Y POR QUÉ NO UNA
+###
+### Las colas quorum replican con Raft y necesitan mayoría: con 3 nodos se
+### tolera la caída de 1. Con 1 nodo funcionarían, pero no darían nada — y no
+### hay alternativa, porque el mirroring de las colas clásicas desapareció en
+### RabbitMQ 4. Los tres nodos de k3s no tienen taints, así que la anti-afinidad
+### de abajo reparte una réplica por nodo de verdad.
+###
+### EL ALMACENAMIENTO ES LOCAL AL NODO
+###
+### El storageclass `local-path` guarda en el disco del nodo, así que un pod no
+### se puede reprogramar a otro nodo conservando sus datos: si un nodo muere,
+### esa réplica empieza de cero y se re-sincroniza desde las otras dos. Es
+### asumible precisamente porque quien replica es Raft, no el disco.
+###
+### 10Gi POR RÉPLICA, Y ESO NO SE PUEDE CAMBIAR DESPUÉS
+###
+### `local-path` tiene ALLOWVOLUMEEXPANSION=false: agrandar el disco obliga a
+### recrear el clúster. 10Gi es holgadísimo para este tráfico —la misma medida
+### que Postgres— y hay 150GB por worker, así que se elige de sobra una vez y
+### no se vuelve a tocar.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+  namespace: rrhh-data
+spec:
+  replicas: 3
+
+  persistence:
+    storageClassName: local-path
+    storage: 10Gi
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "1Gi"
+    limits:
+      # Sin límite de CPU a propósito: estrangular a un nodo Raft le hace
+      # perder latidos y provoca reelecciones que nadie pidió. La memoria sí
+      # se limita, porque RabbitMQ frena a los productores según su propio
+      # umbral (vm_memory_high_watermark) y necesita saber contra qué techo.
+      memory: "1Gi"
+
+  rabbitmq:
+    additionalConfig: |
+      ### Las colas quorum son el valor por defecto para todo lo que se declare
+      ### sin decir el tipo. Es la política que queremos en todo el ecosistema.
+      default_queue_type = quorum
+      ### Frena a los productores al 60% de los 1Gi del límite, dejando margen
+      ### para que el nodo no acabe matado por el OOM killer del kernel.
+      vm_memory_high_watermark.relative = 0.6
+      ### El disco es local y compartido con el resto del nodo: si baja de 2GB
+      ### libres, RabbitMQ bloquea publicaciones antes de llenarlo.
+      disk_free_limit.absolute = 2GB
+      ### Registro en un formato que se pueda leer con kubectl logs.
+      log.console = true
+      log.console.level = info
+
+  override:
+    statefulSet:
+      spec:
+        template:
+          spec:
+            affinity:
+              ### Una réplica por nodo. `required` y no `preferred`: dos
+              ### réplicas en el mismo nodo darían la apariencia de un quorum
+              ### de tres tolerando la caída de uno, cuando ese nodo se llevaría
+              ### dos votos por delante y el clúster entero con ellos.
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchExpressions:
+                        - key: app.kubernetes.io/name
+                          operator: In
+                          values:
+                            - rabbitmq
+                    topologyKey: kubernetes.io/hostname
