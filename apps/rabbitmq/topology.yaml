@@ -37,11 +37,24 @@ metadata:
 spec:
   name: aspavi.events
   ### Topic y no fanout: cada consumidor se ata a lo que entiende
-  ### (`collective-agreements.#`) en vez de recibirlo todo y descartar.
+  ### (`collective-agreements.work-calendar.#`) en vez de recibirlo todo y
+  ### descartar.
   type: topic
   durable: true
   autoDelete: false
   vhost: "/"
+  arguments:
+    ### Sin esto, un mensaje que no encaja con ningún binding SE PIERDE EN
+    ### SILENCIO: el productor recibe un "publicado" y nadie se entera de que
+    ### no llegó a ninguna cola. Comprobado publicando una clave sin binding:
+    ### "Message published but NOT routed", sin error ni traza.
+    ###
+    ### Basta con una clave mal escrita, o con publicar antes de que exista el
+    ### binding del consumidor, para perder un evento sin rastro. Es el mismo
+    ### tipo de fallo del que protege el outbox —pérdida sin excepción y sin
+    ### log— pero en el otro extremo: el outbox garantiza que el mensaje sale,
+    ### no que aterrice en algún sitio.
+    alternate-exchange: aspavi.events.unroutable
   rabbitmqClusterReference:
     name: rabbitmq
 
@@ -63,5 +76,63 @@ spec:
   durable: true
   autoDelete: false
   vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Donde caen los mensajes que no encajaron con ningún binding. Fanout porque
+### solo hay un sitio adonde mandarlos: no hay nada que enrutar, solo que no
+### se pierdan.
+###
+### Que esta cola crezca es una alarma, no un dato: significa que alguien está
+### publicando algo que nadie escucha — una clave mal escrita, un consumidor
+### que aún no ha desplegado su binding, o un productor adelantado.
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: aspavi-events-unroutable
+  namespace: rrhh-data
+spec:
+  name: aspavi.events.unroutable
+  type: fanout
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: aspavi-events-unroutable
+  namespace: rrhh-data
+spec:
+  name: aspavi.events.unroutable
+  type: quorum
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  arguments:
+    ### Es una cola de diagnóstico, no un buzón: se acota para que un productor
+    ### en bucle no llene el disco de los tres nodos. Al llegar al tope se
+    ### descartan los más viejos, que son los menos útiles para diagnosticar.
+    x-max-length: 10000
+    ### Y lo que lleve una semana ahí ya no dice nada que no sepamos.
+    x-message-ttl: 604800000
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: aspavi-events-unroutable
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events.unroutable
+  destination: aspavi.events.unroutable
+  destinationType: queue
   rabbitmqClusterReference:
     name: rabbitmq
