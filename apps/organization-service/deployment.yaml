@@ -41,6 +41,20 @@ spec:
             # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml
             - name: KEYCLOAK_BASE_URL
               value: "https://keycloak.aspavi.com"
+            # Bus de eventos: el relay del outbox publica los cambios de centro
+            # de trabajo. Las credenciales las genera el Messaging Topology
+            # Operator a partir del User declarado en rabbitmq-topology.yaml, y
+            # solo permiten publicar en aspavi.events con claves organization.*
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: organization-user-credentials
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: organization-user-credentials
+                  key: password
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
