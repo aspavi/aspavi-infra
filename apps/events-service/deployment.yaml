@@ -41,6 +41,19 @@ spec:
             # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml
             - name: KEYCLOAK_BASE_URL
               value: "https://keycloak.aspavi.com"
+            # Credenciales del usuario RabbitMQ `events-service` (solo lectura
+            # de sus colas). El secreto lo genera el Topology Operator a partir
+            # del User declarado en rabbitmq-topology.yaml.
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: events-service-user-credentials
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: events-service-user-credentials
+                  key: password
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

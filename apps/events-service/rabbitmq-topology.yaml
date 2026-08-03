@@ -84,6 +84,27 @@ spec:
     name: rabbitmq
 
 ---
+### El segundo productor: organization-service publica el estado de cada
+### centro de trabajo (`organization.work-center.upserted.v1` / `.deleted.v1`).
+### A la línea temporal le interesa porque el centro es quien dice QUÉ
+### calendario laboral aplica: los festivos son calendario × centros que lo
+### usan, así que sin este binding el consumidor sabría los festivos pero no
+### a qué centros proyectarlos.
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: events-service-timeline-from-work-center
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events
+  destination: events-service.timeline
+  destinationType: queue
+  routingKey: "organization.work-center.#"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
 ### El cementerio recoge todo lo que rebote, venga de donde venga.
 apiVersion: rabbitmq.com/v1beta1
 kind: Binding
