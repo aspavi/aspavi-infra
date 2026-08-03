@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: collective-agreements-service
-          image: ghcr.io/aspavi/aspavi-collective-agreements-service:master-f6b0cf8
+          image: ghcr.io/aspavi/aspavi-collective-agreements-service:master-0c11d9a
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
