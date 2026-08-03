@@ -53,25 +53,33 @@ spec:
 ---
 ### Qué escucha events-service.
 ###
-### Se ata por productor y no con `#`. Con `#` un productor nuevo no tocaría
+### Se ata por agregado y no con `#`. Con `#` un productor nuevo no tocaría
 ### infraestructura, que suena bien, pero a cambio cualquier evento publicado
 ### en el bus —fuese o no de línea temporal— acabaría en esta cola obligando al
 ### consumidor a decidir qué hacer con lo que no entiende. Así, leyendo este
-### fichero se sabe exactamente quién alimenta la línea temporal, y dar de alta
-### un productor es un binding en el mismo PR que lo añade.
+### fichero se sabe exactamente qué alimenta la línea temporal, y dar de alta un
+### productor es un binding en el mismo PR que lo añade.
 ###
-### El primero es collective-agreements, que publicará los festivos.
+### El primero es el CALENDARIO LABORAL, que es quien define los festivos: los
+### festivos cuelgan de `WorkCalendar.holidays`. El convenio no define ninguno
+### —no tiene dónde— y solo aporta contexto: su nombre acaba en el subtítulo
+### del evento. Que el agregado lo sirva hoy collective-agreements-service es
+### un detalle de a quién le tocó alojarlo, no de quién es el dueño del dato.
+###
+### Por eso el binding es `.work-calendar.#` y no `collective-agreements.#`:
+### ese servicio también publicará cambios del convenio en sí, que no son
+### línea temporal y no tienen por qué acabar en esta cola.
 apiVersion: rabbitmq.com/v1beta1
 kind: Binding
 metadata:
-  name: events-service-timeline-from-collective-agreements
+  name: events-service-timeline-from-work-calendar
   namespace: rrhh-data
 spec:
   vhost: "/"
   source: aspavi.events
   destination: events-service.timeline
   destinationType: queue
-  routingKey: "collective-agreements.#"
+  routingKey: "collective-agreements.work-calendar.#"
   rabbitmqClusterReference:
     name: rabbitmq
 
