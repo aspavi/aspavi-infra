@@ -40,6 +40,17 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rrhh-data
+  annotations:
+    ### Permite que los CRs de topología de rrhh-system apunten a este clúster.
+    ###
+    ### Hace falta por los usuarios: un `User` genera su contraseña en un
+    ### Secret de SU propio namespace, y los pods de los servicios viven en
+    ### rrhh-system. Un secreto de rrhh-data no lo puede montar un pod de
+    ### rrhh-system, así que el usuario tiene que declararse donde se consume.
+    ###
+    ### Exchanges, colas y bindings no generan secretos y se quedan en
+    ### rrhh-data, junto al clúster.
+    rabbitmq.com/topology-allowed-namespaces: "rrhh-system"
 spec:
   replicas: 3
 

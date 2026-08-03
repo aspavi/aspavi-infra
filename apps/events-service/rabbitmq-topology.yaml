@@ -98,3 +98,42 @@ spec:
   routingKey: "#"
   rabbitmqClusterReference:
     name: rabbitmq
+
+---
+### =====================================================================
+### Credenciales de events-service. En rrhh-system, junto al pod que monta el
+### secreto que genera el operador.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: events-service
+  namespace: rrhh-system
+spec:
+  tags: []
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Solo leer sus dos colas. Sin `write`: este servicio consume, no publica —
+### y si algún día publica, será un cambio explícito aquí y no un permiso que
+### ya estaba puesto por si acaso. Sin `configure`: la topología la define este
+### repo. El rebote a la DLX lo hace el broker por su cuenta, no el consumidor,
+### así que no necesita permiso para escribir en ella.
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: events-service
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: events-service
+  permissions:
+    configure: ""
+    write: ""
+    read: "^events-service\\.timeline(\\.dlq)?$"
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data

@@ -1,0 +1,66 @@
+### =====================================================================
+### Credenciales de collective-agreements-service en el bus de eventos.
+###
+### Van en rrhh-system y no junto al clúster porque el operador genera la
+### contraseña en un Secret de este mismo namespace, y es aquí donde corre el
+### pod que tiene que montarlo. La referencia al clúster cruza a rrhh-data.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: collective-agreements
+  namespace: rrhh-system
+spec:
+  tags: []
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Permisos sobre RECURSOS (nombres de exchanges y colas).
+###
+### Solo publicar en aspavi.events. Sin `configure`, así que no puede declarar
+### ni borrar exchanges o colas: la topología la define este repo, no el
+### servicio en caliente. Sin `read`, porque no consume nada.
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: collective-agreements
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: collective-agreements
+  permissions:
+    configure: ""
+    write: "^aspavi\\.events$"
+    read: ""
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Permisos sobre la CLAVE DE ROUTING. Esto es lo que convierte el convenio
+### <servicio>.<agregado>.<evento>.v<n> en una garantía en vez de una costumbre:
+### el broker rechaza que este servicio publique con el prefijo de otro. Un bug
+### —o algo peor— no puede fabricar eventos en nombre ajeno.
+###
+### Es también la razón por la que el servicio va primero en la clave: con el
+### agregado delante, esta regla habría que escribirla enumerando los agregados
+### del servicio y mantenerla cada vez que gana uno.
+apiVersion: rabbitmq.com/v1beta1
+kind: TopicPermission
+metadata:
+  name: collective-agreements
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: collective-agreements
+  permissions:
+    exchange: aspavi.events
+    write: "^collective-agreements\\."
+    read: ""
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
