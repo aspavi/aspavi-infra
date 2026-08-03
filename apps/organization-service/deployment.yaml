@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: organization-service
-          image: ghcr.io/aspavi/aspavi-organization-service:master-82a1ec4
+          image: ghcr.io/aspavi/aspavi-organization-service:master-f3fe1e9
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
