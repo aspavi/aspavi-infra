@@ -73,22 +73,22 @@ spec:
       log.console = true
       log.console.level = info
 
-  override:
-    statefulSet:
-      spec:
-        template:
-          spec:
-            affinity:
-              ### Una réplica por nodo. `required` y no `preferred`: dos
-              ### réplicas en el mismo nodo darían la apariencia de un quorum
-              ### de tres tolerando la caída de uno, cuando ese nodo se llevaría
-              ### dos votos por delante y el clúster entero con ellos.
-              podAntiAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  - labelSelector:
-                      matchExpressions:
-                        - key: app.kubernetes.io/name
-                          operator: In
-                          values:
-                            - rabbitmq
-                    topologyKey: kubernetes.io/hostname
+  ### Una réplica por nodo. `required` y no `preferred`: dos réplicas en el
+  ### mismo nodo darían la apariencia de un quorum de tres tolerando la caída
+  ### de uno, cuando ese nodo se llevaría dos votos por delante y el clúster
+  ### entero con ellos.
+  ###
+  ### Va aquí y no bajo `override.statefulSet`: ese camino embebe el PodSpec
+  ### entero de Kubernetes, donde `containers` es obligatorio, así que pasar
+  ### solo la afinidad lo deja a null y el CRD lo rechaza. El operador expone
+  ### `affinity` de primer nivel justo para esto.
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - rabbitmq
+          topologyKey: kubernetes.io/hostname
