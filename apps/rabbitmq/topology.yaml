@@ -1,0 +1,67 @@
+### =====================================================================
+### Topología compartida: el bus de eventos de dominio y su cementerio.
+###
+### Aquí solo vive lo que es de todos. Las colas NO están aquí: cada consumidor
+### declara la suya en apps/<su-servicio>/, para que ArgoCD sincronice la cola
+### con el servicio que la lee. Si vivieran juntas, un consumidor nuevo serían
+### dos PRs y arrancaría antes de existir su cola, y al retirarlo la cola se
+### quedaría huérfana.
+###
+### VHOST `/`, Y NO UNO POR TENANT
+###
+### El clúster es exclusivo de aspavi, así que un vhost propio no aislaría de
+### nada. Y uno por tenant sería peor: obligaría a redeclarar toda la topología
+### y desplegar cada vez que entra un cliente, justo lo contrario del modelo
+### actual, donde dar de alta un tenant es una línea en application-aspavi.yml.
+### El tenant viaja en la cabecera del mensaje, como en el resto del ecosistema.
+###
+### CONVENIO DE ROUTING KEY
+###
+###   <servicio>.<agregado>.<evento>.v<n>
+###   collective-agreements.work-calendar.holidays-changed.v1
+###   contract.contract.ended.v1
+###
+### La versión va en la clave y no en el cuerpo para poder publicar una v2 en
+### paralelo: los consumidores viejos siguen atados a `.v1` y no se enteran,
+### y se migran uno a uno en vez de todos a la vez.
+###
+### El cuerpo es JSON. Sin librería compartida de DTOs a propósito: acoplaría
+### la release de cada productor a la de la librería, y el contrato se sostiene
+### igual documentando el esquema por clave de routing.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: aspavi-events
+  namespace: rrhh-data
+spec:
+  name: aspavi.events
+  ### Topic y no fanout: cada consumidor se ata a lo que entiende
+  ### (`collective-agreements.#`) en vez de recibirlo todo y descartar.
+  type: topic
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Adonde van los mensajes que un consumidor no logra procesar. Sin esto, un
+### mensaje envenenado en una cola quorum se reintenta hasta que alguien mira
+### los logs; con esto, sale de en medio y queda guardado para inspeccionarlo.
+###
+### Es topic y no fanout para que la clave de routing original sobreviva al
+### rebote: es la mitad de la pista sobre qué se rompió.
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: aspavi-events-dlx
+  namespace: rrhh-data
+spec:
+  name: aspavi.events.dlx
+  type: topic
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq

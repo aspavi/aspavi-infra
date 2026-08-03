@@ -1,0 +1,92 @@
+### =====================================================================
+### La cola de events-service en el bus de eventos.
+###
+### Vive en la carpeta del servicio y no en apps/rabbitmq/ para que ArgoCD
+### sincronice la cola con el consumidor que la lee: se añaden en el mismo PR,
+### y no hay ventana en la que el servicio arranque sin su cola.
+###
+### Los objetos sí se crean en `rrhh-data`, junto al RabbitmqCluster, porque el
+### Topology Operator resuelve `rabbitmqClusterReference` en su propio
+### namespace. El fichero acompaña al servicio; el objeto acompaña al clúster.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: events-service-timeline
+  namespace: rrhh-data
+spec:
+  name: events-service.timeline
+  ### Quorum, aunque el clúster ya lo pone por defecto: dejarlo explícito
+  ### significa que esta cola no cambia de naturaleza si algún día alguien
+  ### toca el default del clúster.
+  type: quorum
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  arguments:
+    ### Lo que no se pueda procesar sale de en medio en vez de atascar la cola.
+    x-dead-letter-exchange: aspavi.events.dlx
+    ### Sin límite, un mensaje envenenado en una cola quorum vuelve a la cabeza
+    ### y se reintenta para siempre, bloqueando todo lo que va detrás. A los 5
+    ### intentos se da por perdido y se manda al cementerio.
+    x-delivery-limit: 5
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Donde aterriza lo que la cola de arriba no supo digerir. Sin DLX propia:
+### encadenarle otra crearía un bucle de rebotes.
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: events-service-timeline-dlq
+  namespace: rrhh-data
+spec:
+  name: events-service.timeline.dlq
+  type: quorum
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Qué escucha events-service.
+###
+### Se ata por productor y no con `#`. Con `#` un productor nuevo no tocaría
+### infraestructura, que suena bien, pero a cambio cualquier evento publicado
+### en el bus —fuese o no de línea temporal— acabaría en esta cola obligando al
+### consumidor a decidir qué hacer con lo que no entiende. Así, leyendo este
+### fichero se sabe exactamente quién alimenta la línea temporal, y dar de alta
+### un productor es un binding en el mismo PR que lo añade.
+###
+### El primero es collective-agreements, que publicará los festivos.
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: events-service-timeline-from-collective-agreements
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events
+  destination: events-service.timeline
+  destinationType: queue
+  routingKey: "collective-agreements.#"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### El cementerio recoge todo lo que rebote, venga de donde venga.
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: events-service-timeline-dlq-catch-all
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events.dlx
+  destination: events-service.timeline.dlq
+  destinationType: queue
+  routingKey: "#"
+  rabbitmqClusterReference:
+    name: rabbitmq
