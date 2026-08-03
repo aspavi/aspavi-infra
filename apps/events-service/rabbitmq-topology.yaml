@@ -131,8 +131,6 @@ spec:
   userReference:
     name: events-service
   permissions:
-    configure: ""
-    write: ""
     read: "^events-service\\.timeline(\\.dlq)?$"
   rabbitmqClusterReference:
     name: rabbitmq

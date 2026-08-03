@@ -32,9 +32,7 @@ spec:
   userReference:
     name: collective-agreements
   permissions:
-    configure: ""
     write: "^aspavi\\.events$"
-    read: ""
   rabbitmqClusterReference:
     name: rabbitmq
     namespace: rrhh-data
@@ -60,7 +58,6 @@ spec:
   permissions:
     exchange: aspavi.events
     write: "^collective-agreements\\."
-    read: ""
   rabbitmqClusterReference:
     name: rabbitmq
     namespace: rrhh-data
