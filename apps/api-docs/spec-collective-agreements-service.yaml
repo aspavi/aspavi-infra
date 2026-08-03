@@ -890,18 +890,18 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"pageNumber\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageSize\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
@@ -919,21 +919,21 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementSummaryResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
-    \  },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"scope\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"SECTORIAL\",\n              \"TERRITORIAL\",\n          \
-    \    \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"boe\": {\n      \
-    \      \"type\": \"string\"\n          },\n          \"status\": {\n         \
-    \   \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementSummaryResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"code\": {\n            \"type\": \"string\"\
+    \n          },\n          \"name\": {\n            \"type\": \"string\"\n    \
+    \      },\n          \"scope\": {\n            \"type\": \"string\",\n       \
+    \     \"enum\": [\n              \"SECTORIAL\",\n              \"TERRITORIAL\"\
+    ,\n              \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"boe\": {\n  \
+    \          \"type\": \"string\"\n          },\n          \"status\": {\n     \
+    \       \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
     ,\n              \"VIGENTE\",\n              \"ARCHIVADO\"\n            ]\n  \
     \        },\n          \"version\": {\n            \"type\": \"integer\",\n  \
     \          \"format\": \"int32\"\n          },\n          \"hasUnsavedChanges\"\
@@ -981,23 +981,23 @@ data:
     \        \"format\": \"int32\"\n          },\n          \"pageable\": {\n    \
     \        \"$ref\": \"#/components/schemas/PageableObject\"\n          },\n   \
     \       \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementVersionResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"versionNumber\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"effectiveFrom\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
-    \       },\n          \"summary\": {\n            \"type\": \"string\"\n     \
-    \     },\n          \"changeCount\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"publishedBy\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"publishedAt\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
-    \        },\n          \"current\": {\n            \"type\": \"boolean\"\n   \
-    \       },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementVersionResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"versionNumber\": {\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    effectiveFrom\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\
+    \n          },\n          \"changeCount\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"publishedBy\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"publishedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"current\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
     \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
     bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
     \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
