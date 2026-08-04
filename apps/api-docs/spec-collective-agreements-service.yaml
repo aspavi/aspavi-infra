@@ -136,7 +136,7 @@ data:
     \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
     \        ]\n      }\n    },\n    \"/api/v1/collective-agreements/{id}\": {\n \
     \     \"get\": {\n        \"tags\": [\n          \"Collective Agreements\"\n \
-    \       ],\n        \"summary\": \"Get a collective agreement by ID (all 11 blocks)\"\
+    \       ],\n        \"summary\": \"Get a collective agreement by ID (all 12 blocks)\"\
     ,\n        \"operationId\": \"getById_1\",\n        \"parameters\": [\n      \
     \    {\n            \"name\": \"id\",\n            \"in\": \"path\",\n       \
     \     \"required\": true,\n            \"schema\": {\n              \"type\":\
@@ -718,7 +718,12 @@ data:
     \  \"MULTIPLICADOR\",\n              \"VALOR\"\n            ]\n          },\n\
     \          \"overtimeRemunAmount\": {\n            \"type\": \"number\"\n    \
     \      },\n          \"horasExtraObs\": {\n            \"type\": \"string\"\n\
-    \          },\n          \"categories\": {\n            \"type\": \"array\",\n\
+    \          },\n          \"seniorityPeriodYears\": {\n            \"minimum\"\
+    : 1,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
+    \          },\n          \"seniorityMaxPeriods\": {\n            \"minimum\":\
+    \ 1,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n\
+    \          },\n          \"antiguedadObs\": {\n            \"type\": \"string\"\
+    \n          },\n          \"categories\": {\n            \"type\": \"array\",\n\
     \            \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementCategoryRequest\"\
     \n            }\n          },\n          \"remunerations\": {\n            \"\
     type\": \"array\",\n            \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementRemunerationRequest\"\
@@ -852,7 +857,11 @@ data:
     \  \"MULTIPLICADOR\",\n              \"VALOR\"\n            ]\n          },\n\
     \          \"overtimeRemunAmount\": {\n            \"type\": \"number\"\n    \
     \      },\n          \"horasExtraObs\": {\n            \"type\": \"string\"\n\
-    \          },\n          \"categories\": {\n            \"type\": \"array\",\n\
+    \          },\n          \"seniorityPeriodYears\": {\n            \"type\": \"\
+    integer\",\n            \"format\": \"int32\"\n          },\n          \"seniorityMaxPeriods\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"antiguedadObs\": {\n            \"type\": \"string\"\
+    \n          },\n          \"categories\": {\n            \"type\": \"array\",\n\
     \            \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementCategoryResponse\"\
     \n            }\n          },\n          \"remunerations\": {\n            \"\
     type\": \"array\",\n            \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementRemunerationResponse\"\
@@ -890,18 +899,18 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
-    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"pageNumber\": {\n            \"type\":\
+    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    pageSize\": {\n            \"type\": \"integer\",\n            \"format\": \"\
+    int32\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
@@ -919,21 +928,21 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementSummaryResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
-    \  },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
-    \          \"scope\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"SECTORIAL\",\n              \"TERRITORIAL\",\n          \
-    \    \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"boe\": {\n      \
-    \      \"type\": \"string\"\n          },\n          \"status\": {\n         \
-    \   \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementSummaryResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"code\": {\n            \"type\": \"string\"\
+    \n          },\n          \"name\": {\n            \"type\": \"string\"\n    \
+    \      },\n          \"scope\": {\n            \"type\": \"string\",\n       \
+    \     \"enum\": [\n              \"SECTORIAL\",\n              \"TERRITORIAL\"\
+    ,\n              \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"boe\": {\n  \
+    \          \"type\": \"string\"\n          },\n          \"status\": {\n     \
+    \       \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
     ,\n              \"VIGENTE\",\n              \"ARCHIVADO\"\n            ]\n  \
     \        },\n          \"version\": {\n            \"type\": \"integer\",\n  \
     \          \"format\": \"int32\"\n          },\n          \"hasUnsavedChanges\"\
@@ -949,55 +958,58 @@ data:
     \           \"enum\": [\n              \"NATURALES\",\n              \"LABORABLES\"\
     \n            ]\n          },\n          \"overtimeLimit\": {\n            \"\
     type\": \"integer\",\n            \"format\": \"int32\"\n          },\n      \
-    \    \"salarioMin\": {\n            \"type\": \"number\"\n          },\n     \
-    \     \"salarioMax\": {\n            \"type\": \"number\"\n          },\n    \
-    \      \"pagas\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"categoriesCount\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    remunerationsCount\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"leavesCount\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    excedenciasCount\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int32\"\n          },\n          \"trialValue\": {\n            \"type\":\
+    \    \"seniorityPeriodYears\": {\n            \"type\": \"integer\",\n       \
+    \     \"format\": \"int32\"\n          },\n          \"seniorityMaxPeriods\":\
+    \ {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"salarioMin\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"salarioMax\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"pagas\": {\n            \"type\": \"integer\",\n  \
+    \          \"format\": \"int32\"\n          },\n          \"categoriesCount\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"remunerationsCount\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"leavesCount\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"excedenciasCount\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"trialValue\":\
+    \ {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"trialUnit\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n\
+    \              \"MESES\"\n            ]\n          },\n          \"noticeValue\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
+    \         },\n          \"noticeUnit\": {\n            \"type\": \"string\",\n\
+    \            \"enum\": [\n              \"DIAS\",\n              \"SEMANAS\",\n\
+    \              \"MESES\"\n            ]\n          },\n          \"updatedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"updatedBy\": {\n            \"type\": \"string\"\n\
+    \          }\n        }\n      },\n      \"PageAgreementSummaryResponse\": {\n\
+    \        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
+    \            \"format\": \"int32\"\n          },\n          \"size\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"content\": {\n            \"type\": \"array\",\n           \
+    \ \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementSummaryResponse\"\
+    \n            }\n          },\n          \"number\": {\n            \"type\":\
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    trialUnit\": {\n            \"type\": \"string\",\n            \"enum\": [\n \
-    \             \"DIAS\",\n              \"SEMANAS\",\n              \"MESES\"\n\
-    \            ]\n          },\n          \"noticeValue\": {\n            \"type\"\
+    pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
+    \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    AgreementVersionResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"versionNumber\": {\n            \"type\"\
     : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    noticeUnit\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
-    \              \"DIAS\",\n              \"SEMANAS\",\n              \"MESES\"\n\
-    \            ]\n          },\n          \"updatedAt\": {\n            \"type\"\
-    : \"string\",\n            \"format\": \"date-time\"\n          },\n         \
-    \ \"updatedBy\": {\n            \"type\": \"string\"\n          }\n        }\n\
-    \      },\n      \"PageAgreementSummaryResponse\": {\n        \"type\": \"object\"\
-    ,\n        \"properties\": {\n          \"totalElements\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int64\"\n          },\n          \"\
-    totalPages\": {\n            \"type\": \"integer\",\n            \"format\": \"\
-    int32\"\n          },\n          \"size\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"content\": {\n\
-    \            \"type\": \"array\",\n            \"items\": {\n              \"\
-    $ref\": \"#/components/schemas/AgreementSummaryResponse\"\n            }\n   \
-    \       },\n          \"number\": {\n            \"type\": \"integer\",\n    \
-    \        \"format\": \"int32\"\n          },\n          \"pageable\": {\n    \
-    \        \"$ref\": \"#/components/schemas/PageableObject\"\n          },\n   \
-    \       \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementVersionResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"versionNumber\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"effectiveFrom\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
-    \       },\n          \"summary\": {\n            \"type\": \"string\"\n     \
-    \     },\n          \"changeCount\": {\n            \"type\": \"integer\",\n \
-    \           \"format\": \"int32\"\n          },\n          \"publishedBy\": {\n\
-    \            \"type\": \"string\"\n          },\n          \"publishedAt\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
-    \        },\n          \"current\": {\n            \"type\": \"boolean\"\n   \
-    \       },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
+    effectiveFrom\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\
+    \n          },\n          \"changeCount\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"publishedBy\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"publishedAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"current\": {\n            \"type\": \"boolean\"\n \
+    \         },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
     \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
     bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
     \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
