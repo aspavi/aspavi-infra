@@ -21,12 +21,18 @@ spec:
       realm:
         - name: ADMIN_RRHH
           description: "Administrador de RRHH con acceso total"
+          composite: true
+          composites:
+            realm:
+              - "perm:audit:read:all"
         - name: MANAGER
           description: "Manager con acceso a su departamento"
         - name: EMPLOYEE
           description: "Empleado con acceso a su propio perfil"
         - name: AUDITOR
           description: "Auditor con acceso de solo lectura"
+        - name: "perm:audit:read:all"
+          description: "Leer el registro de auditoría de todo el tenant"
 
     clients:
       - clientId: rrhh-frontend
