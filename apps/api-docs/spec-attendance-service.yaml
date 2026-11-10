@@ -9,33 +9,38 @@ data:
     : \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com/attendance\"\
     \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Time corrections\",\n \
     \     \"description\": \"The only way the punch record changes\"\n    },\n   \
-    \ {\n      \"name\": \"Time entries\",\n      \"description\": \"Clock-in records.\
-    \ Append-only: never edited, only corrected\"\n    },\n    {\n      \"name\":\
-    \ \"Work days\",\n      \"description\": \"Daily totals derived from the punches\"\
-    \n    }\n  ],\n  \"paths\": {\n    \"/api/v1/time-corrections/{id}\": {\n    \
-    \  \"get\": {\n        \"tags\": [\n          \"Time corrections\"\n        ],\n\
-    \        \"summary\": \"Get a correction\",\n        \"operationId\": \"get\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
-    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
-    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
-    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n\
-    \                }\n              }\n            }\n          },\n          \"\
-    200\": {\n            \"description\": \"Found\",\n            \"content\": {\n\
-    \              \"*/*\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/TimeCorrectionResponse\"\n                }\n \
-    \             }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
-    \   },\n      \"put\": {\n        \"tags\": [\n          \"Time corrections\"\n\
-    \        ],\n        \"summary\": \"Update a pending correction\",\n        \"\
-    operationId\": \"update\",\n        \"parameters\": [\n          {\n         \
-    \   \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
-    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/TimeCorrectionRequest\"\
+    \ {\n      \"name\": \"My work days\",\n      \"description\": \"Self-service:\
+    \ my daily totals\"\n    },\n    {\n      \"name\": \"My time entries\",\n   \
+    \   \"description\": \"Self-service: clock in and out, consult my punches\"\n\
+    \    },\n    {\n      \"name\": \"Time entries\",\n      \"description\": \"Clock-in\
+    \ records. Append-only: never edited, only corrected\"\n    },\n    {\n      \"\
+    name\": \"Work days\",\n      \"description\": \"Daily totals derived from the\
+    \ punches\"\n    },\n    {\n      \"name\": \"My time corrections\",\n      \"\
+    description\": \"Self-service: request corrections of my punches\"\n    }\n  ],\n\
+    \  \"paths\": {\n    \"/api/v1/time-corrections/{id}\": {\n      \"get\": {\n\
+    \        \"tags\": [\n          \"Time corrections\"\n        ],\n        \"summary\"\
+    : \"Get a correction\",\n        \"operationId\": \"get\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"404\": {\n        \
+    \    \"description\": \"Not found in this tenant\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"200\": {\n   \
+    \         \"description\": \"Found\",\n            \"content\": {\n          \
+    \    \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/TimeCorrectionResponse\"\n                }\n           \
+    \   }\n            }\n          }\n        },\n        \"security\": [\n     \
+    \     {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n  \
+    \    \"put\": {\n        \"tags\": [\n          \"Time corrections\"\n       \
+    \ ],\n        \"summary\": \"Update a pending correction\",\n        \"operationId\"\
+    : \"update\",\n        \"parameters\": [\n          {\n            \"name\": \"\
+    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
+    \      \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/TimeCorrectionRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
     \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
     : \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
@@ -55,35 +60,68 @@ data:
     \                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
-    \    \"Time corrections\"\n        ],\n        \"summary\": \"Delete a correction\
-    \ that was never approved\",\n        \"operationId\": \"delete\",\n        \"\
-    parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\"\
-    : \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
-    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
-    \     }\n          }\n        ],\n        \"responses\": {\n          \"204\"\
-    : {\n            \"description\": \"Deleted\"\n          },\n          \"404\"\
-    : {\n            \"description\": \"Not found in this tenant\"\n          },\n\
-    \          \"409\": {\n            \"description\": \"Approved corrections are\
-    \ part of the audit trail\"\n          }\n        },\n        \"security\": [\n\
-    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
-    \    },\n    \"/api/v1/work-days/{employeeId}/recompute\": {\n      \"post\":\
-    \ {\n        \"tags\": [\n          \"Work days\"\n        ],\n        \"summary\"\
-    : \"Rebuild a day's totals from its entries. Idempotent\",\n        \"operationId\"\
-    : \"recompute\",\n        \"parameters\": [\n          {\n            \"name\"\
-    : \"employeeId\",\n            \"in\": \"path\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"string\",\n            \
-    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
-    \  \"name\": \"date\",\n            \"in\": \"query\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"date\"\n            }\n          }\n        ],\n    \
-    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
-    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/WorkDayComputeRequest\"\
-    \n              }\n            }\n          }\n        },\n        \"responses\"\
-    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/WorkDayResponse\"\n            \
-    \    }\n              }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \    \"Time corrections\"\n        ],\n        \"summary\": \"Delete a pending\
+    \ correction\",\n        \"operationId\": \"delete\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"204\": {\n        \
+    \    \"description\": \"Deleted\"\n          },\n          \"409\": {\n      \
+    \      \"description\": \"Not pending: approved, rejected and cancelled corrections\
+    \ are part of the audit trail\"\n          },\n          \"404\": {\n        \
+    \    \"description\": \"Not found in this tenant\"\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/me/time-corrections/{id}\":\
+    \ {\n      \"put\": {\n        \"tags\": [\n          \"My time corrections\"\n\
+    \        ],\n        \"summary\": \"Update one of my pending corrections\",\n\
+    \        \"description\": \"employeeId in the body is ignored\",\n        \"operationId\"\
+    : \"update_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/TimeCorrectionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"403\": {\n            \"description\"\
+    : \"The token carries no employee\",\n            \"content\": {\n           \
+    \   \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/TimeCorrectionResponse\"\n                }\n           \
+    \   }\n            }\n          },\n          \"409\": {\n            \"description\"\
+    : \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Updated\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"400\": {\n   \
+    \         \"description\": \"Payload does not match what the kind requires\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found, or not mine\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-days/{employeeId}/recompute\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Work days\"\n       \
+    \ ],\n        \"summary\": \"Rebuild a day's totals from its entries. Idempotent\"\
+    ,\n        \"operationId\": \"recompute\",\n        \"parameters\": [\n      \
+    \    {\n            \"name\": \"employeeId\",\n            \"in\": \"path\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     },\n          {\n            \"name\": \"date\",\n            \"in\": \"\
+    query\",\n            \"required\": true,\n            \"schema\": {\n       \
+    \       \"type\": \"string\",\n              \"format\": \"date\"\n          \
+    \  }\n          }\n        ],\n        \"requestBody\": {\n          \"content\"\
+    : {\n            \"application/json\": {\n              \"schema\": {\n      \
+    \          \"$ref\": \"#/components/schemas/WorkDayComputeRequest\"\n        \
+    \      }\n            }\n          }\n        },\n        \"responses\": {\n \
+    \         \"200\": {\n            \"description\": \"OK\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/WorkDayResponse\"\n                }\n  \
+    \            }\n            }\n          }\n        },\n        \"security\":\
+    \ [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
     \   }\n    },\n    \"/api/v1/time-entries\": {\n      \"get\": {\n        \"tags\"\
     : [\n          \"Time entries\"\n        ],\n        \"summary\": \"Entries of\
     \ an employee for a day or a range, or of everyone for a day\",\n        \"operationId\"\
@@ -107,11 +145,14 @@ data:
     \n                  }\n                }\n              }\n            }\n   \
     \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
     : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
-    \          \"Time entries\"\n        ],\n        \"summary\": \"Record a punch.\
-    \ Defaults to now when no instant is given\",\n        \"operationId\": \"create\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"recordedBy\"\
-    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
-    \    \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    \          \"Time entries\"\n        ],\n        \"summary\": \"Record a punch\
+    \ on behalf of an employee. Defaults to now when no instant is given\",\n    \
+    \    \"description\": \"recordedBy is the authenticated employee; the query parameter\
+    \ is ignored\",\n        \"operationId\": \"create\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"recordedBy\",\n            \"in\": \"\
+    query\",\n            \"description\": \"Ignored; taken from the token\",\n  \
+    \          \"required\": false,\n            \"deprecated\": true,\n         \
+    \   \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
     : \"uuid\"\n            }\n          }\n        ],\n        \"requestBody\": {\n\
     \          \"content\": {\n            \"application/json\": {\n             \
     \ \"schema\": {\n                \"$ref\": \"#/components/schemas/TimeEntryRequest\"\
@@ -162,13 +203,14 @@ data:
     \         {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
     \    },\n    \"/api/v1/time-corrections/{id}/reject\": {\n      \"post\": {\n\
     \        \"tags\": [\n          \"Time corrections\"\n        ],\n        \"summary\"\
-    : \"Reject a pending correction\",\n        \"operationId\": \"reject\",\n   \
-    \     \"parameters\": [\n          {\n            \"name\": \"id\",\n        \
-    \    \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
-    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
-    : {\n                \"$ref\": \"#/components/schemas/CorrectionDecisionRequest\"\
+    : \"Reject a pending correction\",\n        \"description\": \"The approver is\
+    \ the authenticated employee; approverId in the body is ignored\",\n        \"\
+    operationId\": \"reject\",\n        \"parameters\": [\n          {\n         \
+    \   \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/CorrectionDecisionRequest\"\
     \n              }\n            }\n          },\n          \"required\": true\n\
     \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
     : \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
@@ -177,70 +219,201 @@ data:
     200\": {\n            \"description\": \"Rejected\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
     \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
-    \  }\n              }\n            }\n          },\n          \"404\": {\n   \
-    \         \"description\": \"Not found in this tenant\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
-    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
-    \   }\n    },\n    \"/api/v1/time-corrections/{id}/cancel\": {\n      \"post\"\
-    : {\n        \"tags\": [\n          \"Time corrections\"\n        ],\n       \
-    \ \"summary\": \"Cancel a pending correction\",\n        \"operationId\": \"cancel\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
-    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
-    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
-    \             \"*/*\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/TimeCorrectionResponse\"\n                }\n \
-    \             }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
-    \   }\n    },\n    \"/api/v1/time-corrections/{id}/approve\": {\n      \"post\"\
-    : {\n        \"tags\": [\n          \"Time corrections\"\n        ],\n       \
-    \ \"summary\": \"Approve. Appends the resulting entry \\u2014 the original punch\
-    \ is never touched\",\n        \"operationId\": \"approve\",\n        \"parameters\"\
-    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
-    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
-    \          \"application/json\": {\n              \"schema\": {\n            \
-    \    \"$ref\": \"#/components/schemas/CorrectionDecisionRequest\"\n          \
-    \    }\n            }\n          },\n          \"required\": true\n        },\n\
-    \        \"responses\": {\n          \"409\": {\n            \"description\":\
-    \ \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
+    \  }\n              }\n            }\n          },\n          \"503\": {\n   \
+    \         \"description\": \"employee-service could not check the hierarchy\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    403\": {\n            \"description\": \"Not above the employee in the reporting\
+    \ chain\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Not found in this tenant\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/time-corrections/{id}/cancel\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Time corrections\"\n\
+    \        ],\n        \"summary\": \"Cancel a pending correction\",\n        \"\
+    operationId\": \"cancel\",\n        \"parameters\": [\n          {\n         \
+    \   \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/time-corrections/{id}/approve\"\
+    : {\n      \"post\": {\n        \"tags\": [\n          \"Time corrections\"\n\
+    \        ],\n        \"summary\": \"Approve. Appends the resulting entry \\u2014\
+    \ the original punch is never touched\",\n        \"description\": \"The approver\
+    \ is the authenticated employee; approverId in the body is ignored\",\n      \
+    \  \"operationId\": \"approve\",\n        \"parameters\": [\n          {\n   \
+    \         \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/CorrectionDecisionRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"409\": {\n            \"description\"\
+    : \"Already decided\",\n            \"content\": {\n              \"*/*\": {\n\
     \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
     200\": {\n            \"description\": \"Approved and applied\",\n           \
     \ \"content\": {\n              \"*/*\": {\n                \"schema\": {\n  \
     \                \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n \
     \               }\n              }\n            }\n          },\n          \"\
+    503\": {\n            \"description\": \"employee-service could not check the\
+    \ hierarchy\",\n            \"content\": {\n              \"*/*\": {\n       \
+    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    403\": {\n            \"description\": \"Not above the employee in the reporting\
+    \ chain\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
     404\": {\n            \"description\": \"Not found in this tenant\",\n       \
     \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
     \                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n\
     \                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    },\n    \"/api/v1/work-days\": {\n      \"get\"\
-    : {\n        \"tags\": [\n          \"Work days\"\n        ],\n        \"summary\"\
-    : \"Days of an employee over a range, or of everyone for a day\",\n        \"\
-    operationId\": \"list_2\",\n        \"parameters\": [\n          {\n         \
-    \   \"name\": \"employeeId\",\n            \"in\": \"query\",\n            \"\
-    required\": false,\n            \"schema\": {\n              \"type\": \"string\"\
-    ,\n              \"format\": \"uuid\"\n            }\n          },\n         \
-    \ {\n            \"name\": \"date\",\n            \"in\": \"query\",\n       \
-    \     \"required\": false,\n            \"schema\": {\n              \"type\"\
-    : \"string\",\n              \"format\": \"date\"\n            }\n          },\n\
-    \          {\n            \"name\": \"from\",\n            \"in\": \"query\",\n\
-    \            \"required\": false,\n            \"schema\": {\n              \"\
-    type\": \"string\",\n              \"format\": \"date\"\n            }\n     \
-    \     },\n          {\n            \"name\": \"to\",\n            \"in\": \"query\"\
-    ,\n            \"required\": false,\n            \"schema\": {\n             \
-    \ \"type\": \"string\",\n              \"format\": \"date\"\n            }\n \
-    \         }\n        ],\n        \"responses\": {\n          \"200\": {\n    \
-    \        \"description\": \"OK\",\n            \"content\": {\n              \"\
-    */*\": {\n                \"schema\": {\n                  \"type\": \"array\"\
-    ,\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/WorkDayResponse\"\
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/me/time-entries\": {\n     \
+    \ \"get\": {\n        \"tags\": [\n          \"My time entries\"\n        ],\n\
+    \        \"summary\": \"My punches over a range of work dates; today when no range\
+    \ is given\",\n        \"description\": \"Includes superseded and voided rows,\
+    \ flagged with effective=false\",\n        \"operationId\": \"list_2\",\n    \
+    \    \"parameters\": [\n          {\n            \"name\": \"from\",\n       \
+    \     \"in\": \"query\",\n            \"required\": false,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"date\"\n\
+    \            }\n          },\n          {\n            \"name\": \"to\",\n   \
+    \         \"in\": \"query\",\n            \"required\": false,\n            \"\
+    schema\": {\n              \"type\": \"string\",\n              \"format\": \"\
+    date\"\n            }\n          }\n        ],\n        \"responses\": {\n   \
+    \       \"403\": {\n            \"description\": \"The token carries no employee\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/TimeEntryResponse\"\n  \
+    \                }\n                }\n              }\n            }\n      \
+    \    },\n          \"200\": {\n            \"description\": \"Found\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/TimeEntryResponse\"\n  \
+    \                }\n                }\n              }\n            }\n      \
+    \    }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"My time entries\"\n        ],\n        \"summary\": \"Clock in or\
+    \ out now\",\n        \"description\": \"The instant is the server's; occurredAt\
+    \ and employeeId in the body are ignored. A forgotten punch is requested through\
+    \ /api/v1/me/time-corrections\",\n        \"operationId\": \"punch\",\n      \
+    \  \"requestBody\": {\n          \"content\": {\n            \"application/json\"\
+    : {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/TimeEntryRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"Invalid payload, or source CORRECTION or IMPORT\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeEntryResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"201\": {\n        \
+    \    \"description\": \"Recorded\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeEntryResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    403\": {\n            \"description\": \"The token carries no employee\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeEntryResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/me/time-corrections\": {\n \
+    \     \"get\": {\n        \"tags\": [\n          \"My time corrections\"\n   \
+    \     ],\n        \"summary\": \"My corrections, newest first, optionally by status\"\
+    ,\n        \"operationId\": \"list_3\",\n        \"parameters\": [\n         \
+    \ {\n            \"name\": \"status\",\n            \"in\": \"query\",\n     \
+    \       \"required\": false,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"enum\": [\n                \"PENDING\",\n     \
+    \           \"APPROVED\",\n                \"REJECTED\",\n                \"CANCELLED\"\
+    \n              ]\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"403\": {\n            \"description\": \"The token carries no\
+    \ employee\",\n            \"content\": {\n              \"*/*\": {\n        \
+    \        \"schema\": {\n                  \"type\": \"array\",\n             \
+    \     \"items\": {\n                    \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"Found\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
     \n                  }\n                }\n              }\n            }\n   \
     \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"My time corrections\"\n        ],\n        \"summary\": \"Request\
+    \ a correction of my record: add a missing punch, amend one, or annul a duplicate\"\
+    ,\n        \"description\": \"employeeId in the body is ignored\",\n        \"\
+    operationId\": \"create_2\",\n        \"requestBody\": {\n          \"content\"\
+    : {\n            \"application/json\": {\n              \"schema\": {\n      \
+    \          \"$ref\": \"#/components/schemas/TimeCorrectionRequest\"\n        \
+    \      }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"403\": {\n            \"description\":\
+    \ \"The token carries no employee\",\n            \"content\": {\n           \
+    \   \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/TimeCorrectionResponse\"\n                }\n           \
+    \   }\n            }\n          },\n          \"400\": {\n            \"description\"\
+    : \"Payload does not match what the kind requires, or the target entry is not\
+    \ mine\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"Target entry not found in this tenant\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    201\": {\n            \"description\": \"Created\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
+    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/me/time-corrections/{id}/cancel\": {\n      \"post\"\
+    : {\n        \"tags\": [\n          \"My time corrections\"\n        ],\n    \
+    \    \"summary\": \"Cancel one of my pending corrections\",\n        \"operationId\"\
+    : \"cancel_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"Cancelled\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    403\": {\n            \"description\": \"The token carries no employee\",\n  \
+    \          \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"Already decided\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"404\": {\n   \
+    \         \"description\": \"Not found, or not mine\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/TimeCorrectionResponse\"\n              \
+    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/work-days\": {\n      \"get\": {\n        \"tags\"\
+    : [\n          \"Work days\"\n        ],\n        \"summary\": \"Days of an employee\
+    \ over a range, or of everyone for a day\",\n        \"operationId\": \"list_4\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"employeeId\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"uuid\"\n            }\n          },\n          {\n            \"name\": \"\
+    date\",\n            \"in\": \"query\",\n            \"required\": false,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"date\"\n            }\n          },\n          {\n            \"name\"\
+    : \"from\",\n            \"in\": \"query\",\n            \"required\": false,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"date\"\n            }\n          },\n          {\n          \
+    \  \"name\": \"to\",\n            \"in\": \"query\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"type\": \"string\",\n   \
+    \           \"format\": \"date\"\n            }\n          }\n        ],\n   \
+    \     \"responses\": {\n          \"200\": {\n            \"description\": \"\
+    OK\",\n            \"content\": {\n              \"*/*\": {\n                \"\
+    schema\": {\n                  \"type\": \"array\",\n                  \"items\"\
+    : {\n                    \"$ref\": \"#/components/schemas/WorkDayResponse\"\n\
+    \                  }\n                }\n              }\n            }\n    \
+    \      }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
     : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/work-days/{employeeId}\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Work days\"\n        ],\n\
     \        \"summary\": \"One employee's day. Returns zeros when nothing was recorded\"\
@@ -280,96 +453,135 @@ data:
     \           \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
     : \"#/components/schemas/TimeEntryResponse\"\n                }\n            \
     \  }\n            }\n          }\n        },\n        \"security\": [\n      \
-    \    {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n    }\n\
-    \  },\n  \"components\": {\n    \"schemas\": {\n      \"TimeCorrectionRequest\"\
-    : {\n        \"required\": [\n          \"employeeId\",\n          \"kind\",\n\
-    \          \"reason\",\n          \"workDate\"\n        ],\n        \"type\":\
-    \ \"object\",\n        \"properties\": {\n          \"employeeId\": {\n      \
-    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"kind\": {\n            \"type\": \"string\",\n            \"enum\"\
-    : [\n              \"MISSING\",\n              \"AMEND\",\n              \"REMOVE\"\
-    \n            ]\n          },\n          \"workDate\": {\n            \"type\"\
-    : \"string\",\n            \"format\": \"date\"\n          },\n          \"targetEntryId\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"proposedKind\": {\n            \"type\": \"string\",\n\
-    \            \"enum\": [\n              \"IN\",\n              \"OUT\",\n    \
-    \          \"BREAK_START\",\n              \"BREAK_END\"\n            ]\n    \
-    \      },\n          \"proposedAt\": {\n            \"type\": \"string\",\n  \
-    \          \"format\": \"date-time\"\n          },\n          \"reason\": {\n\
-    \            \"maxLength\": 500,\n            \"minLength\": 0,\n            \"\
-    type\": \"string\"\n          }\n        }\n      },\n      \"TimeCorrectionResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
-    \           \"format\": \"uuid\"\n          },\n          \"kind\": {\n      \
-    \      \"type\": \"string\",\n            \"enum\": [\n              \"MISSING\"\
-    ,\n              \"AMEND\",\n              \"REMOVE\"\n            ]\n       \
-    \   },\n          \"workDate\": {\n            \"type\": \"string\",\n       \
-    \     \"format\": \"date\"\n          },\n          \"targetEntryId\": {\n   \
-    \         \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"proposedKind\": {\n            \"type\": \"string\",\n          \
-    \  \"enum\": [\n              \"IN\",\n              \"OUT\",\n              \"\
-    BREAK_START\",\n              \"BREAK_END\"\n            ]\n          },\n   \
-    \       \"proposedAt\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"date-time\"\n          },\n          \"reason\": {\n            \"type\":\
-    \ \"string\"\n          },\n          \"status\": {\n            \"type\": \"\
-    string\",\n            \"enum\": [\n              \"PENDING\",\n             \
-    \ \"APPROVED\",\n              \"REJECTED\",\n              \"CANCELLED\"\n  \
-    \          ]\n          },\n          \"approverId\": {\n            \"type\"\
-    : \"string\",\n            \"format\": \"uuid\"\n          },\n          \"decidedAt\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
-    \          },\n          \"decisionNote\": {\n            \"type\": \"string\"\
-    \n          },\n          \"resultingEntryId\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          },\n          \"requestedAt\":\
-    \ {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
-    \          },\n          \"createdAt\": {\n            \"type\": \"string\",\n\
-    \            \"format\": \"date-time\"\n          },\n          \"updatedAt\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
-    \          }\n        }\n      },\n      \"WorkDayComputeRequest\": {\n      \
-    \  \"type\": \"object\",\n        \"properties\": {\n          \"expectedMinutes\"\
-    : {\n            \"minimum\": 0,\n            \"type\": \"integer\",\n       \
-    \     \"format\": \"int32\"\n          }\n        }\n      },\n      \"TimeEntryResponse\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"employeeId\": {\n            \"type\": \"string\",\n \
-    \           \"format\": \"uuid\"\n          },\n          \"kind\": {\n      \
-    \      \"type\": \"string\",\n            \"enum\": [\n              \"IN\",\n\
-    \              \"OUT\",\n              \"BREAK_START\",\n              \"BREAK_END\"\
-    \n            ]\n          },\n          \"occurredAt\": {\n            \"type\"\
+    \    {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n\
+    \    \"/api/v1/me/work-days\": {\n      \"get\": {\n        \"tags\": [\n    \
+    \      \"My work days\"\n        ],\n        \"summary\": \"My computed days over\
+    \ a range; today when no range is given\",\n        \"description\": \"Only days\
+    \ with a stored summary are listed\",\n        \"operationId\": \"list_5\",\n\
+    \        \"parameters\": [\n          {\n            \"name\": \"from\",\n   \
+    \         \"in\": \"query\",\n            \"required\": false,\n            \"\
+    schema\": {\n              \"type\": \"string\",\n              \"format\": \"\
+    date\"\n            }\n          },\n          {\n            \"name\": \"to\"\
+    ,\n            \"in\": \"query\",\n            \"required\": false,\n        \
+    \    \"schema\": {\n              \"type\": \"string\",\n              \"format\"\
+    : \"date\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"403\": {\n            \"description\": \"The token carries no employee\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/WorkDayResponse\"\n    \
+    \              }\n                }\n              }\n            }\n        \
+    \  },\n          \"200\": {\n            \"description\": \"Found\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"type\": \"array\",\n                  \"items\": {\n    \
+    \                \"$ref\": \"#/components/schemas/WorkDayResponse\"\n        \
+    \          }\n                }\n              }\n            }\n          }\n\
+    \        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/me/work-days/{date}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"My work days\"\n     \
+    \   ],\n        \"summary\": \"My day. Returns zeros when nothing was recorded\"\
+    ,\n        \"operationId\": \"get_3\",\n        \"parameters\": [\n          {\n\
+    \            \"name\": \"date\",\n            \"in\": \"path\",\n            \"\
+    required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"date\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"403\": {\n            \"description\":\
+    \ \"The token carries no employee\",\n            \"content\": {\n           \
+    \   \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"\
+    #/components/schemas/WorkDayResponse\"\n                }\n              }\n \
+    \           }\n          },\n          \"200\": {\n            \"description\"\
+    : \"Found\",\n            \"content\": {\n              \"*/*\": {\n         \
+    \       \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkDayResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
+    : {\n      \"TimeCorrectionRequest\": {\n        \"required\": [\n          \"\
+    employeeId\",\n          \"kind\",\n          \"reason\",\n          \"workDate\"\
+    \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
+    \     \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"kind\": {\n            \"type\": \"string\"\
+    ,\n            \"enum\": [\n              \"MISSING\",\n              \"AMEND\"\
+    ,\n              \"REMOVE\"\n            ]\n          },\n          \"workDate\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"targetEntryId\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"proposedKind\": {\n\
+    \            \"type\": \"string\",\n            \"enum\": [\n              \"\
+    IN\",\n              \"OUT\",\n              \"BREAK_START\",\n              \"\
+    BREAK_END\"\n            ]\n          },\n          \"proposedAt\": {\n      \
+    \      \"type\": \"string\",\n            \"format\": \"date-time\"\n        \
+    \  },\n          \"reason\": {\n            \"maxLength\": 500,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          }\n        }\n  \
+    \    },\n      \"TimeCorrectionResponse\": {\n        \"type\": \"object\",\n\
+    \        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
+    ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
+    \   },\n          \"kind\": {\n            \"type\": \"string\",\n           \
+    \ \"enum\": [\n              \"MISSING\",\n              \"AMEND\",\n        \
+    \      \"REMOVE\"\n            ]\n          },\n          \"workDate\": {\n  \
+    \          \"type\": \"string\",\n            \"format\": \"date\"\n         \
+    \ },\n          \"targetEntryId\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"proposedKind\": {\n \
+    \           \"type\": \"string\",\n            \"enum\": [\n              \"IN\"\
+    ,\n              \"OUT\",\n              \"BREAK_START\",\n              \"BREAK_END\"\
+    \n            ]\n          },\n          \"proposedAt\": {\n            \"type\"\
     : \"string\",\n            \"format\": \"date-time\"\n          },\n         \
-    \ \"workDate\": {\n            \"type\": \"string\",\n            \"format\":\
-    \ \"date\"\n          },\n          \"source\": {\n            \"type\": \"string\"\
-    ,\n            \"enum\": [\n              \"WEB\",\n              \"MOBILE\",\n\
-    \              \"TERMINAL\",\n              \"IMPORT\",\n              \"CORRECTION\"\
-    \n            ]\n          },\n          \"deviceInfo\": {\n            \"type\"\
-    : \"string\"\n          },\n          \"latitude\": {\n            \"type\": \"\
-    number\"\n          },\n          \"longitude\": {\n            \"type\": \"number\"\
-    \n          },\n          \"replacesEntryId\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          },\n          \"correctionId\"\
+    \ \"reason\": {\n            \"type\": \"string\"\n          },\n          \"\
+    status\": {\n            \"type\": \"string\",\n            \"enum\": [\n    \
+    \          \"PENDING\",\n              \"APPROVED\",\n              \"REJECTED\"\
+    ,\n              \"CANCELLED\"\n            ]\n          },\n          \"approverId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"voided\": {\n            \"type\": \"boolean\"\n     \
-    \     },\n          \"effective\": {\n            \"type\": \"boolean\"\n    \
-    \      },\n          \"note\": {\n            \"type\": \"string\"\n         \
-    \ },\n          \"recordedBy\": {\n            \"type\": \"string\",\n       \
-    \     \"format\": \"uuid\"\n          },\n          \"createdAt\": {\n       \
-    \     \"type\": \"string\",\n            \"format\": \"date-time\"\n         \
-    \ }\n        }\n      },\n      \"WorkDayResponse\": {\n        \"type\": \"object\"\
+    \       },\n          \"decidedAt\": {\n            \"type\": \"string\",\n  \
+    \          \"format\": \"date-time\"\n          },\n          \"decisionNote\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"resultingEntryId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"requestedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          },\n          \"createdAt\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"updatedAt\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"date-time\"\n          }\n        }\n      },\n   \
+    \   \"WorkDayComputeRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"expectedMinutes\": {\n            \"minimum\": 0,\n         \
+    \   \"type\": \"integer\",\n            \"format\": \"int32\"\n          }\n \
+    \       }\n      },\n      \"TimeEntryResponse\": {\n        \"type\": \"object\"\
     ,\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\
     ,\n            \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"workDate\": {\n            \"type\": \"string\",\n       \
-    \     \"format\": \"date\"\n          },\n          \"workedMinutes\": {\n   \
-    \         \"type\": \"integer\",\n            \"format\": \"int32\"\n        \
-    \  },\n          \"breakMinutes\": {\n            \"type\": \"integer\",\n   \
-    \         \"format\": \"int32\"\n          },\n          \"expectedMinutes\":\
-    \ {\n            \"type\": \"integer\",\n            \"format\": \"int32\"\n \
-    \         },\n          \"balanceMinutes\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"firstIn\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
-    \        },\n          \"lastOut\": {\n            \"type\": \"string\",\n   \
-    \         \"format\": \"date-time\"\n          },\n          \"isOpen\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"hasAnomaly\": {\n\
-    \            \"type\": \"boolean\"\n          },\n          \"anomalyNote\": {\n\
+    \   },\n          \"kind\": {\n            \"type\": \"string\",\n           \
+    \ \"enum\": [\n              \"IN\",\n              \"OUT\",\n              \"\
+    BREAK_START\",\n              \"BREAK_END\"\n            ]\n          },\n   \
+    \       \"occurredAt\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"date-time\"\n          },\n          \"workDate\": {\n            \"type\"\
+    : \"string\",\n            \"format\": \"date\"\n          },\n          \"source\"\
+    : {\n            \"type\": \"string\",\n            \"enum\": [\n            \
+    \  \"WEB\",\n              \"MOBILE\",\n              \"TERMINAL\",\n        \
+    \      \"IMPORT\",\n              \"CORRECTION\"\n            ]\n          },\n\
+    \          \"deviceInfo\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"latitude\": {\n            \"type\": \"number\"\n          },\n \
+    \         \"longitude\": {\n            \"type\": \"number\"\n          },\n \
+    \         \"replacesEntryId\": {\n            \"type\": \"string\",\n        \
+    \    \"format\": \"uuid\"\n          },\n          \"correctionId\": {\n     \
+    \       \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"voided\": {\n            \"type\": \"boolean\"\n          },\n  \
+    \        \"effective\": {\n            \"type\": \"boolean\"\n          },\n \
+    \         \"note\": {\n            \"type\": \"string\"\n          },\n      \
+    \    \"recordedBy\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"createdAt\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"date-time\"\n          }\n        }\n   \
+    \   },\n      \"WorkDayResponse\": {\n        \"type\": \"object\",\n        \"\
+    properties\": {\n          \"id\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"uuid\"\n          },\n          \"employeeId\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
+    \          \"workDate\": {\n            \"type\": \"string\",\n            \"\
+    format\": \"date\"\n          },\n          \"workedMinutes\": {\n           \
+    \ \"type\": \"integer\",\n            \"format\": \"int32\"\n          },\n  \
+    \        \"breakMinutes\": {\n            \"type\": \"integer\",\n           \
+    \ \"format\": \"int32\"\n          },\n          \"expectedMinutes\": {\n    \
+    \        \"type\": \"integer\",\n            \"format\": \"int32\"\n         \
+    \ },\n          \"balanceMinutes\": {\n            \"type\": \"integer\",\n  \
+    \          \"format\": \"int32\"\n          },\n          \"firstIn\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"date-time\"\n     \
+    \     },\n          \"lastOut\": {\n            \"type\": \"string\",\n      \
+    \      \"format\": \"date-time\"\n          },\n          \"isOpen\": {\n    \
+    \        \"type\": \"boolean\"\n          },\n          \"hasAnomaly\": {\n  \
+    \          \"type\": \"boolean\"\n          },\n          \"anomalyNote\": {\n\
     \            \"type\": \"string\"\n          },\n          \"computedAt\": {\n\
     \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
     \        },\n          \"entries\": {\n            \"type\": \"array\",\n    \
@@ -392,16 +604,16 @@ data:
     \ {\n            \"type\": \"number\"\n          },\n          \"note\": {\n \
     \           \"maxLength\": 500,\n            \"minLength\": 0,\n            \"\
     type\": \"string\"\n          }\n        }\n      },\n      \"CorrectionDecisionRequest\"\
-    : {\n        \"required\": [\n          \"approverId\"\n        ],\n        \"\
-    type\": \"object\",\n        \"properties\": {\n          \"approverId\": {\n\
-    \            \"type\": \"string\",\n            \"format\": \"uuid\"\n       \
-    \   },\n          \"decisionNote\": {\n            \"maxLength\": 500,\n     \
-    \       \"minLength\": 0,\n            \"type\": \"string\"\n          }\n   \
-    \     }\n      }\n    },\n    \"securitySchemes\": {\n      \"bearerAuth\": {\n\
-    \        \"type\": \"http\",\n        \"description\": \"Keycloak JWT access token.\
-    \ Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n        \"\
-    scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n    }\n  }\n\
-    }"
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"approverId\"\
+    : {\n            \"type\": \"string\",\n            \"description\": \"Ignored;\
+    \ the approver comes from the token\",\n            \"format\": \"uuid\",\n  \
+    \          \"deprecated\": true\n          },\n          \"decisionNote\": {\n\
+    \            \"maxLength\": 500,\n            \"minLength\": 0,\n            \"\
+    type\": \"string\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-spec-attendance-service
