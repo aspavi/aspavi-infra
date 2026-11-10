@@ -60,19 +60,19 @@ data:
     \            \"application/json\": {\n              \"schema\": {\n          \
     \      \"$ref\": \"#/components/schemas/UserEmployeeRequest\"\n              }\n\
     \            }\n          },\n          \"required\": true\n        },\n     \
-    \   \"responses\": {\n          \"400\": {\n            \"description\": \"employeeId\
-    \ is not a UUID\",\n            \"content\": {\n              \"*/*\": {\n   \
-    \             \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \   \"responses\": {\n          \"409\": {\n            \"description\": \"Employee\
+    \ already linked to another user\",\n            \"content\": {\n            \
+    \  \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    409\": {\n            \"description\": \"Employee already linked to another user\"\
-    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
-    \            }\n              }\n            }\n          },\n          \"200\"\
-    : {\n            \"description\": \"User with its new employee\",\n          \
-    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
-    \                 \"$ref\": \"#/components/schemas/UserResponse\"\n          \
-    \      }\n              }\n            }\n          },\n          \"401\": {\n\
-    \            \"description\": \"Missing or invalid token\",\n            \"content\"\
+    400\": {\n            \"description\": \"employeeId is not a UUID\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n        \
+    \        }\n              }\n            }\n          },\n          \"200\": {\n\
+    \            \"description\": \"User with its new employee\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/UserResponse\"\n               \
+    \ }\n              }\n            }\n          },\n          \"401\": {\n    \
+    \        \"description\": \"Missing or invalid token\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
     \   \"$ref\": \"#/components/schemas/UserResponse\"\n                }\n     \
     \         }\n            }\n          },\n          \"404\": {\n            \"\
@@ -195,21 +195,21 @@ data:
     : \"Missing role:write, or permissions the caller does not hold\",\n         \
     \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
     \                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n        \
-    \        }\n              }\n            }\n          },\n          \"401\": {\n\
-    \            \"description\": \"Missing or invalid token\",\n            \"content\"\
+    \        }\n              }\n            }\n          },\n          \"400\": {\n\
+    \            \"description\": \"Invalid name or unknown permissions\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid token\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/RoleResponse\"\n               \
+    \ }\n              }\n            }\n          },\n          \"409\": {\n    \
+    \        \"description\": \"Name taken or reserved\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/RoleResponse\"\n                }\n     \
-    \         }\n            }\n          },\n          \"409\": {\n            \"\
-    description\": \"Name taken or reserved\",\n            \"content\": {\n     \
-    \         \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/ErrorResponse\"\n                }\n              }\n\
-    \            }\n          },\n          \"400\": {\n            \"description\"\
-    : \"Invalid name or unknown permissions\",\n            \"content\": {\n     \
-    \         \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/ErrorResponse\"\n                }\n              }\n\
-    \            }\n          },\n          \"201\": {\n            \"description\"\
-    : \"Created\",\n            \"content\": {\n              \"*/*\": {\n       \
-    \         \"schema\": {\n                  \"$ref\": \"#/components/schemas/RoleResponse\"\
+    \   \"$ref\": \"#/components/schemas/ErrorResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"201\": {\n            \"\
+    description\": \"Created\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/RoleResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      }\n    },\n    \"/api/v1/me/employee-link\": {\n    \
@@ -217,101 +217,101 @@ data:
     summary\": \"Link my user to my employee\",\n        \"description\": \"No body.\
     \ Finds the employee of employee-service whose corporate email is the caller's\
     \ verified email in Keycloak and sets the employee_id attribute, which becomes\
-    \ the employee_id claim of the next token: refresh the token afterwards. Only\
-    \ for a user not linked yet; changing or removing the link is PUT /api/v1/users/{id}/employee,\
-    \ by another administrator. employee-service is called with the caller's token,\
-    \ so it also needs employee:read.\",\n        \"operationId\": \"linkMyEmployee\"\
-    ,\n        \"responses\": {\n          \"404\": {\n            \"description\"\
-    : \"No employee has my email (or my user is a service account)\",\n          \
-    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
-    \                 \"$ref\": \"#/components/schemas/ErrorResponse\"\n         \
-    \       }\n              }\n            }\n          },\n          \"502\": {\n\
-    \            \"description\": \"Keycloak or employee-service not available\",\n\
-    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    \ the employee_id claim of the next token: refresh the token afterwards. The employee\
+    \ must be ACTIVE or ON_LEAVE. Only for a user not linked yet; changing or removing\
+    \ the link is PUT /api/v1/users/{id}/employee, by another administrator. employee-service\
+    \ is called with the caller's token, so it also needs employee:read.\",\n    \
+    \    \"operationId\": \"linkMyEmployee\",\n        \"responses\": {\n        \
+    \  \"404\": {\n            \"description\": \"No employee has my email (or my\
+    \ user is a service account)\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    409\": {\n            \"description\": \"I am already linked, the employee has\
+    \ left (status other than ACTIVE or ON_LEAVE), or it is linked to another user\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
     : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
-    \            }\n              }\n            }\n          },\n          \"403\"\
+    \            }\n              }\n            }\n          },\n          \"502\"\
+    : {\n            \"description\": \"Keycloak or employee-service not available\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"My user, now with its employeeId\",\n    \
+    \        \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"403\"\
     : {\n            \"description\": \"Missing user-role:write or employee:read,\
     \ or my email is not verified\",\n            \"content\": {\n              \"\
     */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
-    200\": {\n            \"description\": \"My user, now with its employeeId\",\n\
-    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\n     \
-    \           }\n              }\n            }\n          },\n          \"401\"\
-    : {\n            \"description\": \"Missing or invalid token\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/UserResponse\"\n               \
-    \ }\n              }\n            }\n          },\n          \"409\": {\n    \
-    \        \"description\": \"I am already linked, or the employee is linked to\
-    \ another user\",\n            \"content\": {\n              \"*/*\": {\n    \
-    \            \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
-    \n                }\n              }\n            }\n          }\n        },\n\
-    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    },\n    \"/api/v1/users\": {\n      \"get\": {\n\
-    \        \"tags\": [\n          \"Users\"\n        ],\n        \"summary\": \"\
-    Search users\",\n        \"description\": \"By username, name or email. Service\
-    \ accounts are excluded.\",\n        \"operationId\": \"search\",\n        \"\
-    parameters\": [\n          {\n            \"name\": \"search\",\n            \"\
-    in\": \"query\",\n            \"description\": \"Text to look for in username,\
-    \ name or email\",\n            \"required\": false,\n            \"schema\":\
-    \ {\n              \"type\": \"string\"\n            }\n          },\n       \
-    \   {\n            \"name\": \"first\",\n            \"in\": \"query\",\n    \
-    \        \"description\": \"Offset of the first user\",\n            \"required\"\
-    : false,\n            \"schema\": {\n              \"minimum\": 0,\n         \
-    \     \"type\": \"integer\",\n              \"format\": \"int32\",\n         \
-    \     \"default\": 0\n            }\n          },\n          {\n            \"\
-    name\": \"max\",\n            \"in\": \"query\",\n            \"description\"\
-    : \"Page size, 1 to 100\",\n            \"required\": false,\n            \"schema\"\
-    : {\n              \"maximum\": 100,\n              \"minimum\": 1,\n        \
-    \      \"type\": \"integer\",\n              \"format\": \"int32\",\n        \
-    \      \"default\": 20\n            }\n          }\n        ],\n        \"responses\"\
-    : {\n          \"403\": {\n            \"description\": \"Missing user-role:read\"\
-    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/UserPageResponse\"\n \
-    \               }\n              }\n            }\n          },\n          \"\
-    401\": {\n            \"description\": \"Missing or invalid token\",\n       \
-    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/UserPageResponse\"\n     \
-    \           }\n              }\n            }\n          },\n          \"200\"\
-    : {\n            \"description\": \"Page of users\",\n            \"content\"\
-    : {\n              \"*/*\": {\n                \"schema\": {\n               \
-    \   \"$ref\": \"#/components/schemas/UserPageResponse\"\n                }\n \
-    \             }\n            }\n          },\n          \"400\": {\n         \
-    \   \"description\": \"Invalid paging\",\n            \"content\": {\n       \
-    \       \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
-    : \"#/components/schemas/ErrorResponse\"\n                }\n              }\n\
-    \            }\n          }\n        },\n        \"security\": [\n          {\n\
-    \            \"bearerAuth\": []\n          }\n        ]\n      }\n    },\n   \
-    \ \"/api/v1/users/{id}\": {\n      \"get\": {\n        \"tags\": [\n         \
-    \ \"Users\"\n        ],\n        \"summary\": \"Get a user\",\n        \"operationId\"\
-    : \"get_1\",\n        \"parameters\": [\n          {\n            \"name\": \"\
-    id\",\n            \"in\": \"path\",\n            \"required\": true,\n      \
-    \      \"schema\": {\n              \"type\": \"string\"\n            }\n    \
-    \      }\n        ],\n        \"responses\": {\n          \"403\": {\n       \
-    \     \"description\": \"Missing user-role:read\",\n            \"content\": {\n\
-    \              \"*/*\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/UserResponse\"\n                }\n           \
-    \   }\n            }\n          },\n          \"200\": {\n            \"description\"\
-    : \"User\",\n            \"content\": {\n              \"*/*\": {\n          \
-    \      \"schema\": {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
     401\": {\n            \"description\": \"Missing or invalid token\",\n       \
     \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
     \                  \"$ref\": \"#/components/schemas/UserResponse\"\n         \
-    \       }\n              }\n            }\n          },\n          \"404\": {\n\
-    \            \"description\": \"No such user in this tenant\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/ErrorResponse\"\n              \
-    \  }\n              }\n            }\n          }\n        },\n        \"security\"\
-    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
-    \   }\n    },\n    \"/api/v1/ping\": {\n      \"get\": {\n        \"tags\": [\n\
-    \          \"Ping\"\n        ],\n        \"summary\": \"Tenant and authorities\
-    \ of the caller\",\n        \"operationId\": \"ping\",\n        \"responses\"\
-    : {\n          \"401\": {\n            \"description\": \"Missing or invalid token\"\
+    \       }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      }\n    },\n    \"/api/v1/users\": {\n      \"get\": {\n        \"\
+    tags\": [\n          \"Users\"\n        ],\n        \"summary\": \"Search users\"\
+    ,\n        \"description\": \"By username, name or email. Service accounts are\
+    \ excluded.\",\n        \"operationId\": \"search\",\n        \"parameters\":\
+    \ [\n          {\n            \"name\": \"search\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Text to look for in username, name or email\"\
+    ,\n            \"required\": false,\n            \"schema\": {\n             \
+    \ \"type\": \"string\"\n            }\n          },\n          {\n           \
+    \ \"name\": \"first\",\n            \"in\": \"query\",\n            \"description\"\
+    : \"Offset of the first user\",\n            \"required\": false,\n          \
+    \  \"schema\": {\n              \"minimum\": 0,\n              \"type\": \"integer\"\
+    ,\n              \"format\": \"int32\",\n              \"default\": 0\n      \
+    \      }\n          },\n          {\n            \"name\": \"max\",\n        \
+    \    \"in\": \"query\",\n            \"description\": \"Page size, 1 to 100\"\
+    ,\n            \"required\": false,\n            \"schema\": {\n             \
+    \ \"maximum\": 100,\n              \"minimum\": 1,\n              \"type\": \"\
+    integer\",\n              \"format\": \"int32\",\n              \"default\": 20\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    403\": {\n            \"description\": \"Missing user-role:read\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/UserPageResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"400\"\
+    : {\n            \"description\": \"Invalid paging\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/ErrorResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"401\": {\n            \"\
+    description\": \"Missing or invalid token\",\n            \"content\": {\n   \
+    \           \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/UserPageResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"200\": {\n            \"description\"\
+    : \"Page of users\",\n            \"content\": {\n              \"*/*\": {\n \
+    \               \"schema\": {\n                  \"$ref\": \"#/components/schemas/UserPageResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/users/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Users\"\n        ],\n        \"summary\"\
+    : \"Get a user\",\n        \"operationId\": \"get_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"403\": {\n            \"description\": \"Missing user-role:read\"\
     ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/PingResponse\"\n     \
+    : {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\n     \
     \           }\n              }\n            }\n          },\n          \"200\"\
-    : {\n            \"description\": \"Authenticated\",\n            \"content\"\
+    : {\n            \"description\": \"User\",\n            \"content\": {\n    \
+    \          \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/UserResponse\"\n                }\n              }\n\
+    \            }\n          },\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid token\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"No such user in this tenant\",\n    \
+    \        \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          }\n        },\n    \
+    \    \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/ping\": {\n      \"get\": {\n     \
+    \   \"tags\": [\n          \"Ping\"\n        ],\n        \"summary\": \"Tenant\
+    \ and authorities of the caller\",\n        \"operationId\": \"ping\",\n     \
+    \   \"responses\": {\n          \"401\": {\n            \"description\": \"Missing\
+    \ or invalid token\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/PingResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"Authenticated\",\n            \"content\"\
     : {\n              \"*/*\": {\n                \"schema\": {\n               \
     \   \"$ref\": \"#/components/schemas/PingResponse\"\n                }\n     \
     \         }\n            }\n          }\n        },\n        \"security\": [\n\
