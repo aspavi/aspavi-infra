@@ -1,0 +1,398 @@
+apiVersion: v1
+data:
+  iam-service.json: "{\n  \"openapi\": \"3.0.1\",\n  \"info\": {\n    \"title\": \"\
+    IAM Service API\",\n    \"description\": \"Roles compuestos y asignaciones de\
+    \ usuarios sobre Keycloak\",\n    \"contact\": {\n      \"name\": \"Aspavi\",\n\
+    \      \"url\": \"https://aspavi.com\",\n      \"email\": \"contact@aspavi.com\"\
+    \n    },\n    \"license\": {\n      \"name\": \"Apache 2.0\",\n      \"url\":\
+    \ \"https://www.apache.org/licenses/LICENSE-2.0.html\"\n    },\n    \"version\"\
+    : \"1.0.0\"\n  },\n  \"servers\": [\n    {\n      \"url\": \"https://api.aspavi.com/iam\"\
+    \n    }\n  ],\n  \"tags\": [\n    {\n      \"name\": \"Users\",\n      \"description\"\
+    : \"Users of the caller's tenant, their roles and their employee\"\n    },\n \
+    \   {\n      \"name\": \"Roles\",\n      \"description\": \"System and custom\
+    \ roles of the caller's tenant\"\n    },\n    {\n      \"name\": \"Ping\",\n \
+    \     \"description\": \"Authenticated smoke check\"\n    },\n    {\n      \"\
+    name\": \"Permissions\",\n      \"description\": \"Catalog of atomic permissions\
+    \ that roles are made of\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/users/{id}/roles\"\
+    : {\n      \"put\": {\n        \"tags\": [\n          \"Users\"\n        ],\n\
+    \        \"summary\": \"Set the system and custom roles of a user\",\n       \
+    \ \"description\": \"Replaces the user's ASPAVI roles with the list. Every role\
+    \ added or removed must only hold permissions the caller has. Keycloak's own roles\
+    \ are left alone.\",\n        \"operationId\": \"setRoles\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\"\n            }\n          }\n        ],\n        \"requestBody\"\
+    : {\n          \"content\": {\n            \"application/json\": {\n         \
+    \     \"schema\": {\n                \"$ref\": \"#/components/schemas/UserRolesRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"A role does not exist or cannot be assigned\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/ErrorResponse\"\n                }\n          \
+    \    }\n            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"No such user in this tenant\",\n            \"content\": {\n             \
+    \ \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    200\": {\n            \"description\": \"User with its new roles\",\n        \
+    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/UserResponse\"\n         \
+    \       }\n              }\n            }\n          },\n          \"401\": {\n\
+    \            \"description\": \"Missing or invalid token\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/UserResponse\"\n                }\n     \
+    \         }\n            }\n          },\n          \"403\": {\n            \"\
+    description\": \"Missing user-role:write, or a role beyond the caller\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          }\n        },\n    \
+    \    \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/users/{id}/employee\": {\n      \"\
+    put\": {\n        \"tags\": [\n          \"Users\"\n        ],\n        \"summary\"\
+    : \"Link a user to an employee, or unlink it\",\n        \"description\": \"Sets\
+    \ the employee_id attribute, which becomes the employee_id claim of the user's\
+    \ next token. Unique in the tenant. Not allowed on the caller's own user, nor\
+    \ on a user with permissions the caller does not hold.\",\n        \"operationId\"\
+    : \"setEmployee\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\"\n            }\n\
+    \          }\n        ],\n        \"requestBody\": {\n          \"content\": {\n\
+    \            \"application/json\": {\n              \"schema\": {\n          \
+    \      \"$ref\": \"#/components/schemas/UserEmployeeRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"400\": {\n            \"description\": \"employeeId\
+    \ is not a UUID\",\n            \"content\": {\n              \"*/*\": {\n   \
+    \             \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    403\": {\n            \"description\": \"Missing user-role:write, own user, or\
+    \ user beyond the caller\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"No such user in this tenant\",\n    \
+    \        \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"409\"\
+    : {\n            \"description\": \"Employee already linked to another user\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"User with its new employee\",\n          \
+    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
+    \                 \"$ref\": \"#/components/schemas/UserResponse\"\n          \
+    \      }\n              }\n            }\n          },\n          \"401\": {\n\
+    \            \"description\": \"Missing or invalid token\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/UserResponse\"\n                }\n     \
+    \         }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/roles/{name}\": {\n      \"get\": {\n        \"tags\":\
+    \ [\n          \"Roles\"\n        ],\n        \"summary\": \"Get a system or custom\
+    \ role\",\n        \"operationId\": \"get\",\n        \"parameters\": [\n    \
+    \      {\n            \"name\": \"name\",\n            \"in\": \"path\",\n   \
+    \         \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\"\n            }\n          }\n        ],\n        \"responses\": {\n\
+    \          \"404\": {\n            \"description\": \"No such system or custom\
+    \ role in this tenant\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid token\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/RoleResponse\"\n         \
+    \       }\n              }\n            }\n          },\n          \"200\": {\n\
+    \            \"description\": \"Role\",\n            \"content\": {\n        \
+    \      \"*/*\": {\n                \"schema\": {\n                  \"$ref\":\
+    \ \"#/components/schemas/RoleResponse\"\n                }\n              }\n\
+    \            }\n          },\n          \"403\": {\n            \"description\"\
+    : \"Missing role:read\",\n            \"content\": {\n              \"*/*\": {\n\
+    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/RoleResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Roles\"\n        ],\n        \"summary\": \"Replace description and permissions\
+    \ of a custom role\",\n        \"description\": \"The caller must hold every permission\
+    \ the role has before and after the change.\",\n        \"operationId\": \"update\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"name\",\n \
+    \           \"in\": \"path\",\n            \"required\": true,\n            \"\
+    schema\": {\n              \"type\": \"string\"\n            }\n          }\n\
+    \        ],\n        \"requestBody\": {\n          \"content\": {\n          \
+    \  \"application/json\": {\n              \"schema\": {\n                \"$ref\"\
+    : \"#/components/schemas/RoleUpdateRequest\"\n              }\n            }\n\
+    \          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"409\": {\n            \"description\": \"System role\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"403\"\
+    : {\n            \"description\": \"Missing role:write, or permissions the caller\
+    \ does not hold\",\n            \"content\": {\n              \"*/*\": {\n   \
+    \             \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    404\": {\n            \"description\": \"No such role in this tenant\",\n    \
+    \        \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"Updated\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/RoleResponse\"\n                }\n           \
+    \   }\n            }\n          },\n          \"400\": {\n            \"description\"\
+    : \"Unknown permissions\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid token\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/RoleResponse\"\n         \
+    \       }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"delete\": {\n        \"tags\": [\n          \"Roles\"\
+    \n        ],\n        \"summary\": \"Delete a custom role\",\n        \"description\"\
+    : \"Only when no user has it.\",\n        \"operationId\": \"delete\",\n     \
+    \   \"parameters\": [\n          {\n            \"name\": \"name\",\n        \
+    \    \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\"\n            }\n          }\n        ],\n\
+    \        \"responses\": {\n          \"403\": {\n            \"description\":\
+    \ \"Missing role:write, or permissions the caller does not hold\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n        \
+    \        }\n              }\n            }\n          },\n          \"404\": {\n\
+    \            \"description\": \"No such role in this tenant\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/ErrorResponse\"\n              \
+    \  }\n              }\n            }\n          },\n          \"204\": {\n   \
+    \         \"description\": \"Deleted\"\n          },\n          \"409\": {\n \
+    \           \"description\": \"System role, or still assigned to users (says how\
+    \ many)\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid token\"\n        \
+    \  }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/roles\": {\n    \
+    \  \"get\": {\n        \"tags\": [\n          \"Roles\"\n        ],\n        \"\
+    summary\": \"List system and custom roles\",\n        \"description\": \"With\
+    \ their permissions and user count.\",\n        \"operationId\": \"list\",\n \
+    \       \"responses\": {\n          \"401\": {\n            \"description\": \"\
+    Missing or invalid token\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
+    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/RoleResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"Roles, system\
+    \ roles first\",\n            \"content\": {\n              \"*/*\": {\n     \
+    \           \"schema\": {\n                  \"type\": \"array\",\n          \
+    \        \"items\": {\n                    \"$ref\": \"#/components/schemas/RoleResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"403\": {\n            \"description\": \"Missing role:read\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/RoleResponse\"\n       \
+    \           }\n                }\n              }\n            }\n          }\n\
+    \        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
+    \          \"Roles\"\n        ],\n        \"summary\": \"Create a custom role\"\
+    ,\n        \"description\": \"Only catalog permissions, and only those the caller\
+    \ holds.\",\n        \"operationId\": \"create\",\n        \"requestBody\": {\n\
+    \          \"content\": {\n            \"application/json\": {\n             \
+    \ \"schema\": {\n                \"$ref\": \"#/components/schemas/RoleCreateRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"403\": {\n            \"description\"\
+    : \"Missing role:write, or permissions the caller does not hold\",\n         \
+    \   \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n        \
+    \        }\n              }\n            }\n          },\n          \"400\": {\n\
+    \            \"description\": \"Invalid name or unknown permissions\",\n     \
+    \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
+    \ {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid token\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/RoleResponse\"\n               \
+    \ }\n              }\n            }\n          },\n          \"409\": {\n    \
+    \        \"description\": \"Name taken or reserved\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/ErrorResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"201\": {\n            \"\
+    description\": \"Created\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/RoleResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/users\": {\n      \"get\": {\n\
+    \        \"tags\": [\n          \"Users\"\n        ],\n        \"summary\": \"\
+    Search users\",\n        \"description\": \"By username, name or email. Service\
+    \ accounts are excluded.\",\n        \"operationId\": \"search\",\n        \"\
+    parameters\": [\n          {\n            \"name\": \"search\",\n            \"\
+    in\": \"query\",\n            \"description\": \"Text to look for in username,\
+    \ name or email\",\n            \"required\": false,\n            \"schema\":\
+    \ {\n              \"type\": \"string\"\n            }\n          },\n       \
+    \   {\n            \"name\": \"first\",\n            \"in\": \"query\",\n    \
+    \        \"description\": \"Offset of the first user\",\n            \"required\"\
+    : false,\n            \"schema\": {\n              \"minimum\": 0,\n         \
+    \     \"type\": \"integer\",\n              \"format\": \"int32\",\n         \
+    \     \"default\": 0\n            }\n          },\n          {\n            \"\
+    name\": \"max\",\n            \"in\": \"query\",\n            \"description\"\
+    : \"Page size, 1 to 100\",\n            \"required\": false,\n            \"schema\"\
+    : {\n              \"maximum\": 100,\n              \"minimum\": 1,\n        \
+    \      \"type\": \"integer\",\n              \"format\": \"int32\",\n        \
+    \      \"default\": 20\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"403\": {\n            \"description\": \"Missing user-role:read\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/UserPageResponse\"\n \
+    \               }\n              }\n            }\n          },\n          \"\
+    400\": {\n            \"description\": \"Invalid paging\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/ErrorResponse\"\n                }\n    \
+    \          }\n            }\n          },\n          \"401\": {\n            \"\
+    description\": \"Missing or invalid token\",\n            \"content\": {\n   \
+    \           \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/UserPageResponse\"\n                }\n             \
+    \ }\n            }\n          },\n          \"200\": {\n            \"description\"\
+    : \"Page of users\",\n            \"content\": {\n              \"*/*\": {\n \
+    \               \"schema\": {\n                  \"$ref\": \"#/components/schemas/UserPageResponse\"\
+    \n                }\n              }\n            }\n          }\n        },\n\
+    \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/users/{id}\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"Users\"\n        ],\n        \"summary\"\
+    : \"Get a user\",\n        \"operationId\": \"get_1\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"403\": {\n            \"description\": \"Missing user-role:read\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/UserResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"User\",\n            \"content\": {\n    \
+    \          \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/UserResponse\"\n                }\n              }\n\
+    \            }\n          },\n          \"404\": {\n            \"description\"\
+    : \"No such user in this tenant\",\n            \"content\": {\n             \
+    \ \"*/*\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/ErrorResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid token\",\n       \
+    \     \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/UserResponse\"\n         \
+    \       }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      }\n    },\n    \"/api/v1/ping\": {\n      \"get\": {\n        \"\
+    tags\": [\n          \"Ping\"\n        ],\n        \"summary\": \"Tenant and authorities\
+    \ of the caller\",\n        \"operationId\": \"ping\",\n        \"responses\"\
+    : {\n          \"401\": {\n            \"description\": \"Missing or invalid token\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PingResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"Authenticated\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/PingResponse\"\n                }\n     \
+    \         }\n            }\n          }\n        },\n        \"security\": [\n\
+    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
+    \    },\n    \"/api/v1/permissions\": {\n      \"get\": {\n        \"tags\": [\n\
+    \          \"Permissions\"\n        ],\n        \"summary\": \"Permission catalog\
+    \ grouped by resource\",\n        \"description\": \"Fixed in code and identical\
+    \ for every tenant. Requires role:read.\",\n        \"operationId\": \"list_1\"\
+    ,\n        \"responses\": {\n          \"401\": {\n            \"description\"\
+    : \"Missing or invalid token\",\n            \"content\": {\n              \"\
+    */*\": {\n                \"schema\": {\n                  \"type\": \"array\"\
+    ,\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/PermissionGroupResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"403\": {\n            \"description\": \"Missing role:read\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/PermissionGroupResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       },\n          \"200\": {\n            \"description\": \"Catalog\",\n\
+    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
+    \                    \"$ref\": \"#/components/schemas/PermissionGroupResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"\
+    schemas\": {\n      \"UserRolesRequest\": {\n        \"required\": [\n       \
+    \   \"roles\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"roles\": {\n            \"type\": \"array\",\n            \"\
+    example\": [\n              \"EMPLOYEE\",\n              \"PAYROLL_CLERK\"\n \
+    \           ],\n            \"items\": {\n              \"type\": \"string\",\n\
+    \              \"example\": \"[\\\"EMPLOYEE\\\",\\\"PAYROLL_CLERK\\\"]\"\n   \
+    \         }\n          }\n        }\n      },\n      \"ErrorResponse\": {\n  \
+    \      \"type\": \"object\",\n        \"properties\": {\n          \"timestamp\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
+    \          },\n          \"status\": {\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"error\": {\n    \
+    \        \"type\": \"string\"\n          },\n          \"message\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"path\": {\n           \
+    \ \"type\": \"string\"\n          },\n          \"validationErrors\": {\n    \
+    \        \"type\": \"object\",\n            \"additionalProperties\": {\n    \
+    \          \"type\": \"string\"\n            }\n          }\n        }\n     \
+    \ },\n      \"UserResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\"\n          },\n   \
+    \       \"username\": {\n            \"type\": \"string\"\n          },\n    \
+    \      \"firstName\": {\n            \"type\": \"string\"\n          },\n    \
+    \      \"lastName\": {\n            \"type\": \"string\"\n          },\n     \
+    \     \"email\": {\n            \"type\": \"string\"\n          },\n         \
+    \ \"enabled\": {\n            \"type\": \"boolean\"\n          },\n          \"\
+    employeeId\": {\n            \"type\": \"string\",\n            \"example\": \"\
+    e0000001-0000-4000-8000-000000000002\"\n          },\n          \"roles\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    type\": \"string\"\n            }\n          }\n        }\n      },\n      \"\
+    UserEmployeeRequest\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"employeeId\": {\n            \"type\": \"string\",\n        \
+    \    \"format\": \"uuid\",\n            \"nullable\": true,\n            \"example\"\
+    : \"e0000001-0000-4000-8000-000000000002\"\n          }\n        }\n      },\n\
+    \      \"RoleUpdateRequest\": {\n        \"required\": [\n          \"permissions\"\
+    \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
+    \     \"description\": {\n            \"maxLength\": 255,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\",\n            \"example\": \"Gesti\\u00f3n\
+    \ de n\\u00f3minas\"\n          },\n          \"permissions\": {\n           \
+    \ \"type\": \"array\",\n            \"example\": [\n              \"payroll:read\"\
+    \n            ],\n            \"items\": {\n              \"type\": \"string\"\
+    ,\n              \"example\": \"[\\\"payroll:read\\\"]\"\n            }\n    \
+    \      }\n        }\n      },\n      \"RoleResponse\": {\n        \"type\": \"\
+    object\",\n        \"properties\": {\n          \"name\": {\n            \"type\"\
+    : \"string\",\n            \"example\": \"PAYROLL_CLERK\"\n          },\n    \
+    \      \"kind\": {\n            \"type\": \"string\",\n            \"example\"\
+    : \"custom-role\",\n            \"enum\": [\n              \"system-role\",\n\
+    \              \"custom-role\"\n            ]\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"permissions\"\
+    : {\n            \"type\": \"array\",\n            \"items\": {\n            \
+    \  \"type\": \"string\"\n            }\n          },\n          \"userCount\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         }\n        }\n      },\n      \"RoleCreateRequest\": {\n        \"required\"\
+    : [\n          \"name\",\n          \"permissions\"\n        ],\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"name\": {\n            \"\
+    pattern\": \"^[A-Z][A-Z0-9_]{2,49}$\",\n            \"type\": \"string\",\n  \
+    \          \"example\": \"PAYROLL_CLERK\"\n          },\n          \"description\"\
+    : {\n            \"maxLength\": 255,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\",\n            \"example\": \"Gesti\\u00f3n de n\\u00f3minas\
+    \ sin acceso a contratos\"\n          },\n          \"permissions\": {\n     \
+    \       \"type\": \"array\",\n            \"example\": [\n              \"payroll:read\"\
+    ,\n              \"payroll:write\"\n            ],\n            \"items\": {\n\
+    \              \"type\": \"string\",\n              \"example\": \"[\\\"payroll:read\\\
+    \",\\\"payroll:write\\\"]\"\n            }\n          }\n        }\n      },\n\
+    \      \"UserPageResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"users\": {\n            \"type\": \"array\",\n            \"\
+    items\": {\n              \"$ref\": \"#/components/schemas/UserResponse\"\n  \
+    \          }\n          },\n          \"first\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"max\": {\n   \
+    \         \"type\": \"integer\",\n            \"format\": \"int32\"\n        \
+    \  },\n          \"total\": {\n            \"type\": \"integer\",\n          \
+    \  \"format\": \"int64\"\n          }\n        }\n      },\n      \"PingResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"status\"\
+    : {\n            \"type\": \"string\"\n          },\n          \"tenant\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"authorities\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    type\": \"string\"\n            }\n          }\n        }\n      },\n      \"\
+    PermissionGroupResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"resource\": {\n            \"type\": \"string\",\n          \
+    \  \"example\": \"employee\"\n          },\n          \"label\": {\n         \
+    \   \"type\": \"string\",\n            \"example\": \"empleados\"\n          },\n\
+    \          \"permissions\": {\n            \"type\": \"array\",\n            \"\
+    items\": {\n              \"$ref\": \"#/components/schemas/PermissionResponse\"\
+    \n            }\n          }\n        }\n      },\n      \"PermissionResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"name\"\
+    : {\n            \"type\": \"string\",\n            \"example\": \"employee:read\"\
+    \n          },\n          \"access\": {\n            \"type\": \"string\",\n \
+    \           \"example\": \"read\",\n            \"enum\": [\n              \"\
+    read\",\n              \"write\"\n            ]\n          },\n          \"description\"\
+    : {\n            \"type\": \"string\",\n            \"example\": \"Consultar empleados\"\
+    \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
+    bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
+    \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
+    \    }\n  }\n}"
+kind: ConfigMap
+metadata:
+  name: api-docs-spec-iam-service
+  namespace: rrhh-docs
