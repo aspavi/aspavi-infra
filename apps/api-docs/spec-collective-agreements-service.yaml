@@ -14,36 +14,38 @@ data:
     \n    },\n    {\n      \"name\": \"Locality Catalog\",\n      \"description\"\
     : \"Spanish CCAA / Province / Locality catalog (INE)\"\n    },\n    {\n      \"\
     name\": \"Holidays\",\n      \"description\": \"Holidays nested inside a work\
-    \ calendar\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/work-calendars/{id}\"\
-    : {\n      \"get\": {\n        \"tags\": [\n          \"Work Calendars\"\n   \
-    \     ],\n        \"summary\": \"Get a work calendar by ID\",\n        \"operationId\"\
-    : \"getById\",\n        \"parameters\": [\n          {\n            \"name\":\
-    \ \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
-    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
-    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
-    : {\n          \"200\": {\n            \"description\": \"Calendar found\",\n\
-    \            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
-    \n                }\n              }\n            }\n          },\n          \"\
-    404\": {\n            \"description\": \"Calendar not found\",\n            \"\
-    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
-    \            \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n       \
-    \         }\n              }\n            }\n          }\n        },\n       \
-    \ \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
-    \        ]\n      },\n      \"put\": {\n        \"tags\": [\n          \"Work\
-    \ Calendars\"\n        ],\n        \"summary\": \"Update a work calendar (partial)\"\
-    ,\n        \"description\": \"Only ACTIVE calendars can be updated. To modify\
-    \ an ARCHIVED calendar, unarchive it first.\",\n        \"operationId\": \"update\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
-    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    \ calendar\"\n    },\n    {\n      \"name\": \"Agreement terms\",\n      \"description\"\
+    : \"Public working-time terms of the collective agreements\"\n    }\n  ],\n  \"\
+    paths\": {\n    \"/api/v1/work-calendars/{id}\": {\n      \"get\": {\n       \
+    \ \"tags\": [\n          \"Work Calendars\"\n        ],\n        \"summary\":\
+    \ \"Get a work calendar by ID\",\n        \"operationId\": \"getById\",\n    \
+    \    \"parameters\": [\n          {\n            \"name\": \"id\",\n         \
+    \   \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
     : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
-    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
-    : {\n                \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\n\
-    \              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"400\": {\n            \"description\"\
-    : \"Validation error\",\n            \"content\": {\n              \"*/*\": {\n\
-    \                \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"Calendar found\",\n            \"content\"\
+    : {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"404\": {\n        \
+    \    \"description\": \"Calendar not found\",\n            \"content\": {\n  \
+    \            \"*/*\": {\n                \"schema\": {\n                  \"$ref\"\
+    : \"#/components/schemas/WorkCalendarResponse\"\n                }\n         \
+    \     }\n            }\n          }\n        },\n        \"security\": [\n   \
+    \       {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
+    \      \"put\": {\n        \"tags\": [\n          \"Work Calendars\"\n       \
+    \ ],\n        \"summary\": \"Update a work calendar (partial)\",\n        \"description\"\
+    : \"Only ACTIVE calendars can be updated. To modify an ARCHIVED calendar, unarchive\
+    \ it first.\",\n        \"operationId\": \"update\",\n        \"parameters\":\
+    \ [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/WorkCalendarRequest\"\n              }\n\
+    \            }\n          },\n          \"required\": true\n        },\n     \
+    \   \"responses\": {\n          \"400\": {\n            \"description\": \"Validation\
+    \ error\",\n            \"content\": {\n              \"*/*\": {\n           \
+    \     \"schema\": {\n                  \"$ref\": \"#/components/schemas/WorkCalendarResponse\"\
     \n                }\n              }\n            }\n          },\n          \"\
     404\": {\n            \"description\": \"Calendar or locality not found\",\n \
     \           \"content\": {\n              \"*/*\": {\n                \"schema\"\
@@ -494,13 +496,51 @@ data:
     \          \"$ref\": \"#/components/schemas/CcaaResponse\"\n                 \
     \ }\n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\"\
-    : {\n      \"WorkCalendarRequest\": {\n        \"required\": [\n          \"localityId\"\
-    ,\n          \"year\"\n        ],\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"year\": {\n            \"maximum\": 2100,\n            \"minimum\"\
-    : 2000,\n            \"type\": \"integer\",\n            \"format\": \"int32\"\
-    \n          },\n          \"localityId\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          },\n          \"collectiveAgreementId\"\
+    \    }\n        ]\n      }\n    },\n    \"/api/v1/agreement-terms\": {\n     \
+    \ \"get\": {\n        \"tags\": [\n          \"Agreement terms\"\n        ],\n\
+    \        \"summary\": \"List agreement terms\",\n        \"description\": \"Without\
+    \ ids, every non-archived agreement of the tenant, by name. With ids, those agreements\
+    \ in any status; unknown ids are left out. No leaves nor categories.\",\n    \
+    \    \"operationId\": \"list_1\",\n        \"parameters\": [\n          {\n  \
+    \          \"name\": \"ids\",\n            \"in\": \"query\",\n            \"\
+    description\": \"Agreement ids, comma-separated or repeated\",\n            \"\
+    required\": false,\n            \"schema\": {\n              \"type\": \"array\"\
+    ,\n              \"items\": {\n                \"type\": \"string\",\n       \
+    \         \"format\": \"uuid\"\n              }\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \    \"schema\": {\n                  \"type\": \"array\",\n                 \
+    \ \"items\": {\n                    \"$ref\": \"#/components/schemas/AgreementTermsResponse\"\
+    \n                  }\n                }\n              }\n            }\n   \
+    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/agreement-terms/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Agreement terms\"\n  \
+    \      ],\n        \"summary\": \"Get one agreement's terms with its paid leaves\
+    \ and professional categories (no pay)\",\n        \"operationId\": \"getById_2\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    404\": {\n            \"description\": \"Agreement not found\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/AgreementTermsResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid JWT\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/AgreementTermsResponse\"\n     \
+    \           }\n              }\n            }\n          },\n          \"200\"\
+    : {\n            \"description\": \"Terms found\",\n            \"content\": {\n\
+    \              \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/AgreementTermsResponse\"\n                }\n \
+    \             }\n            }\n          }\n        },\n        \"security\"\
+    : [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"WorkCalendarRequest\"\
+    : {\n        \"required\": [\n          \"localityId\",\n          \"year\"\n\
+    \        ],\n        \"type\": \"object\",\n        \"properties\": {\n      \
+    \    \"year\": {\n            \"maximum\": 2100,\n            \"minimum\": 2000,\n\
+    \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
+    \     },\n          \"localityId\": {\n            \"type\": \"string\",\n   \
+    \         \"format\": \"uuid\"\n          },\n          \"collectiveAgreementId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
     \       }\n        }\n      },\n      \"CcaaResponse\": {\n        \"type\": \"\
     object\",\n        \"properties\": {\n          \"code\": {\n            \"type\"\
@@ -899,18 +939,18 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
-    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
-    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
-    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
-    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
-    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
-    : \"int64\"\n          },\n          \"pageNumber\": {\n            \"type\":\
-    \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    pageSize\": {\n            \"type\": \"integer\",\n            \"format\": \"\
-    int32\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
-    \n          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
+    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
+    \         },\n          \"paged\": {\n            \"type\": \"boolean\"\n    \
+    \      },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"pageSize\": {\n \
+    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
+    \    },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
@@ -928,21 +968,21 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
-    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
-    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
-    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
-    AgreementSummaryResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"uuid\"\n          },\n          \"code\": {\n            \"type\": \"string\"\
-    \n          },\n          \"name\": {\n            \"type\": \"string\"\n    \
-    \      },\n          \"scope\": {\n            \"type\": \"string\",\n       \
-    \     \"enum\": [\n              \"SECTORIAL\",\n              \"TERRITORIAL\"\
-    ,\n              \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"boe\": {\n  \
-    \          \"type\": \"string\"\n          },\n          \"status\": {\n     \
-    \       \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementSummaryResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"scope\": {\n            \"type\": \"string\",\n            \"enum\"\
+    : [\n              \"SECTORIAL\",\n              \"TERRITORIAL\",\n          \
+    \    \"EMPRESA\"\n            ]\n          },\n          \"scopeDetail\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"boe\": {\n      \
+    \      \"type\": \"string\"\n          },\n          \"status\": {\n         \
+    \   \"type\": \"string\",\n            \"enum\": [\n              \"BORRADOR\"\
     ,\n              \"VIGENTE\",\n              \"ARCHIVADO\"\n            ]\n  \
     \        },\n          \"version\": {\n            \"type\": \"integer\",\n  \
     \          \"format\": \"int32\"\n          },\n          \"hasUnsavedChanges\"\
@@ -993,26 +1033,54 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
-    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
-    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
-    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
-    AgreementVersionResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
-    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"uuid\"\n          },\n          \"versionNumber\": {\n            \"type\"\
-    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
-    effectiveFrom\": {\n            \"type\": \"string\",\n            \"format\"\
-    : \"date\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\
-    \n          },\n          \"changeCount\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"publishedBy\"\
-    : {\n            \"type\": \"string\"\n          },\n          \"publishedAt\"\
-    : {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n\
-    \          },\n          \"current\": {\n            \"type\": \"boolean\"\n \
-    \         },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
-    \n          }\n        }\n      }\n    },\n    \"securitySchemes\": {\n      \"\
-    bearerAuth\": {\n        \"type\": \"http\",\n        \"description\": \"Keycloak\
-    \ JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
+    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
+    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
+    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
+    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"AgreementVersionResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"versionNumber\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"effectiveFrom\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"date\"\n   \
+    \       },\n          \"summary\": {\n            \"type\": \"string\"\n     \
+    \     },\n          \"changeCount\": {\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"publishedBy\": {\n\
+    \            \"type\": \"string\"\n          },\n          \"publishedAt\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date-time\"\n  \
+    \        },\n          \"current\": {\n            \"type\": \"boolean\"\n   \
+    \       },\n          \"snapshot\": {\n            \"$ref\": \"#/components/schemas/AgreementResponse\"\
+    \n          }\n        }\n      },\n      \"AgreementTermsCategoryResponse\":\
+    \ {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"cargo\": {\n            \"type\": \"string\"\n       \
+    \   },\n          \"grupo\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"nivel\": {\n            \"type\": \"string\"\n          },\n    \
+    \      \"categoria\": {\n            \"type\": \"string\"\n          },\n    \
+    \      \"descripcion\": {\n            \"type\": \"string\"\n          }\n   \
+    \     }\n      },\n      \"AgreementTermsLeaveResponse\": {\n        \"type\"\
+    : \"object\",\n        \"properties\": {\n          \"nombre\": {\n          \
+    \  \"type\": \"string\"\n          },\n          \"causa\": {\n            \"\
+    type\": \"string\"\n          },\n          \"duracion\": {\n            \"type\"\
+    : \"string\"\n          },\n          \"retribuido\": {\n            \"type\"\
+    : \"boolean\"\n          }\n        }\n      },\n      \"AgreementTermsResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"code\": {\n            \"type\": \"string\"\n        \
+    \  },\n          \"name\": {\n            \"type\": \"string\"\n          },\n\
+    \          \"annualHours\": {\n            \"type\": \"number\"\n          },\n\
+    \          \"vacationDays\": {\n            \"type\": \"integer\",\n         \
+    \   \"format\": \"int32\"\n          },\n          \"vacationType\": {\n     \
+    \       \"type\": \"string\",\n            \"enum\": [\n              \"NATURALES\"\
+    ,\n              \"LABORABLES\"\n            ]\n          },\n          \"personalDaysPerYear\"\
+    : {\n            \"type\": \"number\"\n          },\n          \"leaves\": {\n\
+    \            \"type\": \"array\",\n            \"items\": {\n              \"\
+    $ref\": \"#/components/schemas/AgreementTermsLeaveResponse\"\n            }\n\
+    \          },\n          \"categories\": {\n            \"type\": \"array\",\n\
+    \            \"items\": {\n              \"$ref\": \"#/components/schemas/AgreementTermsCategoryResponse\"\
+    \n            }\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
+    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
+    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
 kind: ConfigMap
