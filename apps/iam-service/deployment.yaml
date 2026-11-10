@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: iam-service
-          image: ghcr.io/aspavi/aspavi-iam-service:main-7d28ea9
+          image: ghcr.io/aspavi/aspavi-iam-service:main-2ee4330
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
