@@ -20,3 +20,4 @@ kubeconfig*
 # Instrucciones de proyecto para Claude Code. Vive en la raiz porque es donde
 # se carga automaticamente, pero es local: cada uno tiene las suyas.
 /CLAUDE.md
+__pycache__/

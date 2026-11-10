@@ -54,8 +54,23 @@ Para un realm que **ya existe** (creado antes de que el import llevara todo
 esto), aplica el mismo paso con el script, que es idempotente:
 
 ```bash
-KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh <slug> --dry-run
-KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh <slug> --production
+python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --dry-run
+python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --production
+```
+
+Los scripts de `scripts/keycloak/` usan la Admin REST API pública como el
+usuario `admin` del realm master. La contraseña la leen del Llavero de macOS
+(`security find-generic-password -a aspavi -s KEYCLOAK_ADMIN_PASSWORD -w`), o de
+`KEYCLOAK_ADMIN_PASSWORD` si está definida; nunca la imprimen. El kubeconfig es
+`~/.kube/aspavi.kubeconfig`, o el que se pase con `--kubeconfig`. El admin de
+arranque del operador (`temp-admin`) ya no sirve, así que no usan `kcadm` dentro
+del pod.
+
+Para ver cómo ha quedado un realm (solo lectura: roles, composites, clients y
+usuarios sin rol base):
+
+```bash
+python3 scripts/keycloak/inventory.py <slug>      # sin argumento: todos los realms
 ```
 
 ---
@@ -195,7 +210,7 @@ El client secret de `rrhh-iam-service` va en el mismo Secret, con la clave
 imprimirlo; sobre un realm recién importado es lo único que tiene que hacer:
 
 ```bash
-KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh globex --production
+python3 scripts/keycloak/bootstrap-iam-realm.py globex --production
 kubectl rollout restart deployment/iam-service -n rrhh-system
 ```
 
@@ -258,7 +273,7 @@ curl -s -X POST \
 | `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
-| `scripts/keycloak/bootstrap-iam-realm.sh {slug} --production` | cluster | Ejecutar (secret de iam-service) |
+| `python3 scripts/keycloak/bootstrap-iam-realm.py {slug} --production` | cluster | Ejecutar (secret de iam-service) |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
 
 El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
