@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iam-service
+  namespace: rrhh-system
+  labels:
+    app: iam-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iam-service
+  template:
+    metadata:
+      labels:
+        app: iam-service
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: iam-service
+          image: ghcr.io/aspavi/aspavi-iam-service:main-7d28ea9
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aspavi"
+            # Emisor de los tokens y Admin API (/admin/realms/<realm>/…); la URL
+            # pública sirve las dos, no hace falta KEYCLOAK_ADMIN_BASE_URL.
+            - name: KEYCLOAK_BASE_URL
+              value: "https://keycloak.aspavi.com"
+            # Secret del client rrhh-iam-service de cada realm. Los guarda
+            # scripts/keycloak/bootstrap-iam-realm.sh <tenant>.
+            - name: KEYCLOAK_IAM_CLIENT_SECRET_TEST
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-client-secrets
+                  key: iam-service-secret-test
+            - name: KEYCLOAK_IAM_CLIENT_SECRET_ACME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-client-secrets
+                  key: iam-service-secret-acme
+            - name: AUDIT_SERVICE_URL
+              value: "http://audit-service.rrhh-system"
+          # Solo liveness/readiness: el health agregado da 503 si un tenant no
+          # carga el catálogo de permisos, y eso no debe reiniciar el pod.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iam-service
+  namespace: rrhh-system
+  labels:
+    app: iam-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: iam-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: iam-service
+  namespace: rrhh-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: rrhh-system-cors-headers@kubernetescrd,rrhh-system-iam-strip-prefix@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.aspavi.com
+      secretName: iam-service-tls
+  rules:
+    - host: api.aspavi.com
+      http:
+        paths:
+          - path: /iam
+            pathType: Prefix
+            backend:
+              service:
+                name: iam-service
+                port:
+                  number: 80
