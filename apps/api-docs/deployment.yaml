@@ -71,6 +71,11 @@ spec:
                   name: api-docs-spec-employee-service
               - configMap:
                   name: api-docs-spec-events-service
+              # optional hasta que la CI de iam-service publique su spec: un
+              # ConfigMap que no existe dejaría el pod de api-docs sin arrancar.
+              - configMap:
+                  name: api-docs-spec-iam-service
+                  optional: true
               # Legado: solo los servicios cuyo pipeline aún no publica su
               # ConfigMap api-docs-spec-<servicio>. El filtro items evita
               # colisiones de rutas (el kubelet rechaza duplicados en projected).
