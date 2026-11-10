@@ -32,12 +32,31 @@ Edita `realm-import-globex.yaml` y cambia los siguientes valores:
 | `spec.realm.displayName` | `RRHH - Acme Corporation` | `RRHH - Globex` |
 | `redirectUris` | `https://acme.aspavi.com/*` | `https://globex.aspavi.com/*` |
 | `webOrigins` | `https://acme.aspavi.com` | `https://globex.aspavi.com` |
-| `tenant_id` claim (×2) | `acme` | `globex` |
+| `tenant_id` claim (×3: `rrhh-frontend`, `rrhh-employee-service`, `rrhh-iam-service`) | `acme` | `globex` |
 
 > **IMPORTANTE:** `KeycloakRealmImport` solo funciona en la **creación inicial**.
 > Si el realm ya existe en Keycloak, el operator lo ignora.
 > Para reimportar: borra el CR (`kubectl delete keycloakrealmimport realm-import-globex -n rrhh-auth`)
 > y el realm en la consola de Keycloak, luego vuelve a aplicar.
+
+El import ya trae lo que necesita la gestión de roles (aspavi-iam-service):
+
+- el atributo `employee_id` declarado en el user profile (solo lo edita un admin)
+  y su mapper en `rrhh-frontend`, que lo pone en el claim `employee_id`;
+- el client confidencial `rrhh-iam-service`, con service account y los roles de
+  `realm-management` `view-realm`, `manage-realm`, `view-users`, `query-users`
+  y `manage-users`. No le des ninguno más.
+
+Los permisos (`<recurso>:read|write`) y los roles compuestos **no** van en el
+import: los siembra iam-service al arrancar.
+
+Para un realm que **ya existe** (creado antes de que el import llevara todo
+esto), aplica el mismo paso con el script, que es idempotente:
+
+```bash
+KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh <slug> --dry-run
+KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh <slug> --production
+```
 
 ---
 
@@ -169,6 +188,19 @@ kubectl patch secret keycloak-client-secrets -n rrhh-system \
 kubectl rollout restart deployment/employee-service -n rrhh-system
 ```
 
+### Paso 7b — Secret de `rrhh-iam-service`
+
+El client secret de `rrhh-iam-service` va en el mismo Secret, con la clave
+`iam-service-secret-<slug>`. El script lo lee de Keycloak y lo guarda sin
+imprimirlo; sobre un realm recién importado es lo único que tiene que hacer:
+
+```bash
+KUBECONFIG=~/.kube/aspavi.kubeconfig scripts/keycloak/bootstrap-iam-realm.sh globex --production
+kubectl rollout restart deployment/iam-service -n rrhh-system
+```
+
+`--production` es obligatorio para cualquier tenant que no sea `test`.
+
 ---
 
 ## Paso 8 — Actualizar el frontend
@@ -204,6 +236,15 @@ curl -s -X POST \
   -d "grant_type=password&client_id=rrhh-frontend&username=USUARIO&password=PASSWORD&scope=openid" \
   | jq .tenant_id
 # Debe devolver: "globex"
+
+# rrhh-iam-service obtiene token con su service account
+curl -s -X POST \
+  https://keycloak.aspavi.com/realms/rrhh-tenant-globex/protocol/openid-connect/token \
+  -d grant_type=client_credentials -d client_id=rrhh-iam-service \
+  --data-urlencode "client_secret=$(kubectl -n rrhh-system get secret keycloak-client-secrets \
+      -o jsonpath='{.data.iam-service-secret-globex}' | base64 -d)" \
+  | jq -r .token_type
+# Debe devolver: Bearer
 ```
 
 ---
@@ -217,6 +258,7 @@ curl -s -X POST \
 | `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
+| `scripts/keycloak/bootstrap-iam-realm.sh {slug} --production` | cluster | Ejecutar (secret de iam-service) |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
 
 El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
