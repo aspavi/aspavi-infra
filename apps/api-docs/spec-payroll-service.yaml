@@ -4,82 +4,111 @@ data:
     : \"Payroll Service API\",\n    \"description\": \"Microservicio de n\\u00f3minas\
     \ y cotizaciones sociales\",\n    \"version\": \"1.0.0\"\n  },\n  \"servers\"\
     : [\n    {\n      \"url\": \"https://api.aspavi.com\"\n    }\n  ],\n  \"tags\"\
-    : [\n    {\n      \"name\": \"Contribution Rate Variations\",\n      \"description\"\
-    : \"Contribution rate variations by contract type\"\n    },\n    {\n      \"name\"\
-    : \"Payroll Periods\",\n      \"description\": \"Payroll periods management\"\n\
-    \    },\n    {\n      \"name\": \"Payroll Line Concepts\",\n      \"description\"\
-    : \"Payroll line concepts management\"\n    },\n    {\n      \"name\": \"Payroll\
-    \ Lines\",\n      \"description\": \"Payroll lines management\"\n    },\n    {\n\
-    \      \"name\": \"IRPF Tables\",\n      \"description\": \"IRPF retention rate\
-    \ tables management\"\n    },\n    {\n      \"name\": \"Contribution Bases\",\n\
-    \      \"description\": \"Social security contribution bases management\"\n  \
-    \  }\n  ],\n  \"paths\": {\n    \"/api/v1/payroll-periods/{periodId}/lines/{lineId}/concepts/{id}\"\
+    : [\n    {\n      \"name\": \"My Payroll\",\n      \"description\": \"Payslips\
+    \ of the current employee\"\n    },\n    {\n      \"name\": \"Contribution Rate\
+    \ Variations\",\n      \"description\": \"Contribution rate variations by contract\
+    \ type\"\n    },\n    {\n      \"name\": \"Payroll Periods\",\n      \"description\"\
+    : \"Payroll periods management\"\n    },\n    {\n      \"name\": \"Payroll Line\
+    \ Concepts\",\n      \"description\": \"Payroll line concepts management\"\n \
+    \   },\n    {\n      \"name\": \"Payroll Lines\",\n      \"description\": \"Payroll\
+    \ lines management\"\n    },\n    {\n      \"name\": \"IRPF Tables\",\n      \"\
+    description\": \"IRPF retention rate tables management\"\n    },\n    {\n    \
+    \  \"name\": \"Contribution Bases\",\n      \"description\": \"Social security\
+    \ contribution bases management\"\n    }\n  ],\n  \"paths\": {\n    \"/api/v1/payroll-periods/{periodId}/lines/{lineId}/concepts/{id}\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Line Concepts\"\
     \n        ],\n        \"summary\": \"Get payroll line concept by ID\",\n     \
     \   \"operationId\": \"getById\",\n        \"parameters\": [\n          {\n  \
-    \          \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
-    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
+    \          \"name\": \"periodId\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          },\n \
+    \         {\n            \"name\": \"lineId\",\n            \"in\": \"path\",\n\
+    \            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     },\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
+    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
+    : {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
     \ \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Update payroll\
     \ line concept\",\n        \"operationId\": \"update\",\n        \"parameters\"\
-    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
-    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
-    \          \"application/json\": {\n              \"schema\": {\n            \
-    \    \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\n          \
-    \    }\n            }\n          },\n          \"required\": true\n        },\n\
-    \        \"responses\": {\n          \"200\": {\n            \"description\":\
-    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    : [\n          {\n            \"name\": \"periodId\",\n            \"in\": \"\
+    path\",\n            \"required\": true,\n            \"schema\": {\n        \
+    \      \"type\": \"string\",\n              \"format\": \"uuid\"\n           \
+    \ }\n          },\n          {\n            \"name\": \"lineId\",\n          \
+    \  \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          },\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
+    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
+    : {\n                \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\
+    \n              }\n            }\n          },\n          \"required\": true\n\
+    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
+    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
     \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
     \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
     \    \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Delete payroll\
     \ line concept\",\n        \"operationId\": \"delete\",\n        \"parameters\"\
-    : [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\"\
-    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
-    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
-    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
-    \    \"description\": \"OK\"\n          }\n        },\n        \"security\": [\n\
-    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      }\n\
-    \    },\n    \"/api/v1/payroll-periods/{periodId}/lines/{id}\": {\n      \"get\"\
-    : {\n        \"tags\": [\n          \"Payroll Lines\"\n        ],\n        \"\
-    summary\": \"Get payroll line by ID\",\n        \"operationId\": \"getById_1\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    : [\n          {\n            \"name\": \"periodId\",\n            \"in\": \"\
+    path\",\n            \"required\": true,\n            \"schema\": {\n        \
+    \      \"type\": \"string\",\n              \"format\": \"uuid\"\n           \
+    \ }\n          },\n          {\n            \"name\": \"lineId\",\n          \
+    \  \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          },\n          {\n            \"name\": \"id\",\n   \
     \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
     : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
     \            }\n          }\n        ],\n        \"responses\": {\n          \"\
-    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
-    \             \"*/*\": {\n                \"schema\": {\n                  \"\
-    $ref\": \"#/components/schemas/PayrollLineResponse\"\n                }\n    \
-    \          }\n            }\n          }\n        },\n        \"security\": [\n\
-    \          {\n            \"bearerAuth\": []\n          }\n        ]\n      },\n\
-    \      \"put\": {\n        \"tags\": [\n          \"Payroll Lines\"\n        ],\n\
-    \        \"summary\": \"Update payroll line\",\n        \"operationId\": \"update_1\"\
-    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
-    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
-    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
-    \            }\n          }\n        ],\n        \"requestBody\": {\n        \
-    \  \"content\": {\n            \"application/json\": {\n              \"schema\"\
-    : {\n                \"$ref\": \"#/components/schemas/PayrollLineRequest\"\n \
-    \             }\n            }\n          },\n          \"required\": true\n \
-    \       },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
-    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
-    \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineResponse\"\
-    \n                }\n              }\n            }\n          }\n        },\n\
+    200\": {\n            \"description\": \"OK\"\n          }\n        },\n     \
+    \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/payroll-periods/{periodId}/lines/{id}\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Lines\"\n    \
+    \    ],\n        \"summary\": \"Get payroll line by ID\",\n        \"operationId\"\
+    : \"getById_1\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"periodId\",\n            \"in\": \"path\",\n            \"required\": true,\n\
+    \            \"schema\": {\n              \"type\": \"string\",\n            \
+    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
+    \  \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\"\
+    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
+    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
+    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
+    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PayrollLineResponse\"\n\
+    \                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
-    \    }\n        ]\n      },\n      \"delete\": {\n        \"tags\": [\n      \
-    \    \"Payroll Lines\"\n        ],\n        \"summary\": \"Delete payroll line\"\
-    ,\n        \"operationId\": \"delete_1\",\n        \"parameters\": [\n       \
-    \   {\n            \"name\": \"id\",\n            \"in\": \"path\",\n        \
-    \    \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    \    }\n        ]\n      },\n      \"put\": {\n        \"tags\": [\n         \
+    \ \"Payroll Lines\"\n        ],\n        \"summary\": \"Update payroll line\"\
+    ,\n        \"operationId\": \"update_1\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"periodId\",\n            \"in\": \"path\",\n  \
+    \          \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          },\n\
+    \          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n \
+    \           \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"requestBody\": {\n          \"content\": {\n          \
+    \  \"application/json\": {\n              \"schema\": {\n                \"$ref\"\
+    : \"#/components/schemas/PayrollLineRequest\"\n              }\n            }\n\
+    \          },\n          \"required\": true\n        },\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"$ref\": \"#/components/schemas/PayrollLineResponse\"\n        \
+    \        }\n              }\n            }\n          }\n        },\n        \"\
+    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
+    \    ]\n      },\n      \"delete\": {\n        \"tags\": [\n          \"Payroll\
+    \ Lines\"\n        ],\n        \"summary\": \"Delete payroll line\",\n       \
+    \ \"operationId\": \"delete_1\",\n        \"parameters\": [\n          {\n   \
+    \         \"name\": \"periodId\",\n            \"in\": \"path\",\n           \
+    \ \"required\": true,\n            \"schema\": {\n              \"type\": \"string\"\
+    ,\n              \"format\": \"uuid\"\n            }\n          },\n         \
+    \ {\n            \"name\": \"id\",\n            \"in\": \"path\",\n          \
+    \  \"required\": true,\n            \"schema\": {\n              \"type\": \"\
     string\",\n              \"format\": \"uuid\"\n            }\n          }\n  \
     \      ],\n        \"responses\": {\n          \"200\": {\n            \"description\"\
     : \"OK\"\n          }\n        },\n        \"security\": [\n          {\n    \
@@ -274,27 +303,34 @@ data:
     : {\n      \"get\": {\n        \"tags\": [\n          \"Payroll Line Concepts\"\
     \n        ],\n        \"summary\": \"Get all payroll line concepts for line\"\
     ,\n        \"operationId\": \"getAllByLineId\",\n        \"parameters\": [\n \
-    \         {\n            \"name\": \"lineId\",\n            \"in\": \"path\",\n\
-    \            \"required\": true,\n            \"schema\": {\n              \"\
+    \         {\n            \"name\": \"periodId\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
     type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
-    \     }\n        ],\n        \"responses\": {\n          \"200\": {\n        \
-    \    \"description\": \"OK\",\n            \"content\": {\n              \"*/*\"\
-    : {\n                \"schema\": {\n                  \"type\": \"array\",\n \
-    \                 \"items\": {\n                    \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
-    \n                  }\n                }\n              }\n            }\n   \
-    \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
-    : []\n          }\n        ]\n      },\n      \"post\": {\n        \"tags\": [\n\
-    \          \"Payroll Line Concepts\"\n        ],\n        \"summary\": \"Create\
-    \ payroll line concept\",\n        \"operationId\": \"create_2\",\n        \"\
-    parameters\": [\n          {\n            \"name\": \"lineId\",\n            \"\
-    in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n\
-    \              \"type\": \"string\",\n              \"format\": \"uuid\"\n   \
-    \         }\n          }\n        ],\n        \"requestBody\": {\n          \"\
-    content\": {\n            \"application/json\": {\n              \"schema\": {\n\
-    \                \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\n\
-    \              }\n            }\n          },\n          \"required\": true\n\
-    \        },\n        \"responses\": {\n          \"200\": {\n            \"description\"\
-    : \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
+    \     },\n          {\n            \"name\": \"lineId\",\n            \"in\":\
+    \ \"path\",\n            \"required\": true,\n            \"schema\": {\n    \
+    \          \"type\": \"string\",\n              \"format\": \"uuid\"\n       \
+    \     }\n          }\n        ],\n        \"responses\": {\n          \"200\"\
+    : {\n            \"description\": \"OK\",\n            \"content\": {\n      \
+    \        \"*/*\": {\n                \"schema\": {\n                  \"type\"\
+    : \"array\",\n                  \"items\": {\n                    \"$ref\": \"\
+    #/components/schemas/PayrollLineConceptResponse\"\n                  }\n     \
+    \           }\n              }\n            }\n          }\n        },\n     \
+    \   \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      },\n      \"post\": {\n        \"tags\": [\n          \"Payroll\
+    \ Line Concepts\"\n        ],\n        \"summary\": \"Create payroll line concept\"\
+    ,\n        \"operationId\": \"create_2\",\n        \"parameters\": [\n       \
+    \   {\n            \"name\": \"periodId\",\n            \"in\": \"path\",\n  \
+    \          \"required\": true,\n            \"schema\": {\n              \"type\"\
+    : \"string\",\n              \"format\": \"uuid\"\n            }\n          },\n\
+    \          {\n            \"name\": \"lineId\",\n            \"in\": \"path\"\
+    ,\n            \"required\": true,\n            \"schema\": {\n              \"\
+    type\": \"string\",\n              \"format\": \"uuid\"\n            }\n     \
+    \     }\n        ],\n        \"requestBody\": {\n          \"content\": {\n  \
+    \          \"application/json\": {\n              \"schema\": {\n            \
+    \    \"$ref\": \"#/components/schemas/PayrollLineConceptRequest\"\n          \
+    \    }\n            }\n          },\n          \"required\": true\n        },\n\
+    \        \"responses\": {\n          \"200\": {\n            \"description\":\
+    \ \"OK\",\n            \"content\": {\n              \"*/*\": {\n            \
     \    \"schema\": {\n                  \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\
     \n                }\n              }\n            }\n          }\n        },\n\
     \        \"security\": [\n          {\n            \"bearerAuth\": []\n      \
@@ -396,6 +432,41 @@ data:
     \                    \"$ref\": \"#/components/schemas/PayrollPeriodResponse\"\n\
     \                  }\n                }\n              }\n            }\n    \
     \      }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
+    : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/me/payroll-lines\"\
+    : {\n      \"get\": {\n        \"tags\": [\n          \"My Payroll\"\n       \
+    \ ],\n        \"summary\": \"Get my payroll lines (closed periods only)\",\n \
+    \       \"operationId\": \"getMine\",\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    type\": \"array\",\n                  \"items\": {\n                    \"$ref\"\
+    : \"#/components/schemas/MyPayrollLineResponse\"\n                  }\n      \
+    \          }\n              }\n            }\n          }\n        },\n      \
+    \  \"security\": [\n          {\n            \"bearerAuth\": []\n          }\n\
+    \        ]\n      }\n    },\n    \"/api/v1/me/payroll-lines/{id}\": {\n      \"\
+    get\": {\n        \"tags\": [\n          \"My Payroll\"\n        ],\n        \"\
+    summary\": \"Get one of my payroll lines\",\n        \"operationId\": \"getMineById\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n   \
+    \         \"in\": \"path\",\n            \"required\": true,\n            \"schema\"\
+    : {\n              \"type\": \"string\",\n              \"format\": \"uuid\"\n\
+    \            }\n          }\n        ],\n        \"responses\": {\n          \"\
+    200\": {\n            \"description\": \"OK\",\n            \"content\": {\n \
+    \             \"*/*\": {\n                \"schema\": {\n                  \"\
+    $ref\": \"#/components/schemas/MyPayrollLineResponse\"\n                }\n  \
+    \            }\n            }\n          }\n        },\n        \"security\":\
+    \ [\n          {\n            \"bearerAuth\": []\n          }\n        ]\n   \
+    \   }\n    },\n    \"/api/v1/me/payroll-lines/{id}/concepts\": {\n      \"get\"\
+    : {\n        \"tags\": [\n          \"My Payroll\"\n        ],\n        \"summary\"\
+    : \"Get the concepts of one of my payroll lines\",\n        \"operationId\": \"\
+    getMineConcepts\",\n        \"parameters\": [\n          {\n            \"name\"\
+    : \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n  \
+    \          \"schema\": {\n              \"type\": \"string\",\n              \"\
+    format\": \"uuid\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"200\": {\n            \"description\": \"OK\",\n            \"\
+    content\": {\n              \"*/*\": {\n                \"schema\": {\n      \
+    \            \"type\": \"array\",\n                  \"items\": {\n          \
+    \          \"$ref\": \"#/components/schemas/PayrollLineConceptResponse\"\n   \
+    \               }\n                }\n              }\n            }\n       \
+    \   }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
     : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/irpf-tables/fiscal-year/{fiscalYear}\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"IRPF Tables\"\n      \
     \  ],\n        \"summary\": \"Get IRPF tables by fiscal year\",\n        \"operationId\"\
@@ -632,8 +703,35 @@ data:
     \           \"type\": \"string\"\n          },\n          \"createdAt\": {\n \
     \           \"type\": \"string\",\n            \"format\": \"date-time\"\n   \
     \       },\n          \"updatedAt\": {\n            \"type\": \"string\",\n  \
-    \          \"format\": \"date-time\"\n          }\n        }\n      }\n    },\n\
-    \    \"securitySchemes\": {\n      \"bearerAuth\": {\n        \"type\": \"http\"\
+    \          \"format\": \"date-time\"\n          }\n        }\n      },\n     \
+    \ \"MyPayrollLineResponse\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"periodId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"employeeId\"\
+    : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
+    \       },\n          \"contractTypeCode\": {\n            \"type\": \"string\"\
+    \n          },\n          \"grossSalary\": {\n            \"type\": \"number\"\
+    \n          },\n          \"netSalary\": {\n            \"type\": \"number\"\n\
+    \          },\n          \"totalEmployeeDeductions\": {\n            \"type\"\
+    : \"number\"\n          },\n          \"totalEmployerCost\": {\n            \"\
+    type\": \"number\"\n          },\n          \"irpfAmount\": {\n            \"\
+    type\": \"number\"\n          },\n          \"status\": {\n            \"type\"\
+    : \"string\",\n            \"enum\": [\n              \"DRAFT\",\n           \
+    \   \"APPROVED\"\n            ]\n          },\n          \"tenantId\": {\n   \
+    \         \"type\": \"string\"\n          },\n          \"createdAt\": {\n   \
+    \         \"type\": \"string\",\n            \"format\": \"date-time\"\n     \
+    \     },\n          \"updatedAt\": {\n            \"type\": \"string\",\n    \
+    \        \"format\": \"date-time\"\n          },\n          \"period\": {\n  \
+    \          \"$ref\": \"#/components/schemas/Period\"\n          }\n        }\n\
+    \      },\n      \"Period\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"id\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"year\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"month\": {\n \
+    \           \"type\": \"integer\",\n            \"format\": \"int32\"\n      \
+    \    },\n          \"status\": {\n            \"type\": \"string\",\n        \
+    \    \"enum\": [\n              \"DRAFT\",\n              \"CLOSED\",\n      \
+    \        \"PAID\"\n            ]\n          }\n        }\n      }\n    },\n  \
+    \  \"securitySchemes\": {\n      \"bearerAuth\": {\n        \"type\": \"http\"\
     ,\n        \"description\": \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
     ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
     \    }\n  }\n}"
