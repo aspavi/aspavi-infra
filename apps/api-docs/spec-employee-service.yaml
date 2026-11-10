@@ -497,29 +497,45 @@ data:
     \       }\n        },\n        \"security\": [\n          {\n            \"bearerAuth\"\
     : []\n          }\n        ]\n      }\n    },\n    \"/api/v1/employee-reporting/can-approve\"\
     : {\n      \"get\": {\n        \"tags\": [\n          \"Employee Reporting\"\n\
-    \        ],\n        \"summary\": \"Whether an actor is in the DIRECT reporting\
-    \ chain of a requester\",\n        \"description\": \"Walks the DIRECT chain upwards\
-    \ from the requester. Foundation for the future approval flow.\",\n        \"\
-    operationId\": \"canApprove\",\n        \"parameters\": [\n          {\n     \
-    \       \"name\": \"actorId\",\n            \"in\": \"query\",\n            \"\
-    description\": \"Actor (the would-be approver)\",\n            \"required\": true,\n\
-    \            \"schema\": {\n              \"type\": \"string\",\n            \
-    \  \"format\": \"uuid\"\n            }\n          },\n          {\n          \
-    \  \"name\": \"requesterId\",\n            \"in\": \"query\",\n            \"\
-    description\": \"Requester (whose chain we walk)\",\n            \"required\"\
-    : true,\n            \"schema\": {\n              \"type\": \"string\",\n    \
-    \          \"format\": \"uuid\"\n            }\n          }\n        ],\n    \
-    \    \"responses\": {\n          \"200\": {\n            \"description\": \"OK\"\
-    ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
-    : {\n                  \"type\": \"object\",\n                  \"additionalProperties\"\
-    : {\n                    \"type\": \"boolean\"\n                  }\n        \
-    \        }\n              }\n            }\n          }\n        },\n        \"\
-    security\": [\n          {\n            \"bearerAuth\": []\n          }\n    \
-    \    ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n      \"get\"\
-    : {\n        \"tags\": [\n          \"Calendar Assignments\"\n        ],\n   \
-    \     \"summary\": \"List all active calendar overrides for the tenant\",\n  \
-    \      \"operationId\": \"getActiveOverrides\",\n        \"responses\": {\n  \
-    \        \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
+    \        ],\n        \"summary\": \"Whether an actor can approve a requester's\
+    \ absences and clock-in corrections\",\n        \"description\": \"Hierarchical\
+    \ approval rule, evaluated within the caller's tenant:\\n- CHAIN: the actor is\
+    \ above the requester in the active DIRECT reporting chain (ended_at IS NULL,\
+    \ started_at <= today) and the relationship in which the actor is the manager\
+    \ has can_approve_timeoff = true. A link with the flag off blocks only that manager;\
+    \ managers above it can still approve.\\n- SELF_TOP_LEVEL: actorId == requesterId\
+    \ and the requester has no active manager of any kind (a top-level director approving\
+    \ themselves).\\n- NONE: otherwise, including employees that do not exist in the\
+    \ tenant.\\nHR's global approval permission is resolved by the calling service,\
+    \ not here. Reporting cycles are tolerated: the walk stops at an already visited\
+    \ employee.\",\n        \"operationId\": \"canApprove\",\n        \"parameters\"\
+    : [\n          {\n            \"name\": \"actorId\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Actor (the would-be approver)\",\n         \
+    \   \"required\": true,\n            \"schema\": {\n              \"type\": \"\
+    string\",\n              \"format\": \"uuid\"\n            }\n          },\n \
+    \         {\n            \"name\": \"requesterId\",\n            \"in\": \"query\"\
+    ,\n            \"description\": \"Requester (whose chain we walk)\",\n       \
+    \     \"required\": true,\n            \"schema\": {\n              \"type\":\
+    \ \"string\",\n              \"format\": \"uuid\"\n            }\n          }\n\
+    \        ],\n        \"responses\": {\n          \"400\": {\n            \"description\"\
+    : \"actorId or requesterId missing or not a UUID\",\n            \"content\":\
+    \ {\n              \"*/*\": {\n                \"schema\": {\n               \
+    \   \"$ref\": \"#/components/schemas/CanApproveResponse\"\n                }\n\
+    \              }\n            }\n          },\n          \"200\": {\n        \
+    \    \"description\": \"Rule evaluated; see allowed and reason\",\n          \
+    \  \"content\": {\n              \"*/*\": {\n                \"schema\": {\n \
+    \                 \"$ref\": \"#/components/schemas/CanApproveResponse\"\n    \
+    \            }\n              }\n            }\n          },\n          \"401\"\
+    : {\n            \"description\": \"Missing or invalid JWT token\",\n        \
+    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
+    \                  \"$ref\": \"#/components/schemas/CanApproveResponse\"\n   \
+    \             }\n              }\n            }\n          }\n        },\n   \
+    \     \"security\": [\n          {\n            \"bearerAuth\": []\n         \
+    \ }\n        ]\n      }\n    },\n    \"/api/v1/calendar-assignments\": {\n   \
+    \   \"get\": {\n        \"tags\": [\n          \"Calendar Assignments\"\n    \
+    \    ],\n        \"summary\": \"List all active calendar overrides for the tenant\"\
+    ,\n        \"operationId\": \"getActiveOverrides\",\n        \"responses\": {\n\
+    \          \"401\": {\n            \"description\": \"Missing or invalid JWT token\"\
     ,\n            \"content\": {\n              \"*/*\": {\n                \"schema\"\
     : {\n                  \"type\": \"array\",\n                  \"items\": {\n\
     \                    \"$ref\": \"#/components/schemas/WorkCalendarAssignmentResponse\"\
@@ -901,28 +917,37 @@ data:
     \ \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
     pageable\": {\n            \"$ref\": \"#/components/schemas/PageableObject\"\n\
     \          },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
-    \n          },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"first\": {\n \
-    \           \"type\": \"boolean\"\n          },\n          \"last\": {\n     \
-    \       \"type\": \"boolean\"\n          },\n          \"empty\": {\n        \
-    \    \"type\": \"boolean\"\n          }\n        }\n      },\n      \"PageableObject\"\
-    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"offset\"\
-    : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
-    \         },\n          \"pageNumber\": {\n            \"type\": \"integer\",\n\
-    \            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
+    \n          },\n          \"first\": {\n            \"type\": \"boolean\"\n  \
+    \        },\n          \"last\": {\n            \"type\": \"boolean\"\n      \
+    \    },\n          \"numberOfElements\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"empty\": {\n \
+    \           \"type\": \"boolean\"\n          }\n        }\n      },\n      \"\
+    PageableObject\": {\n        \"type\": \"object\",\n        \"properties\": {\n\
+    \          \"offset\": {\n            \"type\": \"integer\",\n            \"format\"\
+    : \"int64\"\n          },\n          \"paged\": {\n            \"type\": \"boolean\"\
+    \n          },\n          \"pageNumber\": {\n            \"type\": \"integer\"\
+    ,\n            \"format\": \"int32\"\n          },\n          \"pageSize\": {\n\
     \            \"type\": \"integer\",\n            \"format\": \"int32\"\n     \
-    \     },\n          \"paged\": {\n            \"type\": \"boolean\"\n        \
-    \  },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
+    \     },\n          \"sort\": {\n            \"$ref\": \"#/components/schemas/SortObject\"\
     \n          },\n          \"unpaged\": {\n            \"type\": \"boolean\"\n\
     \          }\n        }\n      },\n      \"SortObject\": {\n        \"type\":\
     \ \"object\",\n        \"properties\": {\n          \"empty\": {\n           \
     \ \"type\": \"boolean\"\n          },\n          \"sorted\": {\n            \"\
     type\": \"boolean\"\n          },\n          \"unsorted\": {\n            \"type\"\
-    : \"boolean\"\n          }\n        }\n      }\n    },\n    \"securitySchemes\"\
-    : {\n      \"bearerAuth\": {\n        \"type\": \"http\",\n        \"description\"\
-    : \"Keycloak JWT access token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\"\
-    ,\n        \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n\
-    \    }\n  }\n}"
+    : \"boolean\"\n          }\n        }\n      },\n      \"CanApproveResponse\"\
+    : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"allowed\"\
+    : {\n            \"type\": \"boolean\",\n            \"description\": \"True when\
+    \ the actor may approve\",\n            \"example\": true\n          },\n    \
+    \      \"reason\": {\n            \"type\": \"string\",\n            \"description\"\
+    : \"Rule that granted the approval, or NONE\",\n            \"example\": \"CHAIN\"\
+    ,\n            \"enum\": [\n              \"CHAIN\",\n              \"SELF_TOP_LEVEL\"\
+    ,\n              \"NONE\"\n            ]\n          }\n        },\n        \"\
+    description\": \"Whether the actor can approve the requester's absences and clock-in\
+    \ corrections\"\n      }\n    },\n    \"securitySchemes\": {\n      \"bearerAuth\"\
+    : {\n        \"type\": \"http\",\n        \"description\": \"Keycloak JWT access\
+    \ token. Obtain via POST /realms/{realm}/protocol/openid-connect/token\",\n  \
+    \      \"scheme\": \"bearer\",\n        \"bearerFormat\": \"JWT\"\n      }\n \
+    \   }\n  }\n}"
 kind: ConfigMap
 metadata:
   name: api-docs-spec-employee-service
