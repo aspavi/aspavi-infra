@@ -66,6 +66,26 @@ usuario `admin` del realm master. La contraseña la leen del Llavero de macOS
 arranque del operador (`temp-admin`) ya no sirve, así que no usan `kcadm` dentro
 del pod.
 
+El import también hace que **el email sea el nombre de usuario**
+(`registrationEmailAsUsername: true`, con `loginWithEmailAllowed: true` y
+`editUsernameAllowed: false`) y que el email solo lo cambie un admin (en el user
+profile, `email.permissions.edit = ["admin"]`): ni la consola de cuenta ni
+UPDATE_PROFILE dejan al usuario tocarlo. iam-service da de alta los usuarios
+con username = email. Para un realm que ya existe:
+
+```bash
+python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...]           # dry-run: qué cambiaría
+python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --apply
+```
+
+> Con ese ajuste activo, Keycloak cambia el username de un usuario existente
+> por su email **en cuanto se actualiza el usuario por cualquier vía**: un PUT
+> de admin aunque solo cambie el nombre o `employee_id`, o el propio usuario
+> editando su nombre en la consola de cuenta. Desde ese momento entra con el
+> email y no con el username antiguo, y el claim `preferred_username` pasa a
+> ser el email. Un alta con un username distinto del email también se guarda
+> con el email.
+
 Para ver cómo ha quedado un realm (solo lectura: roles, composites, clients y
 usuarios sin rol base):
 
@@ -274,6 +294,7 @@ curl -s -X POST \
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
 | `python3 scripts/keycloak/bootstrap-iam-realm.py {slug} --production` | cluster | Ejecutar (secret de iam-service) |
+| `python3 scripts/keycloak/realm-login-settings.py {slug} --apply` | cluster | Solo si el realm ya existía (email como usuario) |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
 
 El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
