@@ -100,6 +100,13 @@ El mismo script fija la protección contra fuerza bruta, igual que el import:
   `DELETE /admin/realms/{realm}/attack-detection/brute-force/users`. Los dos
   ponen el contador a 0.
 
+Los roles de realm van en el token una sola vez, en `realm_access.roles` del
+access token (client scope por defecto `roles`), que es lo que leen el front y
+auth-lib. El import ya no lleva el mapper `realm-roles` de `rrhh-frontend`, que
+repetía la lista en un claim plano `roles` (access, id y userinfo). En un realm
+que ya existe, `--drop-roles-claim` lo quita, pero solo si `realm_access.roles`
+sigue saliendo por el scope `roles`.
+
 `--rename-users` renombra de una vez, después de los ajustes, a los usuarios con
 email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los
 `service-account-*` y deja como están a los usuarios sin email (`se queda: sin
