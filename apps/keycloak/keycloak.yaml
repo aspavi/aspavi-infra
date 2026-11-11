@@ -18,8 +18,15 @@ spec:
       key: password
   http:
     httpEnabled: true
+  # Hostname v2. Con una URL completa, el emisor (iss) es siempre
+  # https://keycloak.aspavi.com/realms/<realm>, se entre por el ingress o por la
+  # red interna (keycloak-service.rrhh-auth:8080, la que usa iam). Con solo el
+  # host, el iss salía del request (http://keycloak.aspavi.com:8080/...) y un
+  # token emitido por una URL no valía por la otra. backchannelDynamic: el
+  # well-known pedido por la red interna anuncia endpoints internos.
   hostname:
-    hostname: keycloak.aspavi.com
+    hostname: https://keycloak.aspavi.com
+    backchannelDynamic: true
   proxy:
     headers: xforwarded
   additionalOptions:
