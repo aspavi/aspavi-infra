@@ -697,19 +697,28 @@ data:
     \        \"summary\": \"List employees with pagination\",\n        \"description\"\
     : \"Returns a page of employees for the authenticated tenant. Use standard Spring\
     \ pageable params: ?page=0&size=20&sort=lastName,asc. Optional ?search= filters\
-    \ across firstName, lastName, email and department.\",\n        \"operationId\"\
-    : \"getEmployeesPaginated\",\n        \"parameters\": [\n          {\n       \
-    \     \"name\": \"pageable\",\n            \"in\": \"query\",\n            \"\
-    required\": true,\n            \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\
-    \n            }\n          },\n          {\n            \"name\": \"search\",\n\
+    \ across firstName, lastName, email and department. Optional ?email= keeps only\
+    \ the employee whose email is exactly that one, ignoring case (at most one per\
+    \ tenant; an empty value matches no one).\",\n        \"operationId\": \"getEmployeesPaginated\"\
+    ,\n        \"parameters\": [\n          {\n            \"name\": \"pageable\"\
+    ,\n            \"in\": \"query\",\n            \"required\": true,\n         \
+    \   \"schema\": {\n              \"$ref\": \"#/components/schemas/Pageable\"\n\
+    \            }\n          },\n          {\n            \"name\": \"search\",\n\
     \            \"in\": \"query\",\n            \"description\": \"Free-text search\
     \ across firstName, lastName, email and department\",\n            \"required\"\
     : false,\n            \"schema\": {\n              \"type\": \"string\"\n    \
-    \        }\n          }\n        ],\n        \"responses\": {\n          \"401\"\
-    : {\n            \"description\": \"Missing or invalid JWT token\",\n        \
-    \    \"content\": {\n              \"*/*\": {\n                \"schema\": {\n\
-    \                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\n \
-    \               }\n              }\n            }\n          },\n          \"\
+    \        }\n          },\n          {\n            \"name\": \"email\",\n    \
+    \        \"in\": \"query\",\n            \"description\": \"Exact email, case-insensitive\"\
+    ,\n            \"required\": false,\n            \"schema\": {\n             \
+    \ \"type\": \"string\"\n            }\n          }\n        ],\n        \"responses\"\
+    : {\n          \"403\": {\n            \"description\": \"Missing employee:read\
+    \ permission\",\n            \"content\": {\n              \"*/*\": {\n      \
+    \          \"schema\": {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
+    401\": {\n            \"description\": \"Missing or invalid JWT token\",\n   \
+    \         \"content\": {\n              \"*/*\": {\n                \"schema\"\
+    : {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
+    \n                }\n              }\n            }\n          },\n          \"\
     200\": {\n            \"description\": \"Page returned successfully\",\n     \
     \       \"content\": {\n              \"*/*\": {\n                \"schema\":\
     \ {\n                  \"$ref\": \"#/components/schemas/PageEmployeeResponse\"\
@@ -1071,64 +1080,64 @@ data:
     : 20,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
     \     },\n          \"address\": {\n            \"maxLength\": 255,\n        \
     \    \"minLength\": 0,\n            \"type\": \"string\",\n            \"deprecated\"\
-    : true\n          },\n          \"status\": {\n            \"type\": \"string\"\
-    \n          },\n          \"workCenterId\": {\n            \"type\": \"string\"\
-    ,\n            \"format\": \"uuid\"\n          },\n          \"jobPositionId\"\
+    : true\n          },\n          \"status\": {\n            \"pattern\": \"^(ACTIVE|INACTIVE|ON_LEAVE)$\"\
+    ,\n            \"type\": \"string\"\n          },\n          \"workCenterId\"\
     : {\n            \"type\": \"string\",\n            \"format\": \"uuid\"\n   \
-    \       },\n          \"birthDate\": {\n            \"type\": \"string\",\n  \
-    \          \"format\": \"date\"\n          },\n          \"nationalId\": {\n \
-    \           \"maxLength\": 20,\n            \"minLength\": 0,\n            \"\
-    type\": \"string\"\n          },\n          \"socialSecurityNumber\": {\n    \
-    \        \"maxLength\": 30,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          },\n          \"gender\": {\n            \"type\": \"\
-    string\",\n            \"enum\": [\n              \"FEMALE\",\n              \"\
-    MALE\",\n              \"OTHER\",\n              \"UNDISCLOSED\"\n           \
-    \ ]\n          },\n          \"maritalStatus\": {\n            \"type\": \"string\"\
-    ,\n            \"enum\": [\n              \"SINGLE\",\n              \"MARRIED\"\
-    ,\n              \"PARTNER\",\n              \"DIVORCED\",\n              \"WIDOWED\"\
-    \n            ]\n          },\n          \"nationality\": {\n            \"maxLength\"\
-    : 60,\n            \"minLength\": 0,\n            \"type\": \"string\"\n     \
-    \     },\n          \"preferredName\": {\n            \"maxLength\": 100,\n  \
-    \          \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
-    \          \"personalEmail\": {\n            \"maxLength\": 100,\n           \
-    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
-    \  \"personalPhone\": {\n            \"maxLength\": 20,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"addressStreet\"\
-    : {\n            \"maxLength\": 150,\n            \"minLength\": 0,\n        \
-    \    \"type\": \"string\"\n          },\n          \"addressCity\": {\n      \
-    \      \"maxLength\": 100,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          },\n          \"addressProvince\": {\n            \"maxLength\"\
-    : 100,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
-    \      },\n          \"addressPostal\": {\n            \"maxLength\": 10,\n  \
-    \          \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
-    \          \"addressCountry\": {\n            \"maxLength\": 60,\n           \
-    \ \"minLength\": 0,\n            \"type\": \"string\"\n          },\n        \
-    \  \"emergencyName\": {\n            \"maxLength\": 150,\n            \"minLength\"\
-    : 0,\n            \"type\": \"string\"\n          },\n          \"emergencyRelation\"\
-    : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
-    \   \"type\": \"string\"\n          },\n          \"emergencyPhone\": {\n    \
+    \       },\n          \"jobPositionId\": {\n            \"type\": \"string\",\n\
+    \            \"format\": \"uuid\"\n          },\n          \"birthDate\": {\n\
+    \            \"type\": \"string\",\n            \"format\": \"date\"\n       \
+    \   },\n          \"nationalId\": {\n            \"maxLength\": 20,\n        \
+    \    \"minLength\": 0,\n            \"type\": \"string\"\n          },\n     \
+    \     \"socialSecurityNumber\": {\n            \"maxLength\": 30,\n          \
+    \  \"minLength\": 0,\n            \"type\": \"string\"\n          },\n       \
+    \   \"gender\": {\n            \"type\": \"string\",\n            \"enum\": [\n\
+    \              \"FEMALE\",\n              \"MALE\",\n              \"OTHER\",\n\
+    \              \"UNDISCLOSED\"\n            ]\n          },\n          \"maritalStatus\"\
+    : {\n            \"type\": \"string\",\n            \"enum\": [\n            \
+    \  \"SINGLE\",\n              \"MARRIED\",\n              \"PARTNER\",\n     \
+    \         \"DIVORCED\",\n              \"WIDOWED\"\n            ]\n          },\n\
+    \          \"nationality\": {\n            \"maxLength\": 60,\n            \"\
+    minLength\": 0,\n            \"type\": \"string\"\n          },\n          \"\
+    preferredName\": {\n            \"maxLength\": 100,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"personalEmail\"\
+    : {\n            \"maxLength\": 100,\n            \"minLength\": 0,\n        \
+    \    \"type\": \"string\"\n          },\n          \"personalPhone\": {\n    \
     \        \"maxLength\": 20,\n            \"minLength\": 0,\n            \"type\"\
-    : \"string\"\n          },\n          \"workMode\": {\n            \"type\": \"\
-    string\",\n            \"enum\": [\n              \"ONSITE\",\n              \"\
-    HYBRID\",\n              \"REMOTE\"\n            ]\n          }\n        }\n \
-    \     },\n      \"EmployeeReportingRequest\": {\n        \"required\": [\n   \
-    \       \"employeeId\",\n          \"managerId\"\n        ],\n        \"type\"\
-    : \"object\",\n        \"properties\": {\n          \"employeeId\": {\n      \
-    \      \"type\": \"string\",\n            \"format\": \"uuid\"\n          },\n\
-    \          \"managerId\": {\n            \"type\": \"string\",\n            \"\
-    format\": \"uuid\"\n          },\n          \"kind\": {\n            \"pattern\"\
-    : \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"type\": \"string\"\n      \
-    \    },\n          \"isPrimary\": {\n            \"type\": \"boolean\"\n     \
-    \     },\n          \"canApproveTimeoff\": {\n            \"type\": \"boolean\"\
-    \n          },\n          \"startedAt\": {\n            \"type\": \"string\",\n\
-    \            \"format\": \"date\"\n          }\n        }\n      },\n      \"\
-    Pageable\": {\n        \"type\": \"object\",\n        \"properties\": {\n    \
-    \      \"page\": {\n            \"minimum\": 0,\n            \"type\": \"integer\"\
-    ,\n            \"format\": \"int32\"\n          },\n          \"size\": {\n  \
-    \          \"minimum\": 1,\n            \"type\": \"integer\",\n            \"\
-    format\": \"int32\"\n          },\n          \"sort\": {\n            \"type\"\
-    : \"array\",\n            \"items\": {\n              \"type\": \"string\"\n \
-    \           }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
+    : \"string\"\n          },\n          \"addressStreet\": {\n            \"maxLength\"\
+    : 150,\n            \"minLength\": 0,\n            \"type\": \"string\"\n    \
+    \      },\n          \"addressCity\": {\n            \"maxLength\": 100,\n   \
+    \         \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"addressProvince\": {\n            \"maxLength\": 100,\n         \
+    \   \"minLength\": 0,\n            \"type\": \"string\"\n          },\n      \
+    \    \"addressPostal\": {\n            \"maxLength\": 10,\n            \"minLength\"\
+    : 0,\n            \"type\": \"string\"\n          },\n          \"addressCountry\"\
+    : {\n            \"maxLength\": 60,\n            \"minLength\": 0,\n         \
+    \   \"type\": \"string\"\n          },\n          \"emergencyName\": {\n     \
+    \       \"maxLength\": 150,\n            \"minLength\": 0,\n            \"type\"\
+    : \"string\"\n          },\n          \"emergencyRelation\": {\n            \"\
+    maxLength\": 60,\n            \"minLength\": 0,\n            \"type\": \"string\"\
+    \n          },\n          \"emergencyPhone\": {\n            \"maxLength\": 20,\n\
+    \            \"minLength\": 0,\n            \"type\": \"string\"\n          },\n\
+    \          \"workMode\": {\n            \"type\": \"string\",\n            \"\
+    enum\": [\n              \"ONSITE\",\n              \"HYBRID\",\n            \
+    \  \"REMOTE\"\n            ]\n          }\n        }\n      },\n      \"EmployeeReportingRequest\"\
+    : {\n        \"required\": [\n          \"employeeId\",\n          \"managerId\"\
+    \n        ],\n        \"type\": \"object\",\n        \"properties\": {\n     \
+    \     \"employeeId\": {\n            \"type\": \"string\",\n            \"format\"\
+    : \"uuid\"\n          },\n          \"managerId\": {\n            \"type\": \"\
+    string\",\n            \"format\": \"uuid\"\n          },\n          \"kind\"\
+    : {\n            \"pattern\": \"^(DIRECT|FUNCTIONAL|DOTTED)$\",\n            \"\
+    type\": \"string\"\n          },\n          \"isPrimary\": {\n            \"type\"\
+    : \"boolean\"\n          },\n          \"canApproveTimeoff\": {\n            \"\
+    type\": \"boolean\"\n          },\n          \"startedAt\": {\n            \"\
+    type\": \"string\",\n            \"format\": \"date\"\n          }\n        }\n\
+    \      },\n      \"Pageable\": {\n        \"type\": \"object\",\n        \"properties\"\
+    : {\n          \"page\": {\n            \"minimum\": 0,\n            \"type\"\
+    : \"integer\",\n            \"format\": \"int32\"\n          },\n          \"\
+    size\": {\n            \"minimum\": 1,\n            \"type\": \"integer\",\n \
+    \           \"format\": \"int32\"\n          },\n          \"sort\": {\n     \
+    \       \"type\": \"array\",\n            \"items\": {\n              \"type\"\
+    : \"string\"\n            }\n          }\n        }\n      },\n      \"PageEmployeeResponse\"\
     : {\n        \"type\": \"object\",\n        \"properties\": {\n          \"totalElements\"\
     : {\n            \"type\": \"integer\",\n            \"format\": \"int64\"\n \
     \         },\n          \"totalPages\": {\n            \"type\": \"integer\",\n\
