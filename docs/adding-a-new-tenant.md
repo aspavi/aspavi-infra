@@ -84,9 +84,13 @@ email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los
 email`). Sin esa opción, cada usuario se renombra solo la próxima vez que se le
 actualice (ver abajo).
 
-Para saber con qué username entra un usuario, mira `inventory.py` o la lista de
-usuarios: `GET /admin/realms/{realm}/users/{id}` ya devuelve el email como
-username aunque el guardado siga siendo el viejo.
+Para saber con qué username entra un usuario, mira `guardado_es_email` en
+`inventory.py`. Con el ajuste activo, el campo `username` de las respuestas de
+la Admin API ya trae el email aunque el guardado (con el que se entra) siga
+siendo el viejo: en Keycloak 26.5 pasa en la lista, en las búsquedas y en
+`GET users/{id}`. El filtro sí compara con el valor guardado:
+`GET users?username=<email>&exact=true` solo encuentra al usuario cuando su
+username guardado ya es el email. Los scripts lo comprueban así.
 
 > Con ese ajuste activo, Keycloak cambia el username de un usuario existente
 > por su email **en cuanto se actualiza el usuario por cualquier vía**: un PUT
