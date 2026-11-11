@@ -74,9 +74,19 @@ UPDATE_PROFILE dejan al usuario tocarlo. iam-service da de alta los usuarios
 con username = email. Para un realm que ya existe:
 
 ```bash
-python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...]           # dry-run: qué cambiaría
-python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --apply
+python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-users           # dry-run: qué cambiaría
+python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-users --apply
 ```
+
+`--rename-users` renombra de una vez, después de los ajustes, a los usuarios con
+email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los
+`service-account-*` y deja como están a los usuarios sin email (`se queda: sin
+email`). Sin esa opción, cada usuario se renombra solo la próxima vez que se le
+actualice (ver abajo).
+
+Para saber con qué username entra un usuario, mira `inventory.py` o la lista de
+usuarios: `GET /admin/realms/{realm}/users/{id}` ya devuelve el email como
+username aunque el guardado siga siendo el viejo.
 
 > Con ese ajuste activo, Keycloak cambia el username de un usuario existente
 > por su email **en cuanto se actualiza el usuario por cualquier vía**: un PUT
@@ -300,7 +310,7 @@ curl -s -X POST \
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
 | `python3 scripts/keycloak/bootstrap-iam-realm.py {slug} --production` | cluster | Ejecutar (secret de iam-service) |
-| `python3 scripts/keycloak/realm-login-settings.py {slug} --apply` | cluster | Solo si el realm ya existía (email como usuario) |
+| `python3 scripts/keycloak/realm-login-settings.py {slug} --rename-users --apply` | cluster | Solo si el realm ya existía (email como usuario) |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
 
 El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
