@@ -22,6 +22,10 @@ ADMIN_USER = os.environ.get("KEYCLOAK_ADMIN_USER", "admin")
 BASE_ROLES = ("ADMIN_RRHH", "MANAGER", "EMPLOYEE", "AUDITOR")
 
 
+class KcError(Exception):
+    """Error HTTP de la Admin API, para quien quiera seguir en vez de salir."""
+
+
 def die(msg):
     print(f"ERROR: {msg}", file=sys.stderr)
     sys.exit(1)
@@ -74,8 +78,9 @@ class Admin:
         self._token = tok["access_token"]
         self._expires = time.monotonic() + max(int(tok.get("expires_in", 60)) - 15, 5)
 
-    def call(self, method, path, body=None, ok404=False, _retry=True):
-        """`path` va relativo a /admin/realms/ ('' lista los realms)."""
+    def call(self, method, path, body=None, ok404=False, _retry=True, raise_errors=False):
+        """`path` va relativo a /admin/realms/ ('' lista los realms). Un error
+        HTTP termina el script, o lanza KcError si raise_errors=True."""
         if self._token is None or time.monotonic() >= self._expires:
             self._login()
         url = f"{KC}/admin/realms/{path}" if path else f"{KC}/admin/realms"
@@ -90,10 +95,13 @@ class Admin:
         except urllib.error.HTTPError as e:
             if e.code == 401 and _retry:
                 self._token = None
-                return self.call(method, path, body, ok404, _retry=False)
+                return self.call(method, path, body, ok404, _retry=False, raise_errors=raise_errors)
             if ok404 and e.code == 404:
                 return None
-            die(f"{method} /admin/realms/{path}: HTTP {e.code} {e.read()[:300].decode(errors='replace')}")
+            msg = f"{method} /admin/realms/{path}: HTTP {e.code} {e.read()[:300].decode(errors='replace')}"
+            if raise_errors:
+                raise KcError(msg) from None
+            die(msg)
 
     def get(self, path, ok404=False):
         return self.call("GET", path, ok404=ok404)
