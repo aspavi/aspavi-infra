@@ -20,13 +20,19 @@ operador no vuelve a aplicar (import --override=false):
      con su propia representación, y es Keycloak quien pone el email como
      username porque registrationEmailAsUsername está activo.
 
+  4. con --drop-roles-claim: quita de rrhh-frontend el mapper que emite el
+     claim plano `roles` (access, id y userinfo), que repite los roles de
+     `realm_access.roles`. Solo si el client tiene por defecto el client scope
+     `roles` y este emite `realm_access.roles` en el access token, que es el
+     claim que leen el front y auth-lib.
+
 Por defecto NO escribe: imprime, por realm, cada ajuste con su valor actual y
 el que tendría, y cada renombrado como `username: viejo -> nuevo`. Con --apply
 escribe solo lo que difiere, primero los ajustes y después los renombrados, y
 vuelve a leer para comprobarlo. Idempotente.
 
 Uso:
-  python3 scripts/keycloak/realm-login-settings.py <tenant> [<tenant> ...] [--rename-users] [--apply]
+  python3 scripts/keycloak/realm-login-settings.py <tenant> [<tenant> ...] [--rename-users] [--drop-roles-claim] [--apply]
 
 Credenciales: ver kcadmin.py (admin de master + Llavero, solo en memoria).
 No lee ni imprime secretos. Termina con 1 si algo no ha quedado aplicado.
@@ -156,11 +162,73 @@ def rename_users(kc, realm, apply):
     return ok
 
 
+FRONT_CLIENT = "rrhh-frontend"
+ROLE_MAPPER = "oidc-usermodel-realm-role-mapper"
+LEGACY_ROLES_CLAIM = "roles"
+STANDARD_ROLES_CLAIM = "realm_access.roles"
+
+
+def drop_roles_claim(kc, realm, apply):
+    """Ajuste 4. Quita de rrhh-frontend los mappers de roles de realm que emiten
+    el claim plano `roles`, que repite lo que ya va en `realm_access.roles`.
+    Solo si el client tiene como scope POR DEFECTO `roles` y ese scope emite
+    `realm_access.roles` en el access token (es lo que leen el front y
+    auth-lib). Devuelve True si no ha fallado nada."""
+    front = kc.client_uuid(realm, FRONT_CLIENT)
+    if not front:
+        say("ERROR", f"no existe el client {FRONT_CLIENT}")
+        return False
+    mappers = kc.get(f"{realm}/clients/{front}/protocol-mappers/models")
+    legacy = [m for m in mappers if m.get("protocolMapper") == ROLE_MAPPER
+              and (m.get("config") or {}).get("claim.name") == LEGACY_ROLES_CLAIM]
+    others = [f"{m['name']} -> {(m.get('config') or {}).get('claim.name')}" for m in mappers
+              if m.get("protocolMapper") == ROLE_MAPPER and m not in legacy]
+    if others:
+        say("info", f"otros mappers de roles en {FRONT_CLIENT} (no se tocan): {', '.join(others)}")
+    if not legacy:
+        say("ok", f"{FRONT_CLIENT} no emite el claim '{LEGACY_ROLES_CLAIM}'")
+        return True
+
+    keeper = standard_roles_mapper(kc, realm, front)
+    if keeper is None:
+        say("ERROR", f"no borro el claim '{LEGACY_ROLES_CLAIM}': {FRONT_CLIENT} no tiene el scope por defecto "
+                     f"'roles' con un mapper {ROLE_MAPPER} que emita '{STANDARD_ROLES_CLAIM}' en el access token")
+        return False
+    say("info", f"se queda {STANDARD_ROLES_CLAIM} (client scope roles, mapper '{keeper}')")
+    for m in legacy:
+        say("borra", f"mapper '{m['name']}' de {FRONT_CLIENT} (claim '{LEGACY_ROLES_CLAIM}')")
+    if not apply:
+        return True
+    for m in legacy:
+        kc.call("DELETE", f"{realm}/clients/{front}/protocol-mappers/models/{m['id']}")
+    left = [m for m in kc.get(f"{realm}/clients/{front}/protocol-mappers/models")
+            if (m.get("config") or {}).get("claim.name") == LEGACY_ROLES_CLAIM]
+    say("comprobado" if not left else "ERROR",
+        f"{FRONT_CLIENT} ya no emite '{LEGACY_ROLES_CLAIM}'" if not left else f"quedan mappers con '{LEGACY_ROLES_CLAIM}'")
+    return not left
+
+
+def standard_roles_mapper(kc, realm, front):
+    """Nombre del mapper que pone los roles de realm en realm_access.roles del
+    access token a través del scope por defecto `roles` del client, o None."""
+    if not any(sc["name"] == "roles" for sc in kc.get(f"{realm}/clients/{front}/default-client-scopes")):
+        return None
+    scope = next((sc for sc in kc.get(f"{realm}/client-scopes") if sc["name"] == "roles"), None)
+    for m in (scope or {}).get("protocolMappers", []):
+        cfg = m.get("config") or {}
+        if (m.get("protocolMapper") == ROLE_MAPPER and cfg.get("claim.name") == STANDARD_ROLES_CLAIM
+                and cfg.get("access.token.claim") == "true" and cfg.get("multivalued") == "true"):
+            return m["name"]
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser(description="Email como nombre de usuario en realms existentes (ver la cabecera).")
     ap.add_argument("tenants", nargs="+", help="test | acme | ...  (realm rrhh-tenant-<tenant>)")
     ap.add_argument("--rename-users", action="store_true",
                     help="renombra a su email a los usuarios cuyo username no lo es")
+    ap.add_argument("--drop-roles-claim", action="store_true",
+                    help=f"quita de {FRONT_CLIENT} el claim plano 'roles', duplicado de realm_access.roles")
     ap.add_argument("--apply", action="store_true", help="escribe los cambios; sin él solo los muestra")
     opts = ap.parse_args()
     kc = Admin()
@@ -178,6 +246,8 @@ def main():
                 ok &= rename_users(kc, realm, opts.apply)
             else:
                 say("ERROR", "los ajustes no han quedado aplicados; no renombro a nadie")
+        if opts.drop_roles_claim:
+            ok &= drop_roles_claim(kc, realm, opts.apply)
     if not opts.apply:
         print("== dry-run: nada escrito; repite con --apply para aplicarlo")
     raise SystemExit(0 if ok else 1)
