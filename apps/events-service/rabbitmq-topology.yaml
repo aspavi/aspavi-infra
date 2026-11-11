@@ -105,18 +105,41 @@ spec:
     name: rabbitmq
 
 ---
-### El cementerio recoge todo lo que rebote, venga de donde venga.
+### El cementerio recoge lo que rebota de events-service.timeline. La cola no
+### tiene x-dead-letter-routing-key (y no se le puede añadir sin recrearla), así
+### que lo rebotado conserva su clave original: se ata con las mismas claves que
+### la cola, una por binding de arriba.
+###
+### Antes era `#`, pero aspavi.events.dlx es compartida: con `#`, esta DLQ se
+### quedaba también con los venenos de las colas de otros consumidores
+### (iam-service.employee-access, ASP-24). Comprobado en RabbitMQ 4.2.6.
+### Un binding nuevo de la cola necesita su gemelo aquí.
 apiVersion: rabbitmq.com/v1beta1
 kind: Binding
 metadata:
-  name: events-service-timeline-dlq-catch-all
+  name: events-service-timeline-dlq-from-work-calendar
   namespace: rrhh-data
 spec:
   vhost: "/"
   source: aspavi.events.dlx
   destination: events-service.timeline.dlq
   destinationType: queue
-  routingKey: "#"
+  routingKey: "collective-agreements.work-calendar.#"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: events-service-timeline-dlq-from-work-center
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events.dlx
+  destination: events-service.timeline.dlq
+  destinationType: queue
+  routingKey: "organization.work-center.#"
   rabbitmqClusterReference:
     name: rabbitmq
 

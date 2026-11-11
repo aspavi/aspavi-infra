@@ -1,0 +1,56 @@
+### =====================================================================
+### Credenciales de employee-service en el bus de eventos (ASP-24).
+###
+### Publica los cambios de estado y los borrados de fichas
+### (`employee.employee.status-changed.v1`, `employee.employee.deleted.v1`)
+### desde su outbox, como organization-service. Va en rrhh-system porque el
+### operador genera la contraseña en un Secret de este namespace
+### (`employee-service-user-credentials`), que es donde corre el pod.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: employee-service
+  namespace: rrhh-system
+spec:
+  tags: []
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Solo publicar en aspavi.events. Sin `configure` (la topología la define este
+### repo) ni `read` (no consume nada).
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: employee-service
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: employee-service
+  permissions:
+    write: "^aspavi\\.events$"
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Y solo con claves employee.*: el broker rechaza que publique en nombre de
+### otro servicio (ver apps/organization-service/rabbitmq-topology.yaml).
+apiVersion: rabbitmq.com/v1beta1
+kind: TopicPermission
+metadata:
+  name: employee-service
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: employee-service
+  permissions:
+    exchange: aspavi.events
+    write: "^employee\\."
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
