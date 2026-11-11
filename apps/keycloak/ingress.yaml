@@ -1,3 +1,17 @@
+# Ingress público de Keycloak: solo lo que necesitan los tenants (ASP-5).
+#
+#   /realms/rrhh-tenant-<tenant>   OIDC (token, auth, certs, userinfo, logout,
+#                                  well-known), login-actions, broker y la consola
+#                                  de cuenta del tenant
+#   /resources                     CSS/JS/imágenes de las páginas de login y cuenta
+#
+# No se publican /admin ni /realms/master: la administración entra por
+# port-forward (scripts/keycloak/README.md). Lo que no está aquí da 404 en Traefik.
+#
+# Un tenant nuevo necesita su línea en paths (docs/adding-a-new-tenant.md). No hay
+# patrón: un Ingress estándar no admite expresiones regulares, y el prefijo
+# "/realms/rrhh-tenant-" solo funcionaría por cómo Traefik traduce Prefix hoy
+# (prefijo de texto), que deja de valer con strictPrefixMatching.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -15,7 +29,21 @@ spec:
     - host: keycloak.aspavi.com
       http:
         paths:
-          - path: /
+          - path: /realms/rrhh-tenant-test
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 8080
+          - path: /realms/rrhh-tenant-acme
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 8080
+          - path: /resources
             pathType: Prefix
             backend:
               service:

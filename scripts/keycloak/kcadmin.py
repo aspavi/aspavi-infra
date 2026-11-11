@@ -1,11 +1,15 @@
 """Cliente mínimo de la Admin REST API de Keycloak para los scripts de scripts/keycloak/.
 
-Entra como el usuario `admin` del realm master (client admin-cli, grant password)
-en la URL pública. La contraseña sale de la variable KEYCLOAK_ADMIN_PASSWORD
+Entra como el usuario `admin` del realm master (client admin-cli, grant password).
+La administración de Keycloak no se publica (ASP-5): se llega por port-forward,
+
+    kubectl --kubeconfig ~/.kube/aspavi.kubeconfig -n rrhh-auth port-forward svc/keycloak-service 18080:8080
+
+y esta es la URL por defecto (http://localhost:18080). La contraseña sale de la variable KEYCLOAK_ADMIN_PASSWORD
 o, si no está, del Llavero de macOS (cuenta `aspavi`, servicio
 KEYCLOAK_ADMIN_PASSWORD). Vive solo en memoria y no se imprime nunca.
 
-Variables opcionales: KEYCLOAK_URL (https://keycloak.aspavi.com) y
+Variables opcionales: KEYCLOAK_URL (http://localhost:18080) y
 KEYCLOAK_ADMIN_USER (admin). Solo usa la biblioteca estándar.
 """
 import json
@@ -17,7 +21,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-KC = os.environ.get("KEYCLOAK_URL", "https://keycloak.aspavi.com").rstrip("/")
+KC = os.environ.get("KEYCLOAK_URL", "http://localhost:18080").rstrip("/")
+PORT_FORWARD = "kubectl --kubeconfig ~/.kube/aspavi.kubeconfig -n rrhh-auth port-forward svc/keycloak-service 18080:8080"
 ADMIN_USER = os.environ.get("KEYCLOAK_ADMIN_USER", "admin")
 BASE_ROLES = ("ADMIN_RRHH", "MANAGER", "EMPLOYEE", "AUDITOR")
 
@@ -74,7 +79,8 @@ class Admin:
         except urllib.error.HTTPError as e:
             die(f"login de {ADMIN_USER} en master: HTTP {e.code} {e.read()[:200].decode(errors='replace')}")
         except urllib.error.URLError as e:
-            die(f"no llego a {KC}: {e.reason}")
+            hint = f"\n¿Está abierto el port-forward?  {PORT_FORWARD}" if "localhost" in KC or "127.0.0.1" in KC else ""
+            die(f"no llego a {KC}: {e.reason}{hint}")
         self._token = tok["access_token"]
         self._expires = time.monotonic() + max(int(tok.get("expires_in", 60)) - 15, 5)
 

@@ -8,7 +8,7 @@ En este ejemplo usaremos el slug `globex` y el dominio `globex.aspavi.com`.
 
 ## Requisitos previos
 
-- Acceso a la consola de Keycloak (`https://keycloak.aspavi.com`) con rol admin
+- Acceso a la consola de Keycloak por port-forward (`http://localhost:18080/admin/`, ver `scripts/keycloak/README.md`) con rol admin
 - Acceso al cluster K3s con `kubectl`
 - Acceso al repo `aspavi-infra` con permisos de push
 - DNS del nuevo subdominio apuntando al cluster (mismo IP que los demás subdominios)
@@ -58,8 +58,9 @@ python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --dry-run
 python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --production
 ```
 
-Los scripts de `scripts/keycloak/` usan la Admin REST API pública como el
-usuario `admin` del realm master. La contraseña la leen del Llavero de macOS
+Los scripts de `scripts/keycloak/` usan la Admin REST API como el usuario
+`admin` del realm master, **por port-forward**: la administración de Keycloak
+no se publica (ver `scripts/keycloak/README.md`). La contraseña la leen del Llavero de macOS
 (`security find-generic-password -a aspavi -s KEYCLOAK_ADMIN_PASSWORD -w`), o de
 `KEYCLOAK_ADMIN_PASSWORD` si está definida; nunca la imprimen. El kubeconfig es
 `~/.kube/aspavi.kubeconfig`, o el que se pase con `--kubeconfig`. El admin de
@@ -140,6 +141,22 @@ usuarios sin rol base):
 
 ```bash
 python3 scripts/keycloak/inventory.py <slug>      # sin argumento: todos los realms
+```
+
+### Paso 1b — Publicar el realm en el ingress de Keycloak
+
+El ingress público de Keycloak (`apps/keycloak/ingress.yaml`) solo deja pasar
+`/resources` y los realms de los tenants que tiene en la lista; el resto da 404.
+Añade el del tenant nuevo, o su login no llegará a Keycloak:
+
+```yaml
+          - path: /realms/rrhh-tenant-globex
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 8080
 ```
 
 ---
@@ -246,7 +263,8 @@ ArgoCD detecta el cambio y aplica automáticamente:
 
 Una vez ArgoCD haya sincronizado y el realm esté creado en Keycloak:
 
-1. Entra en `https://keycloak.aspavi.com`
+1. Abre la consola por port-forward en `http://localhost:18080/admin/`
+   (`scripts/keycloak/README.md`)
 2. Cambia al realm **`rrhh-tenant-globex`**
 3. **Clients** → `rrhh-employee-service` → pestaña **Credentials**
 4. Copia el **Client secret**
@@ -338,6 +356,7 @@ curl -s -X POST \
 | Fichero | Repo | Acción |
 |---|---|---|
 | `apps/keycloak/realm-import-{slug}.yaml` | `aspavi-infra` | Crear (copiar de acme) |
+| `apps/keycloak/ingress.yaml` | `aspavi-infra` | Añadir `/realms/rrhh-tenant-{slug}` |
 | `apps/employee-service/cors-middleware.yaml` | `aspavi-infra` | Añadir origen al CORS |
 | `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
