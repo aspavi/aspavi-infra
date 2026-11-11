@@ -85,6 +85,12 @@ python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --apply
 > email y no con el username antiguo, y el claim `preferred_username` pasa a
 > ser el email. Un alta con un username distinto del email también se guarda
 > con el email.
+>
+> Y el email pasa a ser obligatorio también para el admin: a un usuario **sin
+> email** no se le puede actualizar nada (ni siquiera `employee_id`) ni dar de
+> alta sin email; Keycloak responde `400 error-user-attribute-required` con
+> `field: email`. Los usuarios sin email deben tenerlo antes de aplicar el
+> ajuste (`inventory.py` muestra `email=-` en esos casos).
 
 Para ver cómo ha quedado un realm (solo lectura: roles, composites, clients y
 usuarios sin rol base):
