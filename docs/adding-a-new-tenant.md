@@ -78,6 +78,17 @@ python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-us
 python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-users --apply
 ```
 
+El mismo script fija la protección contra fuerza bruta, igual que el import:
+`bruteForceProtected: true`, `failureFactor: 10`, `waitIncrementSeconds: 60`,
+`maxFailureWaitSeconds: 900`, `maxDeltaTimeSeconds: 43200` y
+`permanentLockout: false`. Diez fallos seguidos bloquean al usuario 60 s, y el
+bloqueo crece hasta un máximo de 15 min; un acierto reinicia el contador. Dos
+fallos en menos de 1 s (`quickLoginCheckMilliSeconds`) también lo bloquean
+60 s. Mientras dura el bloqueo, Keycloak responde lo mismo que con una
+contraseña mala (`401 invalid_grant`, "Invalid user credentials"), también en el
+direct grant; el estado real está en
+`GET /admin/realms/{realm}/attack-detection/brute-force/users/{id}`.
+
 `--rename-users` renombra de una vez, después de los ajustes, a los usuarios con
 email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los
 `service-account-*` y deja como están a los usuarios sin email (`se queda: sin

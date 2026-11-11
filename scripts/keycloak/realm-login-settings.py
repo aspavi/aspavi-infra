@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Ajustes de login de un realm de Keycloak que YA existe: el email es el usuario.
+"""Ajustes de login de un realm de Keycloak que YA existe: el email es el usuario
+y la protección contra fuerza bruta.
 
 Lo deja como lo crearía hoy apps/keycloak/realm-import-<tenant>.yaml, que el
 operador no vuelve a aplicar (import --override=false):
 
   1. realm: registrationEmailAsUsername=true, loginWithEmailAllowed=true,
-     editUsernameAllowed=false
+     editUsernameAllowed=false; fuerza bruta: bruteForceProtected=true,
+     failureFactor=10, waitIncrementSeconds=60, maxFailureWaitSeconds=900,
+     maxDeltaTimeSeconds=43200, permanentLockout=false
   2. user profile: el atributo email solo lo edita un admin
      (permissions.edit = ["admin"]); el resto del JSON se conserva tal cual
   3. con --rename-users: los usuarios con email cuyo username GUARDADO no es
@@ -37,6 +40,15 @@ REALM_SETTINGS = {
     "registrationEmailAsUsername": True,
     "loginWithEmailAllowed": True,
     "editUsernameAllowed": False,
+    # protección contra fuerza bruta (también la usa el direct grant de iam
+    # en first-password-change): 10 fallos bloquean 60 s, +60 s por cada 10
+    # fallos más hasta 15 min; el contador se reinicia a las 12 h
+    "bruteForceProtected": True,
+    "failureFactor": 10,
+    "waitIncrementSeconds": 60,
+    "maxFailureWaitSeconds": 900,
+    "maxDeltaTimeSeconds": 43200,
+    "permanentLockout": False,
 }
 EMAIL_EDIT = ["admin"]
 PAGE = 100

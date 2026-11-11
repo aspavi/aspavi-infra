@@ -16,7 +16,14 @@ spec:
     duplicateEmailsAllowed: false
     resetPasswordAllowed: true
     editUsernameAllowed: false
+    # Fuerza bruta: 10 fallos bloquean 60 s, que crecen 60 s por cada 10 fallos
+    # más hasta 15 min; el contador se reinicia a las 12 h. Sin bloqueo permanente.
     bruteForceProtected: true
+    failureFactor: 10
+    waitIncrementSeconds: 60
+    maxFailureWaitSeconds: 900
+    maxDeltaTimeSeconds: 43200
+    permanentLockout: false
 
     # User profile declarativo (Keycloak 26): un atributo que no esté declarado
     # aquí no se guarda. employee_id lo asigna solo un admin; el usuario lo ve.
