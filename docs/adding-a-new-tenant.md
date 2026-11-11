@@ -79,15 +79,26 @@ python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-us
 ```
 
 El mismo script fija la protección contra fuerza bruta, igual que el import:
-`bruteForceProtected: true`, `failureFactor: 10`, `waitIncrementSeconds: 60`,
+`bruteForceProtected: true`, `failureFactor: 10`, `waitIncrementSeconds: 900`,
 `maxFailureWaitSeconds: 900`, `maxDeltaTimeSeconds: 43200` y
-`permanentLockout: false`. Diez fallos seguidos bloquean al usuario 60 s, y el
-bloqueo crece hasta un máximo de 15 min; un acierto reinicia el contador. Dos
-fallos en menos de 1 s (`quickLoginCheckMilliSeconds`) también lo bloquean
-60 s. Mientras dura el bloqueo, Keycloak responde lo mismo que con una
-contraseña mala (`401 invalid_grant`, "Invalid user credentials"), también en el
-direct grant; el estado real está en
-`GET /admin/realms/{realm}/attack-detection/brute-force/users/{id}`.
+`permanentLockout: false`. Comportamiento comprobado en Keycloak 26.5.5:
+
+- El 10º fallo seguido bloquea al usuario **15 min**, con cualquiera de las dos
+  estrategias (`bruteForceStrategy` MULTIPLE, la de por defecto, o LINEAR).
+  Los intentos que se hacen durante el bloqueo no cuentan ni lo alargan.
+- El contador no se pone a cero al acabar el bloqueo: cada fallo posterior
+  vuelve a bloquear 15 min, hasta que el usuario acierta o pasan 12 h sin fallos
+  (`maxDeltaTimeSeconds`).
+- Dos fallos en menos de 1 s (`quickLoginCheckMilliSeconds`) bloquean 60 s
+  (`minimumQuickLoginWaitSeconds`), aunque no se haya llegado a 10.
+- Mientras dura el bloqueo, Keycloak responde lo mismo que con una contraseña
+  mala (`401 invalid_grant`, "Invalid user credentials"), también en el direct
+  grant. El estado real está en
+  `GET /admin/realms/{realm}/attack-detection/brute-force/users/{id}`
+  (`disabled`, `numFailures`).
+- Para desbloquear a un usuario: `DELETE` sobre esa misma URL; para todos:
+  `DELETE /admin/realms/{realm}/attack-detection/brute-force/users`. Los dos
+  ponen el contador a 0.
 
 `--rename-users` renombra de una vez, después de los ajustes, a los usuarios con
 email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los

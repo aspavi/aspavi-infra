@@ -16,11 +16,13 @@ spec:
     duplicateEmailsAllowed: false
     resetPasswordAllowed: true
     editUsernameAllowed: false
-    # Fuerza bruta: 10 fallos bloquean 60 s, que crecen 60 s por cada 10 fallos
-    # más hasta 15 min; el contador se reinicia a las 12 h. Sin bloqueo permanente.
+    # Fuerza bruta: el 10º fallo bloquea 15 min; los intentos durante el bloqueo
+    # no lo alargan. Después, cada fallo vuelve a bloquear 15 min hasta un acierto
+    # o 12 h sin fallos. Sin bloqueo permanente. Se desbloquea con
+    # DELETE /admin/realms/{realm}/attack-detection/brute-force/users/{id}.
     bruteForceProtected: true
     failureFactor: 10
-    waitIncrementSeconds: 60
+    waitIncrementSeconds: 900
     maxFailureWaitSeconds: 900
     maxDeltaTimeSeconds: 43200
     permanentLockout: false
