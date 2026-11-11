@@ -11,10 +11,30 @@ ports:
     port: 8000
     exposedPort: 80
     protocol: TCP
+    # ASP-36: todo lo que entra por http se redirige a https, en todos los hosts
+    # (301 en GET/HEAD, 308 en el resto, conservando ruta y query). El chart lo
+    # traduce a --entryPoints.web.http.redirections.entryPoint.to=:443.
+    #
+    # No rompe cert-manager (ClusterIssuer con HTTP-01): el reto
+    # /.well-known/acme-challenge/<token> también se redirige, y tanto Let's
+    # Encrypt como la autocomprobación de cert-manager (v1.20,
+    # pkg/issuer/acme/http/http.go) siguen la redirección a https sin validar el
+    # certificado, que es justo el que se está pidiendo. El Ingress temporal del
+    # solver no fija entrypoint, así que el reto también se sirve en websecure.
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
   websecure:
     port: 8443
     exposedPort: 443
     protocol: TCP
+    # HSTS en todas las respuestas https (Middleware `hsts`, abajo).
+    http:
+      middlewares:
+        - kube-system-hsts@kubernetescrd
 
 ingressRoute:
   dashboard:
@@ -48,3 +68,28 @@ resources:
   limits:
     cpu: "300m"
     memory: "256Mi"
+
+extraObjects:
+  # HSTS para todos los hosts. Ojo con dos efectos de ponerlo en el entrypoint:
+  #
+  # - SUSTITUYE el Strict-Transport-Security que mande el backend: api.aspavi.com
+  #   (Spring Security, max-age=31536000; includeSubDomains) y tapete.aspavi.com
+  #   (max-age=31536000) pasan a mandar el valor de aquí.
+  # - Si este Middleware no existe, TODOS los routers de websecure dan 404
+  #   ("middleware does not exist"). Por eso la sync-wave -1: ArgoCD lo crea antes
+  #   que el Deployment de Traefik. No lo borres sin quitar antes la referencia
+  #   de ports.websecure.http.middlewares.
+  #
+  # max-age prudente para empezar (1 día). Sin includeSubDomains: aspavi.com no
+  # resuelve, así que no hay un host desde el que cubrir *.aspavi.com, y cada
+  # host ya recibe su propia cabecera. Sin preload.
+  - apiVersion: traefik.io/v1alpha1
+    kind: Middleware
+    metadata:
+      name: hsts
+      namespace: kube-system
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+    spec:
+      headers:
+        stsSeconds: 86400
