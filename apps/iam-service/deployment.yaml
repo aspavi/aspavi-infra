@@ -61,6 +61,12 @@ spec:
                 secretKeyRef:
                   name: iam-service-user-credentials
                   key: password
+            # Activa el consumidor de iam-service.employee-access (ASP-24): retira
+            # el acceso a Keycloak cuando una ficha pasa a INACTIVE o se borra.
+            # La cola la declara apps/iam-service/rabbitmq-topology.yaml; si no
+            # existe, iam no arranca.
+            - name: EMPLOYEE_EVENTS_ENABLED
+              value: "true"
             - name: AUDIT_SERVICE_URL
               value: "http://audit-service.rrhh-system"
           # Solo liveness/readiness: el health agregado da 503 si un tenant no
