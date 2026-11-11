@@ -15,8 +15,8 @@ operador no vuelve a aplicar (import --override=false):
      ese email (en minúsculas) pasan a tenerlo como username. El guardado se
      mira con la búsqueda exacta por email, no con el campo username de las
      respuestas, que con el ajuste activo ya trae el email aunque no lo sea.
-     Se quedan como están los service-account-* y los usuarios sin email. Solo se renombra si los
-     ajustes 1 y 2 han quedado aplicados: el renombrado es un PUT del usuario
+     Se quedan como están los service-account-* y los usuarios sin email.
+     Solo se renombra si los ajustes 1 y 2 han quedado aplicados: el renombrado es un PUT del usuario
      con su propia representación, y es Keycloak quien pone el email como
      username porque registrationEmailAsUsername está activo.
 
@@ -26,13 +26,17 @@ operador no vuelve a aplicar (import --override=false):
      `roles` y este emite `realm_access.roles` en el access token, que es el
      claim que leen el front y auth-lib.
 
+  master: no está en los imports; solo recibe la fuerza bruta del punto 1 y el
+     atributo frontendUrl=http://localhost:18080 (--admin-url), para que la
+     consola de administración funcione por port-forward. Ver README.md.
+
 Por defecto NO escribe: imprime, por realm, cada ajuste con su valor actual y
 el que tendría, y cada renombrado como `username: viejo -> nuevo`. Con --apply
 escribe solo lo que difiere, primero los ajustes y después los renombrados, y
 vuelve a leer para comprobarlo. Idempotente.
 
 Uso:
-  python3 scripts/keycloak/realm-login-settings.py <tenant> [<tenant> ...] [--rename-users] [--drop-roles-claim] [--apply]
+  python3 scripts/keycloak/realm-login-settings.py <tenant|master> [...] [--rename-users] [--drop-roles-claim] [--admin-url URL] [--apply]
 
 Credenciales: ver kcadmin.py (admin de master + Llavero, solo en memoria).
 No lee ni imprime secretos. Termina con 1 si algo no ha quedado aplicado.
@@ -42,10 +46,12 @@ import json
 
 from kcadmin import Admin, KcError, realm_of, say
 
-REALM_SETTINGS = {
+LOGIN_SETTINGS = {
     "registrationEmailAsUsername": True,
     "loginWithEmailAllowed": True,
     "editUsernameAllowed": False,
+}
+BRUTE_FORCE = {
     # protección contra fuerza bruta (también la usa el direct grant de iam
     # en first-password-change): el 10º fallo bloquea 15 min; después, cada
     # fallo vuelve a bloquear 15 min hasta un acierto o 12 h sin fallos
@@ -56,6 +62,10 @@ REALM_SETTINGS = {
     "maxDeltaTimeSeconds": 43200,
     "permanentLockout": False,
 }
+REALM_SETTINGS = {**LOGIN_SETTINGS, **BRUTE_FORCE}
+MASTER = "master"
+# URL de la consola por port-forward; es spec.hostname.admin del CR de Keycloak
+ADMIN_URL = "http://localhost:18080"
 EMAIL_EDIT = ["admin"]
 PAGE = 100
 
@@ -222,13 +232,53 @@ def standard_roles_mapper(kc, realm, front):
     return None
 
 
+def settle_master(kc, apply, admin_url):
+    """Realm master: no está en los imports. Solo lleva la fuerza bruta, igual que
+    los tenants, y el atributo frontendUrl, para que el login de la consola (y el
+    iss de sus tokens) use la URL del port-forward en vez del hostname público,
+    que no publica /realms/master. Lo demás de este script no aplica a master."""
+    rep = kc.get(MASTER)
+    patch = {}
+    for key, want in BRUTE_FORCE.items():
+        have = rep.get(key)
+        if have == want:
+            say("ok", f"{key} = {show(want)}")
+        else:
+            say("cambia", f"{key}: {show(have)} -> {show(want)}")
+            patch[key] = want
+    attrs = dict(rep.get("attributes") or {})
+    have = attrs.get("frontendUrl") or None
+    if have == admin_url:
+        say("ok", f"attributes.frontendUrl = {show(admin_url)}")
+    else:
+        say("cambia", f"attributes.frontendUrl: {show(have)} -> {show(admin_url)}")
+        # Keycloak sustituye el mapa de atributos entero: van todos los que ya
+        # tiene más frontendUrl, o se borrarían los demás.
+        patch["attributes"] = {**attrs, "frontendUrl": admin_url}
+    if not (patch and apply):
+        return True
+    kc.call("PUT", MASTER, patch)
+    rep = kc.get(MASTER)
+    wrong = [k for k, v in BRUTE_FORCE.items() if rep.get(k) != v]
+    now = rep.get("attributes") or {}
+    if now.get("frontendUrl") != admin_url:
+        wrong.append("attributes.frontendUrl")
+    lost = sorted(k for k in attrs if k not in now)
+    if lost:
+        wrong.append(f"atributos perdidos ({', '.join(lost)})")
+    say("comprobado" if not wrong else "ERROR", "ajustes aplicados" if not wrong else f"no ha quedado: {', '.join(wrong)}")
+    return not wrong
+
+
 def main():
     ap = argparse.ArgumentParser(description="Email como nombre de usuario en realms existentes (ver la cabecera).")
-    ap.add_argument("tenants", nargs="+", help="test | acme | ...  (realm rrhh-tenant-<tenant>)")
+    ap.add_argument("tenants", nargs="+", help="test | acme | ...  (realm rrhh-tenant-<tenant>), o master")
     ap.add_argument("--rename-users", action="store_true",
                     help="renombra a su email a los usuarios cuyo username no lo es")
     ap.add_argument("--drop-roles-claim", action="store_true",
                     help=f"quita de {FRONT_CLIENT} el claim plano 'roles', duplicado de realm_access.roles")
+    ap.add_argument("--admin-url", default=ADMIN_URL,
+                    help=f"solo master: su frontendUrl, la URL de la consola por port-forward (por defecto {ADMIN_URL})")
     ap.add_argument("--apply", action="store_true", help="escribe los cambios; sin él solo los muestra")
     opts = ap.parse_args()
     kc = Admin()
@@ -238,6 +288,12 @@ def main():
         if kc.get(realm, ok404=True) is None:
             say("ERROR", "el realm no existe")
             ok = False
+            continue
+        if realm == MASTER:
+            for flag in ("rename_users", "drop_roles_claim"):
+                if getattr(opts, flag):
+                    say("info", f"--{flag.replace('_', '-')} no aplica a master")
+            ok &= settle_master(kc, opts.apply, opts.admin_url)
             continue
         settled = settle(kc, realm, opts.apply)
         ok &= settled

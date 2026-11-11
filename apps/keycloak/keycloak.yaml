@@ -27,6 +27,15 @@ spec:
   hostname:
     hostname: https://keycloak.aspavi.com
     backchannelDynamic: true
+    # La administración no se publica (ASP-5): la consola se abre por
+    # port-forward en http://localhost:18080/admin/ (ver scripts/keycloak/README.md).
+    # El realm master lleva además el atributo frontendUrl=http://localhost:18080
+    # para que su login no salga al hostname público.
+    admin: http://localhost:18080
+  # Sin el ingress del operador: publicaba todo Keycloak por http (puerto 80) y
+  # con defaultBackend, para cualquier host. El único ingress es apps/keycloak/ingress.yaml.
+  ingress:
+    enabled: false
   proxy:
     headers: xforwarded
   additionalOptions:
