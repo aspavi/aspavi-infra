@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: contract-service
-          image: ghcr.io/aspavi/aspavi-contract-service:master-b4e8483
+          image: ghcr.io/aspavi/aspavi-contract-service:master-982002d
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
