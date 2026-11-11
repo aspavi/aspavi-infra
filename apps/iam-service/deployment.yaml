@@ -27,12 +27,16 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "aspavi"
-            # Emisor de los tokens y Admin API (/admin/realms/<realm>/…); la URL
-            # pública sirve las dos, no hace falta KEYCLOAK_ADMIN_BASE_URL.
+            # Emisor (iss) y JWKS de los tokens de los tenants: la URL pública.
             - name: KEYCLOAK_BASE_URL
               value: "https://keycloak.aspavi.com"
+            # Admin API, client_credentials, el direct grant de
+            # first-password-change y el logout van por la red interna: la
+            # administración de Keycloak no se publica (ASP-5).
+            - name: KEYCLOAK_ADMIN_BASE_URL
+              value: "http://keycloak-service.rrhh-auth.svc.cluster.local:8080"
             # Secret del client rrhh-iam-service de cada realm. Los guarda
-            # scripts/keycloak/bootstrap-iam-realm.sh <tenant>.
+            # scripts/keycloak/bootstrap-iam-realm.py <tenant>.
             - name: KEYCLOAK_IAM_CLIENT_SECRET_TEST
               valueFrom:
                 secretKeyRef:
