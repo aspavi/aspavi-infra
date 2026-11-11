@@ -36,6 +36,20 @@ spec:
                   key: app-password
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"
+            # Bus de eventos (ASP-24): el relay del outbox publica los cambios de
+            # estado y los borrados de fichas. Credenciales generadas por el
+            # Messaging Topology Operator a partir del User de
+            # rabbitmq-topology.yaml: solo publicar en aspavi.events con claves employee.*
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: employee-service-user-credentials
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: employee-service-user-credentials
+                  key: password
             - name: SPRING_PROFILES_ACTIVE
               value: "aspavi"
             # Multitenancy — nombre alineado con ${KEYCLOAK_BASE_URL} en application-aspavi.yml

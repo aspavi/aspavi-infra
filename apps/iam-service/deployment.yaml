@@ -47,6 +47,20 @@ spec:
                 secretKeyRef:
                   name: keycloak-client-secrets
                   key: iam-service-secret-acme
+            # Bus de eventos (ASP-24): consume iam-service.employee-access para
+            # retirar el acceso al causar baja. Credenciales generadas por el
+            # Messaging Topology Operator a partir del User de
+            # rabbitmq-topology.yaml: solo leer sus dos colas.
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: iam-service-user-credentials
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: iam-service-user-credentials
+                  key: password
             - name: AUDIT_SERVICE_URL
               value: "http://audit-service.rrhh-system"
           # Solo liveness/readiness: el health agregado da 503 si un tenant no

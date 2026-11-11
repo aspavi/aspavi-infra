@@ -1,0 +1,114 @@
+### =====================================================================
+### La cola de iam-service en el bus de eventos (ASP-24): retirar el acceso
+### a Keycloak cuando una ficha pasa a INACTIVE o se borra.
+###
+### Como en events-service, el fichero vive con el servicio y los objetos de
+### la cola se crean en rrhh-data, junto al RabbitmqCluster.
+### =====================================================================
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: iam-service-employee-access
+  namespace: rrhh-data
+spec:
+  name: iam-service.employee-access
+  type: quorum
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  arguments:
+    x-dead-letter-exchange: aspavi.events.dlx
+    ### Clave propia al rebotar. aspavi.events.dlx es compartida y conserva la
+    ### clave original, así que con ella la DLQ de cualquier otro consumidor
+    ### que escuche las mismas claves (o `#`) recibiría también los venenos de
+    ### esta cola. Comprobado en RabbitMQ 4.2.6. La clave original no se pierde:
+    ### queda en la cabecera x-death (routing-keys).
+    ###
+    ### Los argumentos de una cola quorum no se pueden cambiar después: cambiar
+    ### esto obliga a borrar y recrear la cola.
+    x-dead-letter-routing-key: iam-service.employee-access
+    x-delivery-limit: 5
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: iam-service-employee-access-dlq
+  namespace: rrhh-data
+spec:
+  name: iam-service.employee-access.dlq
+  type: quorum
+  durable: true
+  autoDelete: false
+  vhost: "/"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Qué escucha iam: los eventos del agregado ficha de employee-service
+### (status-changed y deleted). Lo que no le interese lo descarta con ack.
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: iam-service-employee-access-from-employee
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events
+  destination: iam-service.employee-access
+  destinationType: queue
+  routingKey: "employee.employee.#"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Solo lo que rebota de su cola, por la clave propia de arriba; no `#`.
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: iam-service-employee-access-dlq
+  namespace: rrhh-data
+spec:
+  vhost: "/"
+  source: aspavi.events.dlx
+  destination: iam-service.employee-access.dlq
+  destinationType: queue
+  routingKey: "iam-service.employee-access"
+  rabbitmqClusterReference:
+    name: rabbitmq
+
+---
+### Credenciales de iam-service: el operador genera el Secret
+### `iam-service-user-credentials` en rrhh-system, junto al pod.
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: iam-service
+  namespace: rrhh-system
+spec:
+  tags: []
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data
+
+---
+### Solo sus dos colas, y sin `write`: consume, no publica. `configure` acotado
+### al mismo patrón por el declare pasivo con que el listener comprueba su cola
+### al arrancar (ver apps/events-service/rabbitmq-topology.yaml).
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: iam-service
+  namespace: rrhh-system
+spec:
+  vhost: "/"
+  userReference:
+    name: iam-service
+  permissions:
+    read: "^iam-service\\.employee-access(\\.dlq)?$"
+    configure: "^iam-service\\.employee-access(\\.dlq)?$"
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rrhh-data

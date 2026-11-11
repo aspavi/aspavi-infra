@@ -65,6 +65,14 @@ spec:
 ###
 ### Es topic y no fanout para que la clave de routing original sobreviva al
 ### rebote: es la mitad de la pista sobre qué se rompió.
+###
+### Es COMPARTIDA, así que una DLQ no se ata con `#`: se quedaría con los
+### venenos de todas las colas. Cada cola nueva rebota con su propia clave
+### (`x-dead-letter-routing-key: <cola>`, la original sigue en la cabecera
+### x-death) y su DLQ se ata a esa clave exacta; ver
+### apps/iam-service/rabbitmq-topology.yaml. events-service.timeline, anterior a
+### esta regla, rebota con la clave original y su DLQ se ata a las mismas claves
+### que la cola.
 apiVersion: rabbitmq.com/v1beta1
 kind: Exchange
 metadata:
