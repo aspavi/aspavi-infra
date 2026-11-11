@@ -5,7 +5,8 @@ Por cada realm:
   - roles de realm: cuántos tienen la forma recurso:acción y cuáles no
   - si los 4 roles base son compuestos y cuántos hijos tienen
   - clients
-  - usuarios: enabled, email, emailVerified, employee_id y roles de realm, marcando a los que no
+  - usuarios: enabled, email, emailVerified, si el username guardado es el
+    email, employee_id y roles de realm, marcando a los que no
     tienen ningún rol base; los service accounts muestran además sus roles
     de realm-management
 
@@ -53,8 +54,13 @@ def inventory(kc, realm):
     for u in sorted(users, key=lambda x: x["username"]):
         realm_roles = sorted(x["name"] for x in kc.get(f"{realm}/users/{u['id']}/role-mappings/realm"))
         emp = (u.get("attributes") or {}).get("employee_id", ["-"])[0]
+        email = (u.get("email") or "").lower()
+        # El campo username puede traer ya el email aunque el guardado sea otro
+        # (registrationEmailAsUsername): guardado_es_email lo mira de verdad.
+        stored = kc.stored_username_is(realm, u["id"], email) if email else "-"
         line = (f"  {u['username']} enabled={u.get('enabled')} email={u.get('email') or '-'}"
-                f" emailVerified={bool(u.get('emailVerified'))} employee_id={emp} roles={realm_roles}")
+                f" emailVerified={bool(u.get('emailVerified'))} guardado_es_email={stored}"
+                f" employee_id={emp} roles={realm_roles}")
         if u.get("serviceAccountClientId") or u["username"].startswith("service-account-"):
             mgmt = sorted(x["name"] for x in kc.get(f"{realm}/users/{u['id']}/role-mappings/clients/{rm_id}")) \
                 if rm_id else []

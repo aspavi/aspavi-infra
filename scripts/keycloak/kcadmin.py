@@ -106,6 +106,18 @@ class Admin:
     def get(self, path, ok404=False):
         return self.call("GET", path, ok404=ok404)
 
+    def stored_username_is(self, realm, user_id, name):
+        """True si el username GUARDADO del usuario es `name`.
+
+        Con registrationEmailAsUsername activo, Keycloak devuelve ya el email
+        en el campo username de todas sus respuestas (GET users/{id} en 26.2;
+        también la lista y las búsquedas en 26.5), aunque el guardado, con el
+        que se entra, siga siendo el anterior. El filtro de búsqueda sí compara
+        con el valor guardado: por eso se mira si el id aparece en la búsqueda
+        exacta, sin leer el campo username de la respuesta."""
+        found = self.get(f"{realm}/users?username={q(name)}&exact=true&briefRepresentation=true")
+        return any(u["id"] == user_id for u in found)
+
     def client_uuid(self, realm, client_id):
         found = self.get(f"{realm}/clients?clientId={q(client_id)}")
         return found[0]["id"] if found else None

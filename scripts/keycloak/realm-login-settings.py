@@ -8,9 +8,11 @@ operador no vuelve a aplicar (import --override=false):
      editUsernameAllowed=false
   2. user profile: el atributo email solo lo edita un admin
      (permissions.edit = ["admin"]); el resto del JSON se conserva tal cual
-  3. con --rename-users: los usuarios con email cuyo username no es ese email
-     (en minúsculas) pasan a tenerlo como username. Se quedan como están los
-     service-account-* y los usuarios sin email. Solo se renombra si los
+  3. con --rename-users: los usuarios con email cuyo username GUARDADO no es
+     ese email (en minúsculas) pasan a tenerlo como username. El guardado se
+     mira con la búsqueda exacta por email, no con el campo username de las
+     respuestas, que con el ajuste activo ya trae el email aunque no lo sea.
+     Se quedan como están los service-account-* y los usuarios sin email. Solo se renombra si los
      ajustes 1 y 2 han quedado aplicados: el renombrado es un PUT del usuario
      con su propia representación, y es Keycloak quien pone el email como
      username porque registrationEmailAsUsername está activo.
@@ -29,7 +31,7 @@ No lee ni imprime secretos. Termina con 1 si algo no ha quedado aplicado.
 import argparse
 import json
 
-from kcadmin import Admin, KcError, q, realm_of, say
+from kcadmin import Admin, KcError, realm_of, say
 
 REALM_SETTINGS = {
     "registrationEmailAsUsername": True,
@@ -103,47 +105,43 @@ def users(kc, realm):
 
 
 def rename_users(kc, realm, apply):
-    """Ajuste 3. Devuelve True si no ha fallado ningún renombrado."""
+    """Ajuste 3. Devuelve True si no ha fallado ningún renombrado.
+
+    Qué username tiene guardado cada usuario NO se lee del campo username de
+    la respuesta, que con el ajuste activo ya trae el email (ver
+    Admin.stored_username_is): se mira si la búsqueda exacta por su email lo
+    encuentra."""
     todo, ok = [], True
     for u in users(kc, realm):
-        name, email = u["username"], (u.get("email") or "").strip().lower()
-        if name.startswith("service-account-"):
+        shown, email = u["username"], (u.get("email") or "").strip().lower()
+        if shown.startswith("service-account-") or u.get("serviceAccountClientId"):
             continue
         if not email:
-            say("se queda", f"{name}: sin email")
-        elif name == email:
-            say("ok", f"username = email ({name})")
+            say("se queda", f"{shown}: sin email")
+        elif kc.stored_username_is(realm, u["id"], email):
+            say("ok", f"username = email ({email})")
         else:
-            say("renombra", f"username: {name} -> {email}")
-            todo.append((u["id"], name, email))
+            # Keycloak 26.5 ya no deja ver el username guardado; 26.2 sí, en la lista.
+            old = shown if shown != email else "(el guardado, que la API ya no muestra)"
+            say("renombra", f"username: {old} -> {email}")
+            todo.append((u["id"], old, email))
     if not apply:
         return True
-    for uid, name, email in todo:
+    for uid, old, email in todo:
         try:
             kc.call("PUT", f"{realm}/users/{uid}", kc.get(f"{realm}/users/{uid}"), raise_errors=True)
         except KcError as e:
             # Keycloak puede dejar el username cambiado aunque el PUT falle: lo digo.
-            say("ERROR", f"{name}: {e} (username guardado ahora: {stored_username(kc, realm, uid, name, email)})")
+            done = kc.stored_username_is(realm, uid, email)
+            say("ERROR", f"{email}: {e} (username guardado = email: {done})")
             ok = False
             continue
-        now = stored_username(kc, realm, uid, name, email)
-        if now == email:
-            say("comprobado", f"{name} -> {now}")
+        if kc.stored_username_is(realm, uid, email):
+            say("comprobado", f"{old} -> {email}")
         else:
-            say("ERROR", f"{name}: el username guardado sigue siendo {now}")
+            say("ERROR", f"{email}: tras el PUT, el username guardado sigue sin ser el email")
             ok = False
     return ok
-
-
-def stored_username(kc, realm, uid, old, new):
-    """El username que Keycloak tiene guardado. No vale GET users/{id}: con
-    registrationEmailAsUsername activo devuelve ya el email como username aunque
-    el guardado (con el que se entra) siga siendo el viejo. La búsqueda exacta
-    sí lee el valor guardado."""
-    for name in (new, old):
-        if any(u["id"] == uid for u in kc.get(f"{realm}/users?username={q(name)}&exact=true")):
-            return name
-    return "?"
 
 
 def main():
