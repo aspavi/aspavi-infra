@@ -101,6 +101,17 @@ El mismo script fija la protección contra fuerza bruta, igual que el import:
   `DELETE /admin/realms/{realm}/attack-detection/brute-force/users`. Los dos
   ponen el contador a 0.
 
+El import y el script también activan el idioma (ASP-41):
+`internationalizationEnabled: true`, `supportedLocales: [es, en, pt]` y
+`defaultLocale: es`. Comportamiento comprobado en Keycloak 26.5.5:
+
+- **Correos** (por ejemplo, el enlace para poner la contraseña): salen en el
+  `locale` del usuario si lo tiene y, si no, en español.
+- **Páginas**: usan el `locale` del usuario si lo tiene; si no, el idioma del
+  navegador (`Accept-Language`) si es `es`, `en` o `pt`; y si no, español. Un
+  usuario sin `locale` con el navegador en inglés ve la página en inglés.
+- El atributo `locale` se guarda aunque no esté declarado en el user profile.
+
 Los roles de realm van en el token una sola vez, en `realm_access.roles` del
 access token (client scope por defecto `roles`), que es lo que leen el front y
 auth-lib. El import ya no lleva el mapper `realm-roles` de `rrhh-frontend`, que
