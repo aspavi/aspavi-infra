@@ -191,9 +191,7 @@ Decisiones que no se ven en el código:
 
 ### Pasar un servicio a sus propios usuarios
 
-En una PR por servicio. Ya pasados: contract (#19), attendance.
-
-Pasos:
+En una PR por servicio (contract fue el primero):
 
 1. Genera su Job desde la plantilla (solo cambia el nombre del servicio):
    ```bash
