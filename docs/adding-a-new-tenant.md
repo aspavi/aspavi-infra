@@ -143,6 +143,18 @@ usuarios sin rol base):
 python3 scripts/keycloak/inventory.py <slug>      # sin argumento: todos los realms
 ```
 
+### Paso 1a — Correo saliente del realm
+
+El import no lleva `smtpServer`: la configuración del correo vive solo en
+`scripts/keycloak/smtp.json` (ver "Correo saliente (SMTP)" en
+`scripts/keycloak/README.md`). Sin este paso, el realm no puede enviar correos
+(restablecer contraseña, acciones pendientes). Cuando el realm exista:
+
+```bash
+python3 scripts/keycloak/realm-smtp.py <slug>              # dry-run
+python3 scripts/keycloak/realm-smtp.py <slug> --apply
+```
+
 ### Paso 1b — Publicar el realm en el ingress de Keycloak
 
 El ingress público de Keycloak (`apps/keycloak/ingress.yaml`) solo deja pasar
@@ -363,6 +375,7 @@ curl -s -X POST \
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
 | `python3 scripts/keycloak/bootstrap-iam-realm.py {slug} --production` | cluster | Ejecutar (secret de iam-service) |
 | `python3 scripts/keycloak/realm-login-settings.py {slug} --rename-users --apply` | cluster | Solo si el realm ya existía (email como usuario) |
+| `python3 scripts/keycloak/realm-smtp.py {slug} --apply` | cluster | Ejecutar (correo saliente desde `smtp.json`) |
 | `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
 
 El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
