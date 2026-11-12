@@ -4,7 +4,8 @@
 Por cada realm:
   - roles de realm: cuántos tienen la forma recurso:acción y cuáles no
   - si los 4 roles base son compuestos y cuántos hijos tienen
-  - clients
+  - clients; de los nuestros (rrhh-*), también rootUrl, baseUrl,
+    redirectUris y webOrigins
   - usuarios: enabled, email, emailVerified, si el username guardado es el
     email, employee_id y roles de realm, marcando a los que no
     tienen ningún rol base; los service accounts muestran además sus roles
@@ -23,6 +24,8 @@ Credenciales: ver kcadmin.py (admin de master + Llavero, solo en memoria).
 import argparse
 
 from kcadmin import BASE_ROLES, Admin, q, realm_of
+
+OWN_CLIENTS = "rrhh-"  # los de sistema de Keycloak (account, admin-cli...) no se detallan
 
 
 def inventory(kc, realm):
@@ -45,8 +48,15 @@ def inventory(kc, realm):
         children = kc.get(f"{realm}/roles/{q(base)}/composites") if r.get("composite") else []
         print(f"  {base}: compuesto={bool(r.get('composite'))} hijos={len(children)}")
 
-    clients = sorted(c["clientId"] for c in kc.get(f"{realm}/clients?max=500"))
-    print("Clients:", ", ".join(clients))
+    clients = sorted(kc.get(f"{realm}/clients?max=500"), key=lambda c: c["clientId"])
+    print("Clients:", ", ".join(c["clientId"] for c in clients))
+    for c in clients:
+        if c["clientId"].startswith(OWN_CLIENTS):
+            # solo estos campos: la representación de un client confidencial
+            # trae también su secret
+            print(f"  {c['clientId']}: rootUrl={c.get('rootUrl') or '-'} baseUrl={c.get('baseUrl') or '-'}")
+            print(f"    redirectUris={sorted(c.get('redirectUris') or [])}")
+            print(f"    webOrigins={sorted(c.get('webOrigins') or [])}")
     rm_id = kc.client_uuid(realm, "realm-management")
 
     users = kc.get(f"{realm}/users?max=1000&briefRepresentation=false")
