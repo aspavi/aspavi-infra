@@ -1,0 +1,16 @@
+### Lo que acompaña a la Postgres de la Helm (ArgoCD app `postgresql`, tercera
+### fuente): por ahora, la copia de seguridad puntual de ASP-4. Ver README.md.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rrhh-data
+resources:
+  - backup-pvc.yaml
+  - backup-job-20261112.yaml
+configMapGenerator:
+  - name: postgresql-backup-script
+    files:
+      - backup.sh
+generatorOptions:
+  # El Job es de un solo uso y lleva la fecha en el nombre: no hace falta que
+  # el ConfigMap cambie de nombre con el contenido.
+  disableNameSuffixHash: true

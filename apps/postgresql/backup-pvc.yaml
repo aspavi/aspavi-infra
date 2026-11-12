@@ -1,0 +1,19 @@
+### Volumen de las copias de seguridad de Postgres, aparte del de la base
+### (data-postgresql-0). local-path lo crea en el nodo donde arranca el primer
+### Job que lo usa, y el Job se aparta del nodo de Postgres (podAntiAffinity):
+### la copia acaba en otro disco.
+###
+### La app `postgresql` no poda (prune: false), así que quitar este fichero no
+### borraría el volumen; borrarlo es a mano y a propósito.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-backup
+  namespace: rrhh-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi

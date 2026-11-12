@@ -26,6 +26,12 @@ spec:
     - repoURL: https://github.com/vmorera/aspavi-infra.git
       targetRevision: master
       ref: values
+    # apps/postgresql/: lo que acompaña a la instancia, como la copia de
+    # seguridad de ASP-4 (kustomize). prune: false, así que nada de aquí se
+    # borra solo, tampoco el PVC de las copias.
+    - repoURL: https://github.com/vmorera/aspavi-infra.git
+      targetRevision: master
+      path: apps/postgresql
   destination:
     server: https://kubernetes.default.svc
     namespace: rrhh-data
