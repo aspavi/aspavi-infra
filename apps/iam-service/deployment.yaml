@@ -37,6 +37,9 @@ spec:
               value: "http://keycloak-service.rrhh-auth.svc.cluster.local:8080"
             # Secret del client rrhh-iam-service de cada realm. Los guarda
             # scripts/keycloak/bootstrap-iam-realm.py <tenant>.
+            # ASP-21: transición. iam lee primero el fichero del volumen
+            # client-secrets (abajo) y, si no está, estas variables. Se quitan
+            # cuando esté desplegada la versión de iam que lee el volumen.
             - name: KEYCLOAK_IAM_CLIENT_SECRET_TEST
               valueFrom:
                 secretKeyRef:
@@ -102,6 +105,26 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          # ASP-21: los secrets del client rrhh-iam-service de todos los tenants,
+          # un fichero iam-service-secret-<tenant> por tenant. iam los lee en
+          # caliente (aspavi.iam.client-secrets-dir, por defecto esta ruta):
+          # un tenant nuevo solo necesita que bootstrap-iam-realm.py escriba su
+          # clave en el Secret, sin reiniciar el pod. Sin subPath, para que
+          # Kubernetes actualice el directorio (tarda hasta ~1 min).
+          volumeMounts:
+            - name: client-secrets
+              mountPath: /etc/aspavi/keycloak-client-secrets
+              readOnly: true
+      volumes:
+        # El Secret entero: los items de un volumen son una lista fija y un
+        # tenant nuevo obligaría a tocar esto. iam solo lee las claves
+        # iam-service-secret-<tenant>. Este Secret es solo para iam: no añadas
+        # claves de otros servicios (las dos employee-service-secret-* que
+        # quedan no las usa nadie y están apuntadas para quitarlas).
+        - name: client-secrets
+          secret:
+            secretName: keycloak-client-secrets
+            defaultMode: 0400
 ---
 apiVersion: v1
 kind: Service
