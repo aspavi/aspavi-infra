@@ -1,0 +1,87 @@
+### Generado desde apps/postgresql/db-users-job.template.yaml (ASP-4): para
+### cambiarlo, cambia la plantilla y vuelve a generarlo.
+###
+### Hook PreSync de la app del servicio: corre antes de que ArgoCD aplique el
+### deployment, en cada sync, y si falla el deployment no cambia. Es
+### idempotente. Corre en rrhh-data porque allí está el superusuario.
+###   1. initContainer `secrets`: crea, si faltan, los Secrets collective-agreements-db-owner
+###      y collective-agreements-db-app en rrhh-system y deja sus contraseñas en memoria
+###   2. `postgres`: roles, dueños, permisos y comprobaciones en la base
+###      <svc>_db, y solo en esa (db-users.sh)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: collective-agreements-db-users
+  namespace: rrhh-data
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: collective-agreements-db-users
+    spec:
+      restartPolicy: Never
+      serviceAccountName: postgresql-db-users
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: secrets
+          image: alpine/k8s:1.34.1
+          command: ["sh", "/script/db-users-secrets.sh"]
+          env:
+            - name: SVC
+              value: "collective-agreements"
+            - name: HOME # caché de kubectl
+              value: /tmp
+          securityContext: &hardened
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts: &mounts
+            - name: creds
+              mountPath: /creds
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      containers:
+        - name: postgres
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/db-users.sh"]
+          env:
+            - name: SVC
+              value: "collective-agreements"
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext: *hardened
+          volumeMounts: *mounts
+      volumes:
+        # las contraseñas, solo en memoria y solo mientras vive el pod
+        - name: creds
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-db-users-scripts
