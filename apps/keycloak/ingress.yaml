@@ -1,17 +1,21 @@
-# Ingress público de Keycloak: solo lo que necesitan los tenants (ASP-5).
+# Rutas públicas de Keycloak: solo lo que necesitan los tenants (ASP-5, ASP-21).
 #
-#   /realms/rrhh-tenant-<tenant>   OIDC (token, auth, certs, userinfo, logout,
-#                                  well-known), login-actions, broker y la consola
-#                                  de cuenta del tenant
-#   /resources                     CSS/JS/imágenes de las páginas de login y cuenta
+#   /realms/rrhh-tenant-<id>   OIDC (token, auth, certs, userinfo, logout,
+#                              well-known), login-actions, broker y la consola
+#                              de cuenta del tenant. IngressRoute de abajo
+#   /resources                 CSS/JS/imágenes de las páginas de login y cuenta.
+#                              Ingress estándar, que además pide el certificado
+#                              keycloak-tls a cert-manager
 #
 # No se publican /admin ni /realms/master: la administración entra por
 # port-forward (scripts/keycloak/README.md). Lo que no está aquí da 404 en Traefik.
 #
-# Un tenant nuevo necesita su línea en paths (docs/adding-a-new-tenant.md). No hay
-# patrón: un Ingress estándar no admite expresiones regulares, y el prefijo
-# "/realms/rrhh-tenant-" solo funcionaría por cómo Traefik traduce Prefix hoy
-# (prefijo de texto), que deja de valer con strictPrefixMatching.
+# Los realms van por una IngressRoute de Traefik con PathRegexp: un Ingress
+# estándar no admite expresiones regulares, y un Prefix "/realms/rrhh-tenant-"
+# solo funcionaría por cómo Traefik traduce Prefix hoy (prefijo de texto), que
+# deja de valer con strictPrefixMatching. La regex exige un id de tenant válido
+# (^[a-z][a-z0-9-]{1,29}$, la misma que auth-lib y el front) seguido de "/" o
+# del final: un tenant nuevo no necesita tocar esto.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -29,20 +33,6 @@ spec:
     - host: keycloak.aspavi.com
       http:
         paths:
-          - path: /realms/rrhh-tenant-test
-            pathType: Prefix
-            backend:
-              service:
-                name: keycloak-service
-                port:
-                  number: 8080
-          - path: /realms/rrhh-tenant-acme
-            pathType: Prefix
-            backend:
-              service:
-                name: keycloak-service
-                port:
-                  number: 8080
           - path: /resources
             pathType: Prefix
             backend:
@@ -50,3 +40,25 @@ spec:
                 name: keycloak-service
                 port:
                   number: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: keycloak-tenant-realms
+  namespace: rrhh-auth
+  annotations:
+    # antes que el Ingress de arriba, que en el mismo sync pierde las rutas
+    # por realm: así no hay un momento en que los realms den 404
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`keycloak.aspavi.com`) && PathRegexp(`^/realms/rrhh-tenant-[a-z][a-z0-9-]{1,29}(/|$)`)
+      services:
+        - name: keycloak-service
+          port: 8080
+  tls:
+    # el que mantiene cert-manager para el Ingress de arriba
+    secretName: keycloak-tls

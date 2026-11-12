@@ -15,9 +15,11 @@ spec:
       - "Content-Type"
       - "Authorization"
       - "X-Requested-With"
-    accessControlAllowOriginList:
-      - "https://acme.aspavi.com"
-      - "https://test.aspavi.com"
+    # ASP-21: cualquier tenant, <id>.aspavi.com con la misma regla de id que
+    # auth-lib y el front (^[a-z][a-z0-9-]{1,29}$). Solo https y sin puerto.
+    # Un tenant nuevo no necesita tocar esto.
+    accessControlAllowOriginListRegex:
+      - '^https://[a-z][a-z0-9-]{1,29}\.aspavi\.com$'
     accessControlMaxAge: 3600
     accessControlAllowCredentials: true
     addVaryHeader: true
