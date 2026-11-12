@@ -1,0 +1,17 @@
+{
+  "_comment": "Correo saliente de los realms (ASP-42). Única fuente de verdad: lo aplica realm-smtp.py; ver README.md, 'Cambiar de proveedor de correo'. La contraseña no va aquí: se lee del Llavero (passwordKeychain).",
+  "smtpServer": {
+    "host": "smtp-relay.brevo.com",
+    "port": 587,
+    "starttls": true,
+    "ssl": false,
+    "auth": true,
+    "user": "c2b795001@smtp-brevo.com",
+    "from": "no-reply@aspavi.com",
+    "fromDisplayName": "ASPAVI"
+  },
+  "passwordKeychain": {
+    "account": "aspavi",
+    "service": "SMTP_BREVO_KEY"
+  }
+}

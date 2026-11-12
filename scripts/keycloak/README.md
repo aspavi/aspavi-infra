@@ -10,9 +10,13 @@ los realms creados antes.
 | `inventory.py [<tenant> ...]` | Solo lectura: roles, composites, clients y usuarios (email, `guardado_es_email`, `employee_id`, roles) |
 | `bootstrap-iam-realm.py <tenant> [--dry-run] [--production]` | Client `rrhh-iam-service`, mapper `employee_id` y su secret en `rrhh-system/keycloak-client-secrets` |
 | `realm-login-settings.py <tenant\|master> ... [--apply]` | Email como usuario, fuerza bruta, `--rename-users`, `--drop-roles-claim`; en `master`, solo fuerza bruta y `frontendUrl` |
-| `kcadmin.py` | Login y llamadas compartidas; no se ejecuta solo |
+| `realm-smtp.py <tenant\|realm> ... [--apply]` | Correo saliente del realm (`smtpServer`) desde `smtp.json` |
+| `smtp-test.py --to <email>` | Envía un correo de prueba con `smtp.json`, sin pasar por Keycloak |
+| `smtp.json` | Configuración del correo saliente: la única fuente de verdad |
+| `kcadmin.py`, `smtpconfig.py` | Código compartido; no se ejecutan solos |
 
-Todos son dry-run por defecto, salvo `inventory.py`, que solo lee.
+Todos son dry-run por defecto, salvo `inventory.py`, que solo lee, y
+`smtp-test.py`, que solo envía un correo.
 
 ## Cómo se llega a Keycloak: port-forward
 
@@ -94,3 +98,77 @@ vacío.
 El `iss` de los tokens de los tenants es siempre
 `https://keycloak.aspavi.com/realms/<realm>`, se entre por donde se entre:
 `spec.hostname.hostname` es una URL completa.
+
+## Correo saliente (SMTP)
+
+Keycloak envía los correos de los realms (restablecer la contraseña, acciones
+pendientes, verificar el email) con el `smtpServer` de cada realm.
+
+`smtp.json` es la **única fuente de verdad** de esa configuración: servidor,
+puerto, `starttls`/`ssl`, `auth`, usuario, remitente (`from`,
+`fromDisplayName`) y, si hace falta, `replyTo`. Usa los mismos nombres de campo
+que Keycloak. La contraseña no va en el fichero: `passwordKeychain` dice en qué
+entrada del Llavero de macOS está (`-a <account> -s <service>`). Si existe una
+variable de entorno con el nombre del `service`, se usa esa en su lugar.
+
+Ningún script, import ni documento repite estos valores; todos leen o citan
+`smtp.json`. Los scripts no conocen ningún proveedor.
+
+```bash
+python3 scripts/keycloak/realm-smtp.py test acme                      # dry-run: actual -> nuevo, con la contraseña enmascarada
+python3 scripts/keycloak/realm-smtp.py test --apply
+python3 scripts/keycloak/smtp-test.py --to someone@example.com        # correo de prueba, sin Keycloak
+```
+
+- **`realm-smtp.py`** hace un PUT del realm que solo lleva `smtpServer` y
+  después vuelve a leerlo para comprobarlo. Keycloak sustituye el
+  `smtpServer` entero, así que se quita cualquier campo que esté en el realm y
+  no en el fichero; el dry-run lo marca como `se quita`. Keycloak no devuelve
+  la contraseña (la enmascara como `**********`), así que no se puede
+  comparar. Si todo lo demás coincide, el script lo dice, y `--apply` vuelve
+  a escribirla igualmente. Solo lee la contraseña con `--apply`. Necesita el
+  port-forward.
+- **`smtp-test.py`** habla directamente con el servidor SMTP (smtplib) y
+  verifica su certificado. Envía un correo con el asunto "ASPAVI - prueba de
+  envío" y la fecha. Imprime la respuesta del servidor (`aceptado 250 …` o el
+  error). Que el servidor acepte el correo no garantiza que llegue: la entrega
+  y el resultado de SPF/DKIM/DMARC se comprueban en las cabeceras del correo
+  recibido. El destinatario se pasa solo por argumento. No se usa el
+  `testSMTPConnection` de Keycloak porque envía al email del admin conectado,
+  y el admin de master no tiene.
+
+Los `realm-import` **no** llevan `smtpServer`, para no duplicar los valores de
+`smtp.json`. Un realm nuevo nace sin correo saliente. Hay que lanzar
+`realm-smtp.py <tenant> --apply` después de crearlo (paso 1 de
+`docs/adding-a-new-tenant.md`). Editar un `KeycloakRealmImport` no vuelve a
+importar el realm con el operador 26.5.5: los Jobs de import de test y acme
+son del día en que se crearon los realms, aunque los CR se han editado
+después. Aun así, el SMTP se queda fuera de los imports por la fuente única.
+
+### Cambiar de proveedor de correo
+
+Solo cambia la configuración, no el código:
+
+1. **DNS** (Hetzner): publica lo que pida el proveedor nuevo para el dominio
+   del remitente: verificación, DKIM e `include:` en el SPF. Comprueba con
+   `dig` que todo resuelve. Revisa el DMARC. **No** retires aún los registros
+   del proveedor anterior.
+2. **Clave**: guarda la clave SMTP nueva en el Llavero, en una entrada nueva:
+   `security add-generic-password -a aspavi -s <SERVICE> -w`.
+3. **Fichero**: edita `smtp.json`: `smtpServer` con los datos nuevos y
+   `passwordKeychain.service` con esa entrada. Hazlo en una PR.
+4. **Test**: `smtp-test.py --to someone@example.com` y después
+   `realm-smtp.py test --apply`. Prueba un correo real del realm (por ejemplo,
+   "¿Has olvidado tu contraseña?" en test.aspavi.com) y mira en las cabeceras
+   que pasan SPF, DKIM y DMARC.
+5. **Acme y limpieza**: `realm-smtp.py acme --apply`. Cuando ya no salga
+   correo por el proveedor anterior, retira del DNS sus registros (DKIM,
+   `include:` del SPF, verificación) y borra su entrada del Llavero.
+
+### Si un servicio envía correo
+
+Hoy solo envía correo Keycloak. Si algún servicio Java llega a enviar correo
+(Spring Mail), la dirección prevista es que lea los mismos valores desde un
+Secret/ConfigMap común `smtp` del clúster, generado a partir de `smtp.json`, y
+no una copia propia. Así, cambiar de proveedor seguiría siendo editar
+`smtp.json` y la clave. No está implementado.
