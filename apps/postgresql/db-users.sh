@@ -161,8 +161,13 @@ if as_app -d "$DB" -c "CREATE TABLE asp4_ddl_probe (id int)" 2>/dev/null; then
 fi
 echo "  DDL en $DB: denegado (CREATE TABLE falla)"
 tables=$(psql -X -At -d "$DB" -c "SELECT count(*) FROM pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema') AND tablename <> 'flyway_schema_history'")
+# has_table_privilege con varios privilegios separados por comas da true si
+# tiene CUALQUIERA de ellos: hay que preguntar uno a uno y unirlos con AND.
 granted=$(psql -X -At -d "$DB" -c "SELECT count(*) FROM pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema') AND tablename <> 'flyway_schema_history'
-  AND has_table_privilege('$APP', format('%I.%I', schemaname, tablename), 'SELECT,INSERT,UPDATE,DELETE')")
+  AND has_table_privilege('$APP', format('%I.%I', schemaname, tablename), 'SELECT')
+  AND has_table_privilege('$APP', format('%I.%I', schemaname, tablename), 'INSERT')
+  AND has_table_privilege('$APP', format('%I.%I', schemaname, tablename), 'UPDATE')
+  AND has_table_privilege('$APP', format('%I.%I', schemaname, tablename), 'DELETE')")
 echo "  DML: en $granted de $tables tablas (sin flyway_schema_history)"
 [ "$granted" = "$tables" ] || { echo "ERROR: faltan permisos en alguna tabla" >&2; exit 1; }
 for other in $(psql -X -At -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate AND datname <> '$DB' ORDER BY 1"); do
