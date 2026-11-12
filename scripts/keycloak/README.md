@@ -7,7 +7,7 @@ los realms creados antes.
 
 | Script | Qué hace |
 |---|---|
-| `inventory.py [<tenant> ...]` | Solo lectura: roles, composites, clients y usuarios (email, `guardado_es_email`, `employee_id`, roles) |
+| `inventory.py [<tenant> ...]` | Solo lectura: roles, composites, clients (de los `rrhh-*`, también rootUrl, baseUrl, redirectUris y webOrigins) y usuarios (email, `guardado_es_email`, `employee_id`, roles) |
 | `bootstrap-iam-realm.py <tenant> [--dry-run] [--production]` | Client `rrhh-iam-service`, mapper `employee_id` y su secret en `rrhh-system/keycloak-client-secrets` |
 | `realm-login-settings.py <tenant\|master> ... [--apply]` | Email como usuario, fuerza bruta, idioma (`es` por defecto), `--rename-users`, `--drop-roles-claim`; en `master`, solo fuerza bruta y `frontendUrl` |
 | `realm-smtp.py <tenant\|realm> ... [--apply]` | Correo saliente del realm (`smtpServer`) desde `smtp.json` |
