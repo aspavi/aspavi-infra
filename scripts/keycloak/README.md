@@ -1,7 +1,8 @@
 # scripts/keycloak
 
 Scripts de administración de Keycloak (Admin REST API) para los realms que ya
-existen. Los imports de `apps/keycloak/realm-import-*.yaml` solo se aplican al
+existen. Para dar de alta un tenant nuevo, `scripts/tenant/onboard.py`, que
+usa estos (ver `docs/adding-a-new-tenant.md`). Los imports de `apps/keycloak/realm-import-*.yaml` solo se aplican al
 crear un realm (`--override=false`); estos scripts llevan los mismos cambios a
 los realms creados antes.
 
