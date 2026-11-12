@@ -27,13 +27,29 @@ spec:
           env:
             - name: DB_URL
               value: "jdbc:postgresql://postgresql.rrhh-data:5432/payroll_db"
+            # ASP-4: la aplicación entra como payroll_app (sin DDL, sujeta al
+            # RLS) y Flyway como payroll_owner, dueño de la base. Los Secrets
+            # los crea el Job db-users-job.yaml (hook PreSync).
             - name: DB_USERNAME
-              value: "app_user"
+              valueFrom:
+                secretKeyRef:
+                  name: payroll-db-app
+                  key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql-helm-secrets
-                  key: app-password
+                  name: payroll-db-app
+                  key: password
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: payroll-db-owner
+                  key: username
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: payroll-db-owner
+                  key: password
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"
             - name: SPRING_PROFILES_ACTIVE
