@@ -9,7 +9,7 @@ los realms creados antes.
 |---|---|
 | `inventory.py [<tenant> ...]` | Solo lectura: roles, composites, clients y usuarios (email, `guardado_es_email`, `employee_id`, roles) |
 | `bootstrap-iam-realm.py <tenant> [--dry-run] [--production]` | Client `rrhh-iam-service`, mapper `employee_id` y su secret en `rrhh-system/keycloak-client-secrets` |
-| `realm-login-settings.py <tenant\|master> ... [--apply]` | Email como usuario, fuerza bruta, `--rename-users`, `--drop-roles-claim`; en `master`, solo fuerza bruta y `frontendUrl` |
+| `realm-login-settings.py <tenant\|master> ... [--apply]` | Email como usuario, fuerza bruta, idioma (`es` por defecto), `--rename-users`, `--drop-roles-claim`; en `master`, solo fuerza bruta y `frontendUrl` |
 | `realm-smtp.py <tenant\|realm> ... [--apply]` | Correo saliente del realm (`smtpServer`) desde `smtp.json` |
 | `smtp-test.py --to <email>` | Envía un correo de prueba con `smtp.json`, sin pasar por Keycloak |
 | `smtp.json` | Configuración del correo saliente: la única fuente de verdad |

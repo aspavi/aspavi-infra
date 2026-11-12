@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Ajustes de login de un realm de Keycloak que YA existe: el email es el usuario
-y la protección contra fuerza bruta.
+"""Ajustes de login de un realm de Keycloak que YA existe: el email es el usuario,
+la protección contra fuerza bruta y el idioma.
 
 Lo deja como lo crearía hoy apps/keycloak/realm-import-<tenant>.yaml, que el
 operador no vuelve a aplicar (import --override=false):
@@ -8,7 +8,10 @@ operador no vuelve a aplicar (import --override=false):
   1. realm: registrationEmailAsUsername=true, loginWithEmailAllowed=true,
      editUsernameAllowed=false; fuerza bruta: bruteForceProtected=true,
      failureFactor=10, waitIncrementSeconds=900, maxFailureWaitSeconds=900,
-     maxDeltaTimeSeconds=43200, permanentLockout=false
+     maxDeltaTimeSeconds=43200, permanentLockout=false; idioma (ASP-41):
+     internationalizationEnabled=true, supportedLocales=[es,en,pt],
+     defaultLocale=es, para que las páginas y los correos de Keycloak salgan
+     en español a quien no tenga otro `locale`
   2. user profile: el atributo email solo lo edita un admin
      (permissions.edit = ["admin"]); el resto del JSON se conserva tal cual
   3. con --rename-users: los usuarios con email cuyo username GUARDADO no es
@@ -62,7 +65,14 @@ BRUTE_FORCE = {
     "maxDeltaTimeSeconds": 43200,
     "permanentLockout": False,
 }
-REALM_SETTINGS = {**LOGIN_SETTINGS, **BRUTE_FORCE}
+I18N = {
+    # páginas y correos de Keycloak (p. ej. el enlace de UPDATE_PASSWORD de
+    # ASP-41) en español salvo que el usuario tenga otro `locale`
+    "internationalizationEnabled": True,
+    "supportedLocales": ["es", "en", "pt"],
+    "defaultLocale": "es",
+}
+REALM_SETTINGS = {**LOGIN_SETTINGS, **BRUTE_FORCE, **I18N}
 MASTER = "master"
 # URL de la consola por port-forward; es spec.hostname.admin del CR de Keycloak
 ADMIN_URL = "http://localhost:18080"
@@ -74,6 +84,13 @@ def show(value):
     return json.dumps(value, ensure_ascii=False)
 
 
+def same(have, want):
+    """supportedLocales es un conjunto: Keycloak no garantiza el orden."""
+    if isinstance(want, list):
+        return isinstance(have, list) and sorted(have) == sorted(want)
+    return have == want
+
+
 def settle(kc, realm, apply):
     """Ajustes 1 y 2. Devuelve True si el realm queda (o, en dry-run, quedaría) bien."""
     rep = kc.get(realm)
@@ -82,7 +99,7 @@ def settle(kc, realm, apply):
     patch = {}
     for key, want in REALM_SETTINGS.items():
         have = rep.get(key)
-        if have == want:
+        if same(have, want):
             say("ok", f"{key} = {show(want)}")
         else:
             say("cambia", f"{key}: {show(have)} -> {show(want)}")
@@ -115,7 +132,7 @@ def check(kc, realm):
     """Vuelve a leer lo escrito para no dar por bueno un PUT que Keycloak ignorase."""
     rep = kc.get(realm)
     email = next(a for a in kc.get(f"{realm}/users/profile")["attributes"] if a["name"] == "email")
-    wrong = [k for k, v in REALM_SETTINGS.items() if rep.get(k) != v]
+    wrong = [k for k, v in REALM_SETTINGS.items() if not same(rep.get(k), v)]
     if email.get("permissions", {}).get("edit") != EMAIL_EDIT:
         wrong.append("email.permissions.edit")
     say("comprobado" if not wrong else "ERROR", "ajustes aplicados" if not wrong else f"no ha quedado: {', '.join(wrong)}")

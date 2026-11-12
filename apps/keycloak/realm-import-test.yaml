@@ -26,6 +26,15 @@ spec:
     maxFailureWaitSeconds: 900
     maxDeltaTimeSeconds: 43200
     permanentLockout: false
+    # Idioma (ASP-41): las páginas y los correos de Keycloak (p. ej. el enlace
+    # para poner la contraseña) salen en español salvo que el usuario tenga
+    # otro `locale`. En los realms que ya existen lo pone realm-login-settings.py.
+    internationalizationEnabled: true
+    supportedLocales:
+      - es
+      - en
+      - pt
+    defaultLocale: es
 
     # User profile declarativo (Keycloak 26): un atributo que no esté declarado
     # aquí no se guarda. employee_id lo asigna solo un admin; el usuario lo ve.
