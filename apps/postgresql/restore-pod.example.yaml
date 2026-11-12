@@ -1,0 +1,46 @@
+### Pod de trabajo para RESTAURAR una copia (ver README.md). No está en
+### kustomization.yaml: ArgoCD no lo crea. Se lanza a mano cuando hace falta
+### y se borra al terminar:
+###
+###   kubectl --kubeconfig ~/.kube/aspavi.kubeconfig apply -f apps/postgresql/restore-pod.example.yaml
+###   kubectl --kubeconfig ~/.kube/aspavi.kubeconfig -n rrhh-data exec -it postgresql-restore -- sh
+###   kubectl --kubeconfig ~/.kube/aspavi.kubeconfig -n rrhh-data delete pod postgresql-restore
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgresql-restore
+  namespace: rrhh-data
+spec:
+  restartPolicy: Never
+  securityContext:
+    runAsUser: 70
+    runAsGroup: 70
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: restore
+      image: postgres:18.3-alpine
+      command: ["sleep", "3600"]
+      env:
+        - name: PGHOST
+          value: postgresql.rrhh-data.svc.cluster.local
+        - name: PGUSER
+          value: postgres
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-helm-secrets
+              key: postgres-password
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: backup
+          mountPath: /backup
+          readOnly: true
+  volumes:
+    - name: backup
+      persistentVolumeClaim:
+        claimName: postgresql-backup
