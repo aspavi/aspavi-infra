@@ -35,21 +35,6 @@ spec:
             # administración de Keycloak no se publica (ASP-5).
             - name: KEYCLOAK_ADMIN_BASE_URL
               value: "http://keycloak-service.rrhh-auth.svc.cluster.local:8080"
-            # Secret del client rrhh-iam-service de cada realm. Los guarda
-            # scripts/keycloak/bootstrap-iam-realm.py <tenant>.
-            # ASP-21: transición. iam lee primero el fichero del volumen
-            # client-secrets (abajo) y, si no está, estas variables. Se quitan
-            # cuando esté desplegada la versión de iam que lee el volumen.
-            - name: KEYCLOAK_IAM_CLIENT_SECRET_TEST
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak-client-secrets
-                  key: iam-service-secret-test
-            - name: KEYCLOAK_IAM_CLIENT_SECRET_ACME
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak-client-secrets
-                  key: iam-service-secret-acme
             # Bus de eventos (ASP-24): consume iam-service.employee-access para
             # retirar el acceso al causar baja. Credenciales generadas por el
             # Messaging Topology Operator a partir del User de
