@@ -166,34 +166,12 @@ python3 scripts/keycloak/realm-smtp.py <slug>              # dry-run
 python3 scripts/keycloak/realm-smtp.py <slug> --apply
 ```
 
-### Paso 1b — Publicar el realm en el ingress de Keycloak
+### Paso 1b y Paso 2 — Ya no hacen falta (ASP-21)
 
-El ingress público de Keycloak (`apps/keycloak/ingress.yaml`) solo deja pasar
-`/resources` y los realms de los tenants que tiene en la lista; el resto da 404.
-Añade el del tenant nuevo, o su login no llegará a Keycloak:
-
-```yaml
-          - path: /realms/rrhh-tenant-globex
-            pathType: Prefix
-            backend:
-              service:
-                name: keycloak-service
-                port:
-                  number: 8080
-```
-
----
-
-## Paso 2 — Actualizar el CORS middleware (Traefik)
-
-Añade el nuevo origen en `apps/employee-service/cors-middleware.yaml`:
-
-```yaml
-accessControlAllowOriginList:
-  - "https://acme.aspavi.com"
-  - "https://test.aspavi.com"
-  - "https://globex.aspavi.com"    # ← añadir
-```
+El Ingress público de Keycloak (`apps/keycloak/ingress.yaml`) y el CORS
+(`apps/employee-service/cors-middleware.yaml`) aceptan ya cualquier tenant con
+un id válido (`^[a-z][a-z0-9-]{1,29}$`): `/realms/rrhh-tenant-<id>` y el
+origen `https://<id>.aspavi.com`. No hay que tocarlos.
 
 ---
 
@@ -269,7 +247,6 @@ En `apps/employee-service/deployment.yaml`, añade la nueva variable de entorno:
 
 ```bash
 git add apps/keycloak/realm-import-globex.yaml \
-        apps/employee-service/cors-middleware.yaml \
         apps/employee-service/deployment.yaml
 git commit -m "feat: add globex tenant"
 git push
@@ -277,7 +254,6 @@ git push
 
 ArgoCD detecta el cambio y aplica automáticamente:
 - El nuevo `KeycloakRealmImport` (crea el realm en Keycloak)
-- El CORS middleware actualizado
 - El deployment del employee-service (quedará en estado `Pending` hasta el paso 6)
 
 ---
@@ -379,8 +355,6 @@ curl -s -X POST \
 | Fichero | Repo | Acción |
 |---|---|---|
 | `apps/keycloak/realm-import-{slug}.yaml` | `aspavi-infra` | Crear (copiar de acme) |
-| `apps/keycloak/ingress.yaml` | `aspavi-infra` | Añadir `/realms/rrhh-tenant-{slug}` |
-| `apps/employee-service/cors-middleware.yaml` | `aspavi-infra` | Añadir origen al CORS |
 | `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
 | `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
 | `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
