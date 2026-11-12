@@ -1,366 +1,271 @@
 # Añadir un nuevo tenant
 
-Guía paso a paso para incorporar un nuevo cliente/empresa al sistema multi-tenant ASPAVI RRHH.
+Desde ASP-21, dar de alta un tenant **no toca ni reinicia ningún servicio** y el
+front no se recompila. Hacen falta tres cosas:
 
-En este ejemplo usaremos el slug `globex` y el dominio `globex.aspavi.com`.
+1. `scripts/tenant/onboard.py`: el realm de Keycloak, su correo, el client de
+   iam y el primer admin de RRHH;
+2. el registro DNS;
+3. una PR a este repo que solo añade el host al Ingress del front.
+
+En el ejemplo, el tenant es `globex` y su dominio `globex.aspavi.com`.
+
+> Esto funciona cuando está desplegado todo ASP-21: los servicios con auth-lib
+> 1.2.0 y `aspavi.auth.issuer-pattern`, iam leyendo los secrets en caliente,
+> absence con los tipos de ausencia por defecto y el front sacando el tenant
+> del host (contrato: `aspavi-board/docs/ASP-21-contrato.md`).
 
 ---
 
-## Requisitos previos
+## Requisitos
 
-- Acceso a la consola de Keycloak por port-forward (`http://localhost:18080/admin/`, ver `scripts/keycloak/README.md`) con rol admin
-- Acceso al cluster K3s con `kubectl`
-- Acceso al repo `aspavi-infra` con permisos de push
-- DNS del nuevo subdominio apuntando al cluster (mismo IP que los demás subdominios)
+- El id del tenant: `^[a-z][a-z0-9-]{1,29}$` (minúsculas, cifras y guiones;
+  empieza por letra; de 2 a 30 caracteres). Es el subdominio, el sufijo del
+  realm (`rrhh-tenant-<id>`) y el `tenant_id` de los datos. No se puede
+  cambiar después. No valen los que ya son otra cosa en `aspavi.com` (`api`,
+  `app`, `keycloak`, `argocd`, `tapete`, `www`, `mail`, `admin`, `master`,
+  `aspavi`).
+- El port-forward a Keycloak abierto (ver `scripts/keycloak/README.md`):
+  ```bash
+  kubectl --kubeconfig ~/.kube/aspavi.kubeconfig -n rrhh-auth port-forward svc/keycloak-service 18080:8080
+  ```
+- La contraseña del admin de master en el Llavero (`aspavi` /
+  `KEYCLOAK_ADMIN_PASSWORD`) y la del SMTP (`aspavi` / `SMTP_BREVO_KEY`); ver
+  `scripts/keycloak/README.md`.
+- `kubectl` con `~/.kube/aspavi.kubeconfig` (o el de `--kubeconfig`).
+- Acceso al DNS de `aspavi.com` (Hetzner DNS) y push a este repo.
 
 ---
 
-## Paso 1 — Crear el realm en Keycloak (YAML)
+## Paso 1 — `onboard.py`
 
-Copia el fichero de un tenant existente y adáptalo:
+Primero en seco, para ver qué haría:
 
 ```bash
-cp apps/keycloak/realm-import-acme.yaml apps/keycloak/realm-import-globex.yaml
+python3 scripts/tenant/onboard.py globex --name "Globex S.A." --admin-email rrhh@globex.example --dry-run
 ```
 
-Edita `realm-import-globex.yaml` y cambia los siguientes valores:
+Después, de verdad:
 
-| Campo | Valor anterior (acme) | Valor nuevo (globex) |
-|---|---|---|
-| `metadata.name` | `realm-import-acme` | `realm-import-globex` |
-| `spec.realm.realm` | `rrhh-tenant-acme` | `rrhh-tenant-globex` |
-| `spec.realm.displayName` | `RRHH - Acme Corporation` | `RRHH - Globex` |
-| `redirectUris` | `https://acme.aspavi.com/*` | `https://globex.aspavi.com/*` |
-| `webOrigins` | `https://acme.aspavi.com` | `https://globex.aspavi.com` |
-| `tenant_id` claim (×3: `rrhh-frontend`, `rrhh-employee-service`, `rrhh-iam-service`) | `acme` | `globex` |
+```bash
+python3 scripts/tenant/onboard.py globex --name "Globex S.A." --admin-email rrhh@globex.example
+```
 
-> **IMPORTANTE:** `KeycloakRealmImport` solo funciona en la **creación inicial**.
-> Si el realm ya existe en Keycloak, el operator lo ignora.
-> Para reimportar: borra el CR (`kubectl delete keycloakrealmimport realm-import-globex -n rrhh-auth`)
-> y el realm en la consola de Keycloak, luego vuelve a aplicar.
+Es idempotente: si algo falla a medias, se arregla la causa y se vuelve a
+lanzar, y cada paso solo hace lo que falta. Al empezar imprime contra qué
+Keycloak y qué clúster trabaja. Hace esto:
 
-El import ya trae lo que necesita la gestión de roles (aspavi-iam-service):
+1. **Realm** `rrhh-tenant-globex`, desde `scripts/tenant/realm-template.json`
+   y por la Admin API (no con un `KeycloakRealmImport`). Si ya existe, no lo
+   toca.
+2. **Ajustes** con los scripts de `scripts/keycloak/`:
+   - `realm-login-settings.py`: email como usuario, fuerza bruta e idioma;
+   - `realm-smtp.py`: el correo saliente, desde `smtp.json`;
+   - `bootstrap-iam-realm.py`: comprueba el client `rrhh-iam-service` y guarda
+     su secret en `rrhh-system/keycloak-client-secrets[iam-service-secret-globex]`.
+     iam lo lee en caliente del volumen (Kubernetes lo actualiza en un minuto
+     más o menos), descubre el tenant y le carga el catálogo de permisos y
+     roles. No hay que reiniciar iam.
+3. **Admin de RRHH**: el usuario `rrhh@globex.example` (el email es el
+   usuario) con el rol `ADMIN_RRHH`, una **contraseña temporal** y la acción
+   `UPDATE_PASSWORD`:
+   - la contraseña se guarda en el Secret `rrhh-auth/tenant-globex-initial-admin`
+     (claves `username` y `password`) antes de crear el usuario, y **no se
+     imprime nunca**;
+   - **no se envía ningún correo**;
+   - si el usuario ya existe, no se toca su contraseña.
 
-- el atributo `employee_id` declarado en el user profile (solo lo edita un admin)
-  y su mapper en `rrhh-frontend`, que lo pone en el claim `employee_id`;
+   Opcionales: `--admin-first-name` y `--admin-last-name`. Si faltan, Keycloak
+   se los pide en el primer login.
+4. **Lo que falta fuera**: imprime los registros DNS y el bloque del Ingress
+   del front de los pasos 2 y 3. Si ya están, dice `ok`.
+
+---
+
+## Paso 2 — DNS
+
+En Hetzner DNS, zona `aspavi.com`, los mismos registros A que `test` (uno por
+nodo). `onboard.py` los imprime, por ejemplo:
+
+```
+globex  A  116.203.154.181
+globex  A  46.225.141.208
+globex  A  91.98.195.135
+```
+
+No hay comodín `*.aspavi.com`; quitar este paso necesita un certificado
+comodín con DNS01 (tarea aparte).
+
+---
+
+## Paso 3 — Ingress del front
+
+Una PR a `apps/rrhh-frontend/deployment.yaml` con el host en `spec.tls[0].hosts`
+y su regla en `spec.rules`, que es lo que imprime `onboard.py`:
+
+```yaml
+  tls:
+    - hosts:
+        - test.aspavi.com
+        - acme.aspavi.com
+        - globex.aspavi.com          # ← añadir
+      secretName: rrhh-frontend-tls
+  rules:
+    # ...
+    - host: globex.aspavi.com        # ← añadir
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rrhh-frontend
+                port:
+                  number: 80
+```
+
+cert-manager vuelve a emitir `rrhh-frontend-tls` con el host nuevo, lo que
+necesita que el DNS del paso 2 ya resuelva (reto HTTP-01).
+
+Nada más en infra:
+
+- el CORS (`apps/employee-service/cors-middleware.yaml`) acepta cualquier
+  `https://<id>.aspavi.com`;
+- el Ingress de Keycloak (`apps/keycloak/ingress.yaml`) publica cualquier
+  `/realms/rrhh-tenant-<id>`;
+- los servicios aceptan cualquier realm `rrhh-tenant-<id>` por
+  `aspavi.auth.issuer-pattern`.
+
+---
+
+## Paso 4 — Comprobar
+
+1. Abre `https://globex.aspavi.com` y entra con el admin. La contraseña
+   temporal la lee quien tenga acceso al clúster:
+   ```bash
+   kubectl -n rrhh-auth get secret tenant-globex-initial-admin -o jsonpath='{.data.password}' | base64 -d
+   ```
+   Keycloak pide una contraseña nueva en el primer login. A partir de ahí la
+   temporal ya no vale y el Secret se puede borrar:
+   ```bash
+   kubectl -n rrhh-auth delete secret tenant-globex-initial-admin
+   ```
+2. El admin ve los menús de `ADMIN_RRHH`, y en ausencias aparecen los tipos por
+   defecto (los crea absence en el primer uso).
+3. globex no ve nada de los demás tenants, ni al revés.
+4. iam ha cargado el tenant (en sus logs, el catálogo de `globex`).
+
+---
+
+## Qué deja configurado el realm
+
+Todo sale de `realm-template.json`, que tiene la forma de
+`apps/keycloak/realm-import-acme.yaml`. Si cambias uno, cambia el otro y
+comprueba que coinciden:
+
+```bash
+python3 scripts/tenant/check-template.py      # necesita yq
+```
+
+La plantilla no lleva el client `rrhh-employee-service` del import de acme: no
+lo usa nada en el clúster.
+
+Contiene:
+
+- los roles de realm `ADMIN_RRHH`, `MANAGER`, `EMPLOYEE` y `AUDITOR`. Los
+  permisos (`<recurso>:read|write`) y los roles compuestos **no** van en la
+  plantilla: los siembra iam;
+- el client público `rrhh-frontend` (PKCE S256), con `redirectUris` y
+  `webOrigins` en `https://globex.aspavi.com`, y los mappers `tenant_id`
+  (fijo) y `employee_id`;
+- el atributo `employee_id` en el user profile: solo lo edita un admin y el
+  usuario lo ve;
 - el client confidencial `rrhh-iam-service`, con service account y los roles de
   `realm-management` `view-realm`, `manage-realm`, `view-users`, `query-users`
   y `manage-users`. No le des ninguno más.
 
-Los permisos (`<recurso>:read|write`) y los roles compuestos **no** van en el
-import: los siembra iam-service al arrancar.
+### Email como usuario
 
-Para un realm que **ya existe** (creado antes de que el import llevara todo
-esto), aplica el mismo paso con el script, que es idempotente:
+`registrationEmailAsUsername: true`, con `loginWithEmailAllowed: true` y
+`editUsernameAllowed: false`. El email solo lo cambia un admin (en el user
+profile, `email.permissions.edit = ["admin"]`); iam da de alta los usuarios
+con username = email.
 
-```bash
-python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --dry-run
-python3 scripts/keycloak/bootstrap-iam-realm.py <slug> --production
-```
+> Con ese ajuste, Keycloak cambia el username de un usuario existente por su
+> email **en cuanto se actualiza el usuario por cualquier vía**. Desde ese
+> momento entra con el email, y `preferred_username` pasa a ser el email.
+> Además, a un usuario sin email no se le puede actualizar nada (`400
+> error-user-attribute-required`, `field: email`).
+>
+> Con el ajuste activo, el campo `username` de las respuestas de la Admin API
+> ya trae el email aunque el guardado siga siendo otro. Para saber con qué
+> username entra un usuario, mira `guardado_es_email` en `inventory.py`. En un
+> realm antiguo, `realm-login-settings.py <id> --rename-users --apply` los
+> renombra de una vez.
 
-Los scripts de `scripts/keycloak/` usan la Admin REST API como el usuario
-`admin` del realm master, **por port-forward**: la administración de Keycloak
-no se publica (ver `scripts/keycloak/README.md`). La contraseña la leen del Llavero de macOS
-(`security find-generic-password -a aspavi -s KEYCLOAK_ADMIN_PASSWORD -w`), o de
-`KEYCLOAK_ADMIN_PASSWORD` si está definida; nunca la imprimen. El kubeconfig es
-`~/.kube/aspavi.kubeconfig`, o el que se pase con `--kubeconfig`. El admin de
-arranque del operador (`temp-admin`) ya no sirve, así que no usan `kcadm` dentro
-del pod.
+### Fuerza bruta
 
-El import también hace que **el email sea el nombre de usuario**
-(`registrationEmailAsUsername: true`, con `loginWithEmailAllowed: true` y
-`editUsernameAllowed: false`) y que el email solo lo cambie un admin (en el user
-profile, `email.permissions.edit = ["admin"]`): ni la consola de cuenta ni
-UPDATE_PROFILE dejan al usuario tocarlo. iam-service da de alta los usuarios
-con username = email. Para un realm que ya existe:
-
-```bash
-python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-users           # dry-run: qué cambiaría
-python3 scripts/keycloak/realm-login-settings.py <slug> [<slug> ...] --rename-users --apply
-```
-
-El mismo script fija la protección contra fuerza bruta, igual que el import:
 `bruteForceProtected: true`, `failureFactor: 10`, `waitIncrementSeconds: 900`,
 `maxFailureWaitSeconds: 900`, `maxDeltaTimeSeconds: 43200` y
-`permanentLockout: false`. Comportamiento comprobado en Keycloak 26.5.5:
+`permanentLockout: false`. Comprobado en Keycloak 26.5.5:
 
-- El 10º fallo seguido bloquea al usuario **15 min**, con cualquiera de las dos
-  estrategias (`bruteForceStrategy` MULTIPLE, la de por defecto, o LINEAR).
-  Los intentos que se hacen durante el bloqueo no cuentan ni lo alargan.
-- El contador no se pone a cero al acabar el bloqueo: cada fallo posterior
-  vuelve a bloquear 15 min, hasta que el usuario acierta o pasan 12 h sin fallos
-  (`maxDeltaTimeSeconds`).
-- Dos fallos en menos de 1 s (`quickLoginCheckMilliSeconds`) bloquean 60 s
-  (`minimumQuickLoginWaitSeconds`), aunque no se haya llegado a 10.
-- Mientras dura el bloqueo, Keycloak responde lo mismo que con una contraseña
-  mala (`401 invalid_grant`, "Invalid user credentials"), también en el direct
-  grant. El estado real está en
-  `GET /admin/realms/{realm}/attack-detection/brute-force/users/{id}`
-  (`disabled`, `numFailures`).
-- Para desbloquear a un usuario: `DELETE` sobre esa misma URL; para todos:
-  `DELETE /admin/realms/{realm}/attack-detection/brute-force/users`. Los dos
-  ponen el contador a 0.
+- El 10º fallo seguido bloquea **15 min**. Los intentos durante el bloqueo no
+  cuentan ni lo alargan.
+- Después, cada fallo vuelve a bloquear 15 min, hasta un acierto o 12 h sin
+  fallos.
+- Dos fallos en menos de 1 s bloquean 60 s.
+- Durante el bloqueo, Keycloak responde lo mismo que con una contraseña mala
+  (`401 invalid_grant`). El estado real está en
+  `GET /admin/realms/{realm}/attack-detection/brute-force/users/{id}`. Un
+  `DELETE` sobre esa URL desbloquea al usuario.
 
-El import y el script también activan el idioma (ASP-41):
+### Idioma (ASP-41)
+
 `internationalizationEnabled: true`, `supportedLocales: [es, en, pt]` y
-`defaultLocale: es`. Comportamiento comprobado en Keycloak 26.5.5:
+`defaultLocale: es`:
 
-- **Correos** (por ejemplo, el enlace para poner la contraseña): salen en el
-  `locale` del usuario si lo tiene y, si no, en español.
-- **Páginas**: usan el `locale` del usuario si lo tiene; si no, el idioma del
-  navegador (`Accept-Language`) si es `es`, `en` o `pt`; y si no, español. Un
-  usuario sin `locale` con el navegador en inglés ve la página en inglés.
-- El atributo `locale` se guarda aunque no esté declarado en el user profile.
+- **Correos:** en el `locale` del usuario y, si no tiene, en español.
+- **Páginas:** en el `locale` del usuario; si no tiene, en el idioma del
+  navegador si es `es`, `en` o `pt`; si no, en español.
 
-Los roles de realm van en el token una sola vez, en `realm_access.roles` del
-access token (client scope por defecto `roles`), que es lo que leen el front y
-auth-lib. El import ya no lleva el mapper `realm-roles` de `rrhh-frontend`, que
-repetía la lista en un claim plano `roles` (access, id y userinfo). En un realm
-que ya existe, `--drop-roles-claim` lo quita, pero solo si `realm_access.roles`
-sigue saliendo por el scope `roles`.
+### Roles en el token
 
-`--rename-users` renombra de una vez, después de los ajustes, a los usuarios con
-email cuyo username no es ese email (`username: viejo -> nuevo`). No toca los
-`service-account-*` y deja como están a los usuarios sin email (`se queda: sin
-email`). Sin esa opción, cada usuario se renombra solo la próxima vez que se le
-actualice (ver abajo).
+Los roles van en `realm_access.roles` del access token (client scope `roles`),
+que es lo que leen el front y auth-lib. No hay claim plano `roles`.
 
-Para saber con qué username entra un usuario, mira `guardado_es_email` en
-`inventory.py`. Con el ajuste activo, el campo `username` de las respuestas de
-la Admin API ya trae el email aunque el guardado (con el que se entra) siga
-siendo el viejo: en Keycloak 26.5 pasa en la lista, en las búsquedas y en
-`GET users/{id}`. El filtro sí compara con el valor guardado:
-`GET users?username=<email>&exact=true` solo encuentra al usuario cuando su
-username guardado ya es el email. Los scripts lo comprueban así.
+### Correo saliente
 
-> Con ese ajuste activo, Keycloak cambia el username de un usuario existente
-> por su email **en cuanto se actualiza el usuario por cualquier vía**: un PUT
-> de admin aunque solo cambie el nombre o `employee_id`, o el propio usuario
-> editando su nombre en la consola de cuenta. Desde ese momento entra con el
-> email y no con el username antiguo, y el claim `preferred_username` pasa a
-> ser el email. Un alta con un username distinto del email también se guarda
-> con el email.
->
-> Y el email pasa a ser obligatorio también para el admin: a un usuario **sin
-> email** no se le puede actualizar nada (ni siquiera `employee_id`) ni dar de
-> alta sin email; Keycloak responde `400 error-user-attribute-required` con
-> `field: email`. Los usuarios sin email deben tenerlo antes de aplicar el
-> ajuste (`inventory.py` muestra `email=-` en esos casos).
+Lo pone `realm-smtp.py` desde `scripts/keycloak/smtp.json`; ni la plantilla ni
+los imports llevan `smtpServer`. Ver "Correo saliente (SMTP)" en
+`scripts/keycloak/README.md`.
 
-Para ver cómo ha quedado un realm (solo lectura: roles, composites, clients y
-usuarios sin rol base):
+---
+
+## test y acme
+
+Siguen creados por sus `KeycloakRealmImport` (`apps/keycloak/realm-import-*.yaml`),
+que el operador solo aplica al crear el realm. Los cambios en realms que ya
+existen se llevan con los scripts de `scripts/keycloak/`, todos en seco por
+defecto:
 
 ```bash
-python3 scripts/keycloak/inventory.py <slug>      # sin argumento: todos los realms
-```
-
-### Paso 1a — Correo saliente del realm
-
-El import no lleva `smtpServer`: la configuración del correo vive solo en
-`scripts/keycloak/smtp.json` (ver "Correo saliente (SMTP)" en
-`scripts/keycloak/README.md`). Sin este paso, el realm no puede enviar correos
-(restablecer contraseña, acciones pendientes). Cuando el realm exista:
-
-```bash
-python3 scripts/keycloak/realm-smtp.py <slug>              # dry-run
-python3 scripts/keycloak/realm-smtp.py <slug> --apply
-```
-
-### Paso 1b y Paso 2 — Ya no hacen falta (ASP-21)
-
-El Ingress público de Keycloak (`apps/keycloak/ingress.yaml`) y el CORS
-(`apps/employee-service/cors-middleware.yaml`) aceptan ya cualquier tenant con
-un id válido (`^[a-z][a-z0-9-]{1,29}$`): `/realms/rrhh-tenant-<id>` y el
-origen `https://<id>.aspavi.com`. No hay que tocarlos.
-
----
-
-## Paso 3 — Actualizar el Ingress del frontend para incluir el nuevo dominio
-
-El frontend es una única SPA que sirve todos los tenants, detectando cuál usar desde el hostname.
-Actualiza `apps/rrhh-frontend/deployment.yaml`:
-
-**En la sección `spec.tls.hosts`:**
-```yaml
-tls:
-  - hosts:
-      - test.aspavi.com
-      - acme.aspavi.com
-      - globex.aspavi.com    # ← añadir
-    secretName: rrhh-frontend-tls
-```
-
-**En la sección `spec.rules`:**
-```yaml
-rules:
-  - host: test.aspavi.com
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: rrhh-frontend
-              port:
-                number: 80
-  - host: acme.aspavi.com
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: rrhh-frontend
-              port:
-                number: 80
-  - host: globex.aspavi.com    # ← añadir
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: rrhh-frontend
-              port:
-                number: 80
-```
-
-cert-manager generará automáticamente un certificado SAN que cubra todos los hosts.
-
----
-
-## Paso 4 — Añadir el client secret al deployment del backend
-
-En `apps/employee-service/deployment.yaml`, añade la nueva variable de entorno:
-
-```yaml
-- name: KEYCLOAK_CLIENT_SECRET_GLOBEX
-  valueFrom:
-    secretKeyRef:
-      name: keycloak-client-secrets
-      key: employee-service-secret-globex
+python3 scripts/keycloak/inventory.py <id>                   # solo lectura
+python3 scripts/keycloak/realm-login-settings.py <id>         # --apply para escribir
+python3 scripts/keycloak/realm-smtp.py <id>                   # --apply para escribir
+python3 scripts/keycloak/bootstrap-iam-realm.py <id> --dry-run
 ```
 
 ---
 
-## Paso 5 — Commit y push → ArgoCD sincroniza
+## Resumen
 
-```bash
-git add apps/keycloak/realm-import-globex.yaml \
-        apps/employee-service/deployment.yaml
-git commit -m "feat: add globex tenant"
-git push
-```
-
-ArgoCD detecta el cambio y aplica automáticamente:
-- El nuevo `KeycloakRealmImport` (crea el realm en Keycloak)
-- El deployment del employee-service (quedará en estado `Pending` hasta el paso 6)
-
----
-
-## Paso 6 — Obtener el client secret del nuevo realm
-
-Una vez ArgoCD haya sincronizado y el realm esté creado en Keycloak:
-
-1. Abre la consola por port-forward en `http://localhost:18080/admin/`
-   (`scripts/keycloak/README.md`)
-2. Cambia al realm **`rrhh-tenant-globex`**
-3. **Clients** → `rrhh-employee-service` → pestaña **Credentials**
-4. Copia el **Client secret**
-
----
-
-## Paso 7 — Crear el Kubernetes Secret manualmente
-
-```bash
-# Si el secret keycloak-client-secrets NO existe aún:
-kubectl create secret generic keycloak-client-secrets \
-  --from-literal=employee-service-secret-test="SECRET_TEST" \
-  --from-literal=employee-service-secret-acme="SECRET_ACME" \
-  --from-literal=employee-service-secret-globex="SECRET_GLOBEX" \
-  -n rrhh-system
-
-# Si el secret YA EXISTE (patch sin borrar los otros):
-kubectl patch secret keycloak-client-secrets -n rrhh-system \
-  --type=merge \
-  -p '{"stringData":{"employee-service-secret-globex":"SECRET_GLOBEX"}}'
-
-# Reiniciar el pod para que tome el nuevo valor:
-kubectl rollout restart deployment/employee-service -n rrhh-system
-```
-
-### Paso 7b — Secret de `rrhh-iam-service`
-
-El client secret de `rrhh-iam-service` va en el mismo Secret, con la clave
-`iam-service-secret-<slug>`. El script lo lee de Keycloak y lo guarda sin
-imprimirlo; sobre un realm recién importado es lo único que tiene que hacer:
-
-```bash
-python3 scripts/keycloak/bootstrap-iam-realm.py globex --production
-kubectl rollout restart deployment/iam-service -n rrhh-system
-```
-
-`--production` es obligatorio para cualquier tenant que no sea `test`.
-
----
-
-## Paso 8 — Actualizar el frontend
-
-En `aspavi-rrhh-management-site`, edita `src/utils/tenant.ts` y añade la entrada:
-
-```typescript
-'globex.aspavi.com': {
-  realm: 'rrhh-tenant-globex',
-  displayName: 'Globex',
-  tenantId: 'globex',
-},
-```
-
-Commit, push y el pipeline de GitHub Actions construye y publica la nueva imagen.
-ArgoCD despliega el frontend actualizado automáticamente.
-
----
-
-## Paso 9 — Verificación
-
-```bash
-# Realm creado en Keycloak
-kubectl get keycloakrealmimport -n rrhh-auth
-
-# Employee service corriendo con los nuevos secrets
-kubectl get pods -n rrhh-system
-kubectl describe pod -n rrhh-system -l app=employee-service | grep -A5 "Environment"
-
-# Comprobar que el login funciona desde el nuevo dominio
-curl -s -X POST \
-  https://keycloak.aspavi.com/realms/rrhh-tenant-globex/protocol/openid-connect/token \
-  -d "grant_type=password&client_id=rrhh-frontend&username=USUARIO&password=PASSWORD&scope=openid" \
-  | jq .tenant_id
-# Debe devolver: "globex"
-
-# rrhh-iam-service obtiene token con su service account
-curl -s -X POST \
-  https://keycloak.aspavi.com/realms/rrhh-tenant-globex/protocol/openid-connect/token \
-  -d grant_type=client_credentials -d client_id=rrhh-iam-service \
-  --data-urlencode "client_secret=$(kubectl -n rrhh-system get secret keycloak-client-secrets \
-      -o jsonpath='{.data.iam-service-secret-globex}' | base64 -d)" \
-  | jq -r .token_type
-# Debe devolver: Bearer
-```
-
----
-
-## Resumen de archivos tocados
-
-| Fichero | Repo | Acción |
+| Qué | Dónde | Quién |
 |---|---|---|
-| `apps/keycloak/realm-import-{slug}.yaml` | `aspavi-infra` | Crear (copiar de acme) |
-| `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | Añadir host a Ingress (TLS + rules) |
-| `apps/employee-service/deployment.yaml` | `aspavi-infra` | Añadir env var del secret |
-| `kubectl patch secret keycloak-client-secrets` | cluster | Ejecutar manualmente |
-| `python3 scripts/keycloak/bootstrap-iam-realm.py {slug} --production` | cluster | Ejecutar (secret de iam-service) |
-| `python3 scripts/keycloak/realm-login-settings.py {slug} --rename-users --apply` | cluster | Solo si el realm ya existía (email como usuario) |
-| `python3 scripts/keycloak/realm-smtp.py {slug} --apply` | cluster | Ejecutar (correo saliente desde `smtp.json`) |
-| `src/utils/tenant.ts` | `aspavi-rrhh-management-site` | Añadir entrada al mapa |
+| `scripts/tenant/onboard.py <id> --name ... --admin-email ...` | Keycloak y clúster | quien tenga el port-forward y el Llavero |
+| Registros A `<id>` | Hetzner DNS | el usuario |
+| Host en `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | PR |
 
-El único paso manual que no se puede automatizar (por seguridad) es el **Paso 6** — crear/actualizar el Kubernetes Secret con el client secret real de Keycloak.
+Ya **no** hacen falta: `KeycloakRealmImport` nuevo, rutas en el Ingress de
+Keycloak, CORS, variables o secrets de employee-service, variables de iam,
+reinicios, la lista de tenants de los servicios (`aspavi.auth.tenants`) ni
+`TENANT_MAP` en el front.
