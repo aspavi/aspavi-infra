@@ -1,16 +1,27 @@
 ### Lo que acompaña a la Postgres de la Helm (ArgoCD app `postgresql`, tercera
-### fuente): por ahora, la copia de seguridad puntual de ASP-4. Ver README.md.
+### fuente): la copia de seguridad puntual de ASP-4 y lo común de los usuarios
+### de base de datos por servicio. Ver README.md.
+###
+### Sin `namespace:` global: el Role y el RoleBinding de db-users-rbac.yaml
+### van en rrhh-system, y cada objeto ya declara el suyo.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: rrhh-data
 resources:
   - backup-pvc.yaml
   - backup-job-20261112.yaml
+  - db-users-rbac.yaml
 configMapGenerator:
   - name: postgresql-backup-script
+    namespace: rrhh-data
     files:
       - backup.sh
+  # los dos pasos del Job de usuarios de cada servicio (apps/<svc>/db-users-job.yaml)
+  - name: postgresql-db-users-scripts
+    namespace: rrhh-data
+    files:
+      - db-users-secrets.sh
+      - db-users.sh
 generatorOptions:
-  # El Job es de un solo uso y lleva la fecha en el nombre: no hace falta que
-  # el ConfigMap cambie de nombre con el contenido.
+  # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
+  # por nombre, y el de la copia es de un solo uso.
   disableNameSuffixHash: true

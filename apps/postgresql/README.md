@@ -12,6 +12,9 @@ clúster.
 | `backup-pvc.yaml` | PVC `postgresql-backup`, 5Gi, `local-path`, aparte del de la base |
 | `backup-job-20261112.yaml` | Copia puntual de ASP-4, antes de cambiar los dueños de las bases |
 | `restore-pod.example.yaml` | Pod para restaurar. ArgoCD **no** lo crea; se lanza a mano |
+| `db-users-rbac.yaml` | ServiceAccount `postgresql-db-users` (rrhh-data) y su Role en rrhh-system |
+| `db-users-secrets.sh`, `db-users.sh` | Los dos pasos del Job de usuarios (ConfigMap `postgresql-db-users-scripts`) |
+| `db-users-job.template.yaml` | Plantilla del Job de cada servicio. No se sincroniza: se genera en `apps/<svc>-service/` |
 
 ## Copia de seguridad puntual
 
@@ -116,3 +119,116 @@ hecha por este mismo script. Se conservan los dueños, el RLS (`ENABLE` y
 `FORCE`), las políticas y las filas.
 
 Al terminar: `kubectl -n rrhh-data delete pod postgresql-restore`.
+
+## Usuarios de base de datos por servicio (ASP-4)
+
+Cada servicio con base de datos pasa de entrar como `app_user` (dueño de todas
+las bases) a tener dos usuarios propios:
+
+| Rol | Para qué | Atributos y permisos |
+|---|---|---|
+| `<svc>_owner` | Flyway (`FLYWAY_USER`) | Dueño de `<svc>_db` y de todos sus objetos. Como dueño, el RLS no le aplica salvo en tablas con `FORCE` |
+| `<svc>_app` | La aplicación (`DB_USERNAME`) | `LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE`; `SELECT/INSERT/UPDATE/DELETE` en las tablas y `USAGE/SELECT` en las secuencias, también en las que creen las migraciones futuras (privilegios por defecto); sin DDL y sin tocar `flyway_schema_history` |
+
+`REVOKE CONNECT ON DATABASE <svc>_db FROM PUBLIC`, y `CONNECT` solo para los
+dos roles. Los servicios usan `<svc>_db` (`collective-agreements` →
+`collective_agreements_db`, `collective_agreements_owner`...).
+
+### Cómo funciona
+
+`apps/<svc>-service/db-users-job.yaml` es un Job hook **PreSync** de la app del
+servicio: corre en cada sync, antes de que ArgoCD aplique el deployment, y si
+falla el deployment no cambia. Es idempotente. Corre en rrhh-data, donde está
+el superusuario (`postgresql-helm-secrets/postgres-password`).
+
+1. **initContainer `secrets`** (`db-users-secrets.sh`, kubectl): si no existen
+   `<svc>-db-owner` y `<svc>-db-app` en rrhh-system, los crea con `username` y
+   una contraseña aleatoria de 40 caracteres. Si existen, no los toca. Deja las
+   contraseñas en un `emptyDir` en memoria para el paso 2.
+2. **`postgres`** (`db-users.sh`, como superusuario, solo en `<svc>_db`):
+   - crea los roles si faltan, fija sus atributos y les pone la contraseña del
+     Secret;
+   - crea la base si falta (sustituye al antiguo `db-bootstrap-job.yaml`, que
+     volvía a dársela a `app_user` en cada sync), le cambia el dueño y aplica
+     los `REVOKE`/`GRANT CONNECT`;
+   - dentro de la base, pasa a `<svc>_owner` cada objeto de `app_user`
+     (esquemas, tablas, vistas, secuencias sueltas, funciones, tipos) con su
+     `ALTER … OWNER`, y falla si queda alguno;
+   - permisos de `<svc>_app` y privilegios por defecto;
+   - comprueba y resume, sin secretos: dueño de cada base, que **las demás
+     bases (keycloak incluida) conservan dueño y permisos**, atributos de los
+     roles, que `<svc>_app` entra en su base, que no puede crear tablas, que
+     tiene DML en todas, y en qué otras bases puede conectarse.
+
+```bash
+kubectl -n rrhh-data logs job/contract-db-users --all-containers
+```
+
+Decisiones que no se ven en el código:
+
+- **No `REASSIGN OWNED BY app_user`.** Además de los objetos de la base actual,
+  reasigna los objetos *compartidos* de `app_user`, entre ellos **sus otras
+  bases**: lanzado en `contract_db`, deja `employee_db` y las demás en manos de
+  `contract_owner` (comprobado en Postgres 18.3).
+- **Contraseñas:** no se imprimen ni van en la línea de comandos. psql las lee
+  con ``\set pw `cat …` ``, con `log_statement=none` y
+  `log_min_error_statement=panic` en la sesión (probado con el servidor en
+  `log_statement=all`: ni la contraseña ni el `ALTER ROLE` llegan al log). Son
+  de letras y números, sin salto de línea; un Secret con otro formato hace
+  fallar el Job, porque psql y el deployment lo leerían distinto.
+- **RBAC:** el ServiceAccount puede **crear cualquier Secret** en rrhh-system:
+  `create` no se puede limitar por nombre (`resourceNames` no aplica). Solo
+  puede leer y etiquetar (`get`, `patch`) los `<svc>-db-(owner|app)` de los 9
+  servicios; ni `list`, ni `update`, ni `delete`, ni ningún otro Secret. El
+  script se niega a escribir un Secret con otro nombre.
+- **Solo la base del servicio:** `db-users.sh` exige un `DB` de la forma
+  `<algo>_db`; nunca recorre todas las bases, y nunca toca `keycloak` ni
+  `postgres`.
+- **Conexión a otras bases:** mientras una base no ha migrado, sigue dando
+  `CONNECT` a `PUBLIC`, y `<svc>_app` puede *entrar* en ella (no leer sus
+  tablas, que no son suyas). Lo mismo con `postgres` y `keycloak`, que esta
+  fase no toca. El resumen del Job lo muestra.
+
+### Pasar un servicio a sus propios usuarios
+
+En una PR por servicio (contract fue el primero):
+
+1. Genera su Job desde la plantilla (solo cambia el nombre del servicio):
+   ```bash
+   sed -e '/^#T /d' -e '/^#T$/d' -e 's/__SVC__/<svc>/g' \
+     apps/postgresql/db-users-job.template.yaml > apps/<svc>-service/db-users-job.yaml
+   ```
+2. Borra `apps/<svc>-service/db-bootstrap-job.yaml`.
+3. En `apps/<svc>-service/deployment.yaml`, `DB_USERNAME`/`DB_PASSWORD` desde
+   `<svc>-db-app` y `FLYWAY_USER`/`FLYWAY_PASSWORD` desde `<svc>-db-owner`
+   (como en contract-service).
+4. El servicio tiene que leer `spring.flyway.user: ${FLYWAY_USER:${DB_USERNAME}}`
+   y `spring.flyway.password: ${FLYWAY_PASSWORD:${DB_PASSWORD}}` **antes** de
+   desplegar esto.
+
+El RBAC ya incluye los 9 servicios.
+
+### Volver atrás (un servicio)
+
+Revertir la PR no basta: `app_user` ya no es dueño de la base ni tiene
+`CONNECT`, y el antiguo `db-bootstrap-job.yaml` (que corre como `app_user`) no
+puede devolvérsela. Antes, como superusuario (pod de restauración), en la base
+del servicio:
+
+```sql
+-- \c contract_db
+REASSIGN OWNED BY contract_owner TO app_user;   -- aquí sí: contract_owner solo tiene esta base
+GRANT CONNECT ON DATABASE contract_db TO app_user;
+```
+
+Y después revertir la PR. Los roles y los Secrets pueden quedarse.
+
+### Pendiente
+
+- El `initdb` de la Helm (`helm/postgresql/values.yaml`) sigue dando las bases
+  nuevas a `app_user`; solo afecta a una instalación desde cero. Va en una PR
+  aparte, revisando con `helm template` que no reinicia la StatefulSet.
+- Cuando hayan migrado los 9: quitar a `app_user` `CREATEDB` y lo que le quede.
+- El servidor usa `bitnami/postgresql:latest` (hoy 18.3.0). Fijar la versión,
+  en una tarea aparte.
+
