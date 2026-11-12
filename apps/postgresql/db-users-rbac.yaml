@@ -1,0 +1,61 @@
+### Permisos del Job de usuarios de base de datos (ASP-4). El Job corre en
+### rrhh-data, donde está el superusuario de Postgres, y escribe los Secrets
+### <svc>-db-owner y <svc>-db-app en rrhh-system, donde los leen los
+### deployments. Ver README.md.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgresql-db-users
+  namespace: rrhh-data
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgresql-db-users
+  namespace: rrhh-system
+rules:
+  # OJO: `create` no se puede limitar por nombre en RBAC (resourceNames no
+  # aplica a create), así que este ServiceAccount puede crear CUALQUIER Secret
+  # en rrhh-system. No puede leer ni cambiar ninguno salvo los de la lista de
+  # abajo, y db-users-secrets.sh se niega a escribir uno que no sea
+  # <svc>-db-(owner|app).
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+  # Leer y etiquetar solo los suyos: los 9 servicios con base de datos.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "patch"]
+    resourceNames:
+      - absence-db-owner
+      - absence-db-app
+      - attendance-db-owner
+      - attendance-db-app
+      - audit-db-owner
+      - audit-db-app
+      - collective-agreements-db-owner
+      - collective-agreements-db-app
+      - contract-db-owner
+      - contract-db-app
+      - employee-db-owner
+      - employee-db-app
+      - events-db-owner
+      - events-db-app
+      - organization-db-owner
+      - organization-db-app
+      - payroll-db-owner
+      - payroll-db-app
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgresql-db-users
+  namespace: rrhh-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: postgresql-db-users
+subjects:
+  - kind: ServiceAccount
+    name: postgresql-db-users
+    namespace: rrhh-data
