@@ -229,6 +229,12 @@ Y después revertir la PR. Los roles y los Secrets pueden quedarse.
   nuevas a `app_user`; solo afecta a una instalación desde cero. Va en una PR
   aparte, revisando con `helm template` que no reinicia la StatefulSet.
 - Cuando hayan migrado los 9: quitar a `app_user` `CREATEDB` y lo que le quede.
+  Le quedan las extensiones creadas por Flyway cuando corría como él
+  (`uuid-ossp` en `payroll_db`, `pg_trgm` en `collective_agreements_db`; el Job
+  las avisa con `AVISO:`). No existe `ALTER EXTENSION ... OWNER`: en cada una
+  de esas bases, `REASSIGN OWNED BY app_user TO <svc>_owner`. **Solo entonces**,
+  cuando `app_user` ya no es dueño de ninguna base: antes se llevaría también
+  las otras bases (ver arriba).
 - El servidor usa `bitnami/postgresql:latest` (hoy 18.3.0). Fijar la versión,
   en una tarea aparte.
 
