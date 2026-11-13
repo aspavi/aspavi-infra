@@ -11,6 +11,7 @@ resources:
   - backup-job-20261112.yaml
   - db-users-rbac.yaml
   - app-user-cleanup-job.yaml
+  - legacy-roles-lockdown-job.yaml
 configMapGenerator:
   - name: postgresql-backup-script
     namespace: rrhh-data
@@ -27,6 +28,11 @@ configMapGenerator:
     namespace: rrhh-data
     files:
       - app-user-cleanup.sh
+  # los roles sueltos que no son de ningún servicio (ASP-4)
+  - name: postgresql-legacy-roles-lockdown-script
+    namespace: rrhh-data
+    files:
+      - legacy-roles-lockdown.sh
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.

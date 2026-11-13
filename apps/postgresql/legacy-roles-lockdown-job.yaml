@@ -1,0 +1,67 @@
+### Desactiva los roles sueltos audit_user, organization_user, payroll_user y
+### keycloak (ASP-4): sin permisos y NOLOGIN, sin borrarlos. Ver README.md,
+### "Roles sueltos". Se ejecuta una vez: el Job terminado se queda en el
+### clúster y ArgoCD no lo relanza. Es idempotente: para repetirlo, se le
+### cambia el nombre (-2...). Si para (algo inesperado), falla sin reintentos y
+### la app `postgresql` sale Degraded; el log dice por qué.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-legacy-roles-lockdown
+  namespace: rrhh-data
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql-legacy-roles-lockdown
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: lockdown
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/legacy-roles-lockdown.sh"]
+          env:
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-legacy-roles-lockdown-script
