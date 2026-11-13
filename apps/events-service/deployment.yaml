@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: events-service
-          image: ghcr.io/aspavi/aspavi-events-service:main-521612b
+          image: ghcr.io/aspavi/aspavi-events-service:main-8e543a1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
