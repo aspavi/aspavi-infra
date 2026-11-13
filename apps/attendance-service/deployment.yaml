@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: attendance-service
-          image: ghcr.io/aspavi/aspavi-attendance-service:main-0de1c4e
+          image: ghcr.io/aspavi/aspavi-attendance-service:main-2fc3031
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
