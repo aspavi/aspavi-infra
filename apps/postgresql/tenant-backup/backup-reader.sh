@@ -11,8 +11,12 @@
 #     todas las bases, también las que se creen después, sin tocar el ACL de
 #     ninguna tabla (tampoco de las de Keycloak);
 #   - default_transaction_read_only=on, y 2 conexiones como mucho;
-#   - CONNECT en cada base de servicio (*_db). keycloak y postgres ya dan
-#     CONNECT a PUBLIC: no se toca su ACL.
+#   - CONNECT, uno a uno, en cada base que lee el CronJob: las de servicio
+#     (*_db), keycloak (el realm de cada tenant) y postgres (las consultas de
+#     catálogo de dump.sh). PUBLIC no tiene CONNECT en ninguna (lo quitó la
+#     limpieza de app_user, ASP-4). En keycloak, el GRANT solo AÑADE una
+#     entrada al ACL: se imprime antes y después, y el Job para si
+#     keycloak_user no tiene CONNECT antes o no lo tiene después.
 # Al final entra como backup_reader y comprueba que lee todas las filas de
 # employees (FORCE RLS) y que no puede escribir.
 set -eu
@@ -42,9 +46,21 @@ other=$(psql -X -At -v ON_ERROR_STOP=1 -d postgres -c "
    WHERE m.member = 'backup_reader'::regrole AND r.rolname <> 'pg_read_all_data'")
 [ -z "$other" ] || { echo "ERROR: backup_reader es miembro de otros roles: $other" >&2; exit 1; }
 
-echo "== CONNECT en las bases de servicio"
+kc_user_connect() { psql -X -At -v ON_ERROR_STOP=1 -d postgres -c "
+  SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'keycloak') THEN 'sin-base'
+              WHEN NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'keycloak_user') THEN 'sin-rol'
+              ELSE has_database_privilege('keycloak_user', 'keycloak', 'CONNECT')::text END"; }
+kc_acl() { psql -X -At -v ON_ERROR_STOP=1 -d postgres -c "SELECT coalesce(datacl::text, '(por defecto)') FROM pg_database WHERE datname = 'keycloak'"; }
+
+echo "== CONNECT en las bases que lee el CronJob"
+before=$(kc_user_connect)
+case "$before" in
+  true) echo "  keycloak, ACL antes: $(kc_acl)" ;;
+  sin-base) echo "  (no hay base keycloak)" ;;
+  *) echo "ERROR: keycloak_user no tiene CONNECT en keycloak ($before) ANTES de tocar nada; no sigo" >&2; exit 1 ;;
+esac
 for db in $(psql -X -At -v ON_ERROR_STOP=1 -d postgres -c "
-    SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate AND datname LIKE '%\_db' ORDER BY 1"); do
+    SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate ORDER BY 1"); do
   if [ "$(psql -X -At -d postgres -c "SELECT has_database_privilege('backup_reader', '$db', 'CONNECT')")" = t ]; then
     echo "  $db: ya tenía CONNECT"
   else
@@ -52,10 +68,16 @@ for db in $(psql -X -At -v ON_ERROR_STOP=1 -d postgres -c "
     echo "  $db: GRANT CONNECT"
   fi
 done
+if [ "$before" = true ]; then
+  after=$(kc_user_connect)
+  echo "  keycloak, ACL después: $(kc_acl)"
+  [ "$after" = true ] || { echo "ERROR: keycloak_user ya NO tiene CONNECT en keycloak ($after): Keycloak no podría conectarse. Mirar el ACL de arriba" >&2; exit 1; }
+  echo "  keycloak_user sigue con CONNECT en keycloak"
+fi
 
 echo "== Comprobación como backup_reader"
 as_reader() { PGUSER=backup_reader PGPASSWORD="$(cat "$CREDS_DIR/backup_reader.password")" psql -X -At -v ON_ERROR_STOP=1 "$@"; }
-for db in $(psql -X -At -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate AND datname <> 'postgres' ORDER BY 1"); do
+for db in $(psql -X -At -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate ORDER BY 1"); do
   as_reader -d "$db" -c "SELECT 1" > /dev/null || { echo "ERROR: backup_reader no entra en $db" >&2; exit 1; }
 done
 echo "  entra en todas las bases"

@@ -52,6 +52,8 @@ spec:
           initContainers:
             - name: tools
               image: alpine/k8s:1.34.1
+              # si falla, las últimas líneas del log quedan en el estado del pod
+              terminationMessagePolicy: FallbackToLogsOnError
               command: ["sh", "/script/fetch-age.sh"]
               securityContext: &hardened
                 allowPrivilegeEscalation: false
@@ -70,6 +72,7 @@ spec:
             # Solo escucha en 127.0.0.1 y sin socket: nada fuera del pod llega.
             - name: scratch-pg
               image: postgres:18.3-alpine
+              terminationMessagePolicy: FallbackToLogsOnError
               restartPolicy: Always
               command:
                 - sh
@@ -95,6 +98,7 @@ spec:
                 - { name: run, mountPath: /var/run/postgresql }
             - name: dump
               image: postgres:18.3-alpine # misma versión que el servidor
+              terminationMessagePolicy: FallbackToLogsOnError
               command: ["sh", "/script/dump.sh"]
               envFrom:
                 - configMapRef:
@@ -124,6 +128,7 @@ spec:
             # apps/keycloak): al subir Keycloak, sube también esta.
             - name: kc-export
               image: quay.io/keycloak/keycloak:26.5.5
+              terminationMessagePolicy: FallbackToLogsOnError
               command: ["bash", "/script/kc-export.sh"]
               securityContext:
                 runAsUser: 70
@@ -143,6 +148,7 @@ spec:
           containers:
             - name: upload
               image: alpine/k8s:1.34.1 # python3 y botocore
+              terminationMessagePolicy: FallbackToLogsOnError
               command: ["python3", "/script/upload.py"]
               envFrom:
                 - configMapRef:
