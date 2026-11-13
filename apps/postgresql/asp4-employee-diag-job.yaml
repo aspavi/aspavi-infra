@@ -1,0 +1,66 @@
+### Diagnóstico de employee_db, SOLO LECTURA (ASP-4 fase 2: V20 de employee
+### falla con document_categories_employee_fkey). Como el superusuario, en una
+### transacción READ ONLY; solo recuentos, ids de tenant, tipos, RLS, dueños y
+### el historial de Flyway. Se ejecuta una vez; para repetirlo, -2, -3...
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-asp4-employee-diag
+  namespace: rrhh-data
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql-asp4-employee-diag
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: diag
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/asp4-employee-diag.sh"]
+          env:
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: employee_db
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-asp4-employee-diag-script

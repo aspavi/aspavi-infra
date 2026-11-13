@@ -14,6 +14,7 @@ resources:
   - app-user-cleanup-job.yaml
   - legacy-roles-lockdown-job.yaml
   - asp4-fase2-precheck-job.yaml
+  - asp4-employee-diag-job.yaml
 configMapGenerator:
   - name: postgresql-backup-script
     namespace: rrhh-data
@@ -40,6 +41,11 @@ configMapGenerator:
     namespace: rrhh-data
     files:
       - asp4-fase2-precheck.sh
+  # diagnóstico de employee_db tras el fallo de V20, solo lectura
+  - name: postgresql-asp4-employee-diag-script
+    namespace: rrhh-data
+    files:
+      - asp4-employee-diag.sh
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.
