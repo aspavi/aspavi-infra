@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: payroll-service
-          image: ghcr.io/aspavi/aspavi-payroll-service:master-94f032b
+          image: ghcr.io/aspavi/aspavi-payroll-service:master-2f8fdb3
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
