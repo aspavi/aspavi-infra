@@ -19,7 +19,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: audit-service
-          image: ghcr.io/aspavi/aspavi-audit-service:master-c742a1b
+          image: ghcr.io/aspavi/aspavi-audit-service:master-a76eb9e
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
