@@ -12,14 +12,16 @@ hace lo que falta.
   2. scripts/keycloak/realm-login-settings.py, realm-smtp.py y
      bootstrap-iam-realm.py (este guarda el secret del client rrhh-iam-service
      en rrhh-system/keycloak-client-secrets[iam-service-secret-<id>], que iam
-     lee en caliente).
+     lee en caliente). Este script NO siembra los permisos ni los roles
+     compuestos: los carga iam (CatalogBootstrap) al ver el secret nuevo.
   3. el admin de RRHH: usuario <email> con el rol ADMIN_RRHH, una contraseña
      temporal y la acción UPDATE_PASSWORD. La contraseña se guarda en el Secret
      rrhh-auth/tenant-<id>-initial-admin (claves username y password) ANTES de
      crear el usuario, y no se imprime nunca. NO se envía ningún correo. Si el
      usuario ya existe, no se toca su contraseña; solo se le asegura el rol.
   4. imprime lo que queda por hacer fuera: el registro DNS y el bloque del
-     Ingress del front (apps/rrhh-frontend/deployment.yaml). Sin secretos.
+     Ingress del front (apps/rrhh-frontend/deployment.yaml), con una entrada
+     de tls propia (secretName rrhh-frontend-<id>-tls). Sin secretos.
 
 Con --dry-run no escribe nada: lee el estado y dice qué haría.
 
@@ -220,7 +222,11 @@ def pending_outside(tenant):
         say("ok", f"Ingress del front: {host} ya está en {FRONT_INGRESS.relative_to(REPO)}")
     else:
         print(f"  Ingress del front, en una PR a {FRONT_INGRESS.relative_to(REPO)} (lo único por tenant que queda en infra):")
-        print(f"    spec.tls[0].hosts, añadir:\n        - {host}")
+        # Entrada de tls propia, no en la de test y acme: si el DNS del tenant
+        # aún no resuelve, su reto HTTP-01 falla solo para él y no bloquea la
+        # renovación de rrhh-frontend-tls.
+        print(f"    spec.tls, añadir una entrada nueva (no meter el host en la de test y acme):")
+        print(f"    - hosts:\n        - {host}\n      secretName: rrhh-frontend-{tenant}-tls")
         print(f"    spec.rules, añadir:")
         print(f"    - host: {host}\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n"
               f"            backend:\n              service:\n                name: rrhh-frontend\n"
