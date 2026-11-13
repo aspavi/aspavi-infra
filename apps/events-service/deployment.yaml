@@ -27,13 +27,29 @@ spec:
           env:
             - name: DB_URL
               value: "jdbc:postgresql://postgresql.rrhh-data:5432/events_db"
+            # ASP-4: la aplicación entra como events_app (sin DDL, sujeta al
+            # RLS) y Flyway como events_owner, dueño de la base. Los Secrets
+            # los crea el Job db-users-job.yaml (hook PreSync).
             - name: DB_USERNAME
-              value: "app_user"
+              valueFrom:
+                secretKeyRef:
+                  name: events-db-app
+                  key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql-helm-secrets
-                  key: app-password
+                  name: events-db-app
+                  key: password
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: events-db-owner
+                  key: username
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: events-db-owner
+                  key: password
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"
             - name: SPRING_PROFILES_ACTIVE
