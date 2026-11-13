@@ -483,6 +483,19 @@ audit y events no tienen.
 - Las consultas están escritas contra el esquema **actual** (antes de cada
   migración nueva): probadas sobre las migraciones de la imagen desplegada de
   cada servicio.
+- **Valida los datos, no la migración.** Corre como superusuario, y la
+  migración la corre Flyway como `<svc>_owner`. Donde una tabla tiene
+  `FORCE ROW LEVEL SECURITY`, el RLS también se aplica a su dueño. Hoy solo
+  `employees`, en employee: en las migraciones de las PRs de la fase 2 nadie
+  más lo usa.
+  - Un paso de la migración puede fallar como el dueño aunque aquí todo dé 0.
+  - Le pasó a employee V20: la validación de una FK nueva hacia `employees`
+    la hace el dueño, y V20 ya había cambiado las políticas a estrictas.
+    Como el dueño no veía ninguna fila de `employees`, la FK falló con datos
+    correctos.
+  - Para esos servicios, la migración se prueba además ejecutándola como
+    `<svc>_owner` sobre las migraciones anteriores (en local o en la CI del
+    servicio). Este Job no sustituye esa prueba.
 
 ```bash
 export KUBECONFIG=~/.kube/aspavi.kubeconfig
