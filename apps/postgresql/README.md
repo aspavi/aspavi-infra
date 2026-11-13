@@ -227,15 +227,18 @@ Y después revertir la PR. Los roles y los Secrets pueden quedarse.
 ## Limpieza de `app_user` (ASP-4, paso 4)
 
 Cuando los 9 servicios usan ya sus propios usuarios, el Job
-`postgresql-app-user-cleanup` (`app-user-cleanup.sh`, como el superusuario)
+`postgresql-app-user-cleanup-2` (`app-user-cleanup.sh`, como el superusuario)
 deja a `app_user` sin nada: ni bases, ni objetos, ni `CREATEDB`. **No** lo
 borra ni le cambia la contraseña: se queda sin usar una temporada antes de
 borrarlo.
 
 Lo que le quedaba (inventario del 2026-11-13):
 
-- la base **`postgres`**: la imagen de Bitnami se la dio en la primera
-  instalación (`POSTGRES_USER=app_user`, `POSTGRES_DATABASE=postgres`);
+- la base **`postgres`** y su **esquema `public`**: la imagen de Bitnami se
+  los dio en la primera instalación (`POSTGRES_USER=app_user`,
+  `POSTGRES_DATABASE=postgres`);
+- un `GRANT` en el esquema `public` de `employee_db` (`UC`, concedido por su
+  dueño; no bloquea nada hoy, pero sí un `DROP ROLE app_user`);
 - las extensiones que creó Flyway cuando corría como él: `uuid-ossp` en
   `payroll_db` y `pg_trgm` en `collective_agreements_db`. Sus funciones son
   del superusuario (son extensiones *trusted*), pero la extensión es suya;
@@ -250,10 +253,17 @@ Lo que hace, en este orden:
    sesiones, dueño y ACL de cada base, y lo que es de `app_user` en cada
    una. **Para** sin tocar nada si hay una sesión abierta como `app_user`
    (tres muestras, para no confundirse con las sondas), si es dueño de algo
-   que no sea la base `postgres` o esas dos extensiones, si alguna de las 9
-   bases no es de su `<svc>_owner` o si `keycloak` no es de `keycloak_user`.
+   que no sea la base `postgres`, su esquema `public` o esas dos extensiones,
+   si alguna de las 9 bases no es de su `<svc>_owner` o si `keycloak` no es
+   de `keycloak_user`.
+   También inventaría, sin tocarlos, los **otros roles** (ni el superusuario,
+   ni `app_user`, ni `keycloak_user`, ni los de los 9 servicios): atributos,
+   si tienen contraseña (sí/no), sesiones, en qué bases entran y crean
+   esquemas, y de qué son dueños o tienen permisos en cada base.
 2. **En una transacción**, en la base `postgres`:
-   - la base `postgres` pasa a ser del superusuario `postgres`;
+   - la base `postgres` pasa a ser del superusuario `postgres`, y su esquema
+     `public` a `pg_database_owner` (lo de por defecto desde Postgres 15: el
+     dueño de la base);
    - `REVOKE CONNECT … FROM PUBLIC` en `keycloak`, en `postgres` y en las 9
      bases que aún lo tengan (ninguna, si todas pasaron por su Job);
    - `ALTER ROLE app_user NOCREATEDB`;
@@ -265,19 +275,41 @@ Lo que hace, en este orden:
    <svc>_owner`, solo si `app_user` ya no es dueño de ninguna base ni
    tablespace y lo único suyo en esa base es la extensión esperada. Después
    comprueba que ninguna base ha cambiado.
+3b. **Permisos en el esquema `public`**, una transacción por base: si
+   `app_user` tiene alguno (hoy, en `employee_db`), `REVOKE ALL ON SCHEMA
+   public FROM app_user`. Solo si los concedió el dueño del esquema (un
+   superusuario revoca como el dueño); si los concedió otro rol, para y hay
+   que mirarlo a mano. Sin `CASCADE`. Después, el ACL del esquema tiene que
+   ser el de antes menos las entradas de `app_user`.
 4. **Comprobaciones:** dueños, en qué bases puede entrar cada rol (cada
    `<svc>_app` y `<svc>_owner` solo en la suya, `keycloak_user` solo en
-   `keycloak`, `app_user` en ninguna), que `app_user` no es dueño de nada, y
-   el diff de dueños y ACL de las bases de antes y después.
+   `keycloak`, `app_user` en ninguna; los otros roles se listan sin
+   comprobar), que `app_user` no es dueño de nada ni tiene permisos en ningún
+   esquema `public`, y el diff de dueños y ACL de las bases de antes y
+   después.
 
 ```bash
-kubectl -n rrhh-data logs job/postgresql-app-user-cleanup
+kubectl -n rrhh-data logs job/postgresql-app-user-cleanup-2
 ```
 
 Es idempotente: una segunda vez inventaría, no cambia nada ("nada que
-cambiar", "sin cambios") y termina bien. Para repetirlo, se borra el Job y
-ArgoCD lo vuelve a crear. Si para, el Job falla sin reintentos y la app
-`postgresql` sale `Degraded`.
+cambiar", "sin cambios") y termina bien. Si para, el Job falla sin
+reintentos y la app `postgresql` sale `Degraded`. Para repetirlo, se le
+cambia el nombre (`-3`…) o se borra el Job y ArgoCD lo vuelve a crear.
+
+**Un Job que ya no está en git se queda en el clúster:** la app `postgresql`
+no poda (`prune: false`). El primero, `postgresql-app-user-cleanup`, paró en
+el paso 1 sin tocar nada (el esquema `public` de la base `postgres` no
+estaba previsto) y sigue ahí, `Failed`. Mientras exista, la app sale
+`OutOfSync` (un recurso por podar) y `Degraded` (ArgoCD cuenta también la
+salud de los recursos por podar). Se borra a mano, **después** de mergear
+el `-2` (antes, ArgoCD lo volvería a crear, porque seguiría en git):
+
+```bash
+KUBECONFIG=~/.kube/aspavi.kubeconfig kubectl -n rrhh-data delete job postgresql-app-user-cleanup
+```
+
+Borrar el Job borra también su pod y su log.
 
 Las sondas de la StatefulSet (`pg_isready -U app_user -d postgres`) no se
 autentican: el `REVOKE` y `NOCREATEDB` no les afectan (probado).
@@ -302,10 +334,13 @@ autentican: el `REVOKE` y `NOCREATEDB` no les afectan (probado).
 
 ```sql
 ALTER DATABASE postgres OWNER TO app_user;
+\c postgres
+ALTER SCHEMA public OWNER TO app_user;
 GRANT CONNECT ON DATABASE keycloak TO PUBLIC;
 GRANT CONNECT ON DATABASE postgres TO PUBLIC;
 ALTER ROLE app_user CREATEDB;
--- las extensiones pueden quedarse en <svc>_owner
+-- las extensiones pueden quedarse en <svc>_owner, y el GRANT de employee_db
+-- no hace falta (nada usa app_user)
 ```
 
 **Para borrar `app_user`**, más adelante: no le queda nada propio, así que

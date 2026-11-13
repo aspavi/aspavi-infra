@@ -4,10 +4,12 @@
 # README.md, "Limpieza de app_user".
 #
 #   1. inventario (solo lectura) y paradas: sesiones abiertas como app_user,
-#      algo suyo que no sea la base postgres o las dos extensiones, bases o
-#      roles que no están como deberían
+#      algo suyo que no sea la base postgres, su esquema public o las dos
+#      extensiones, bases o roles que no están como deberían. Inventaría
+#      también los roles que no son de ningún servicio (no los toca)
 #   2. en la base postgres, en UNA transacción:
-#      - la base postgres pasa de app_user a postgres
+#      - la base postgres pasa de app_user a postgres, y su esquema public
+#        (de app_user por Bitnami) a pg_database_owner, como viene por defecto
 #      - REVOKE CONNECT FROM PUBLIC en keycloak, postgres y las 9 bases que
 #        aún lo tengan; keycloak_user y el superusuario tienen que seguir
 #        pudiendo conectarse
@@ -19,8 +21,12 @@
 #      dueño de ninguna base ni tablespace (si no, también se las llevaría),
 #      y solo si lo único suyo en la base es la extensión esperada. Después,
 #      ninguna base ha cambiado
+#   3b. en cada base, una transacción: los permisos de app_user en el esquema
+#      public se revocan (en employee_db tenía un GRANT). El ACL del esquema
+#      tiene que quedar igual que antes salvo las entradas de app_user
 #   4. comprobaciones (solo lectura): dueños, la matriz de CONNECT, que
-#      app_user no es dueño de nada, y el diff de bases de antes y después
+#      app_user no es dueño de nada ni tiene permisos en ningún esquema
+#      public, y el diff de bases de antes y después
 #
 # No hay ALTER EXTENSION ... OWNER en Postgres 18, y DROP/CREATE de la
 # extensión se llevaría el DEFAULT de uuid-ossp y el índice GIN de pg_trgm:
@@ -35,6 +41,9 @@ SUPER=postgres
 SVCS="absence attendance audit collective_agreements contract employee events organization payroll"
 # base -> extensión de app_user que se espera en ella (y que pasa a <svc>_owner)
 EXPECTED_EXT="payroll_db:uuid-ossp collective_agreements_db:pg_trgm"
+# base:objeto (con + en vez de espacio) que puede ser de app_user al empezar;
+# cualquier otra cosa para el Job en el paso 1
+EXPECTED_OWNED="payroll_db:extension+uuid-ossp collective_agreements_db:extension+pg_trgm postgres:schema+public"
 
 # Ninguna sentencia de esta sesión al log del servidor (no hay secretos, pero
 # así queda igual que db-users.sh)
@@ -43,6 +52,9 @@ PSQL="psql -X -q -v ON_ERROR_STOP=1 -v VERBOSITY=terse -v SHOW_CONTEXT=never -v 
 Q="psql -X -At -v ON_ERROR_STOP=1 -v VERBOSITY=terse"
 RO="env PGOPTIONS=-cdefault_transaction_read_only=on $Q"   # consultas de solo lectura
 fail() { echo "ERROR: $*" >&2; exit 1; }
+# roles conocidos: el superusuario, app_user, keycloak_user y los de los 9
+# servicios. Los demás se inventarían aparte
+known="'$SUPER','$L','$KC_USER'$(for s in $SVCS; do printf ",'%s_owner','%s_app'" "$s" "$s"; done)"
 svc_dbs=$(for s in $SVCS; do printf '%s_db,' "$s"; done)
 targets="${svc_dbs}$KC_DB,postgres"   # bases en las que PUBLIC pierde CONNECT
 
@@ -92,6 +104,20 @@ printf '  %s\n' "${shared:-ninguno}"
 case "$shared" in ''|'database postgres') ;; *) fail "$L es dueño de objetos compartidos que no son la base postgres" ;; esac
 $RO -d postgres -c "SELECT '  permiso en ' || pg_describe_object(classid, objid, objsubid) FROM pg_shdepend
   WHERE dbid = 0 AND refclassid = 'pg_authid'::regclass AND refobjid = '$L'::regrole AND deptype <> 'o'"
+echo "-- otros roles (ni del superusuario, ni de app_user, ni de keycloak_user, ni de los 9 servicios): solo se inventarían"
+# contraseña=t/f dice si tiene una puesta, nunca cuál
+$RO -d postgres -c "SELECT format('  %s: login=%s contraseña=%s superuser=%s createdb=%s createrole=%s replication=%s bypassrls=%s caduca=%s miembro_de=%s sesiones=%s',
+    a.rolname, a.rolcanlogin, a.rolpassword IS NOT NULL, a.rolsuper, a.rolcreatedb, a.rolcreaterole, a.rolreplication, a.rolbypassrls,
+    coalesce(a.rolvaliduntil::text, '-'),
+    coalesce((SELECT string_agg(m.roleid::regrole::text, ',') FROM pg_auth_members m WHERE m.member = a.oid), '-'),
+    (SELECT count(*) FROM pg_stat_activity s WHERE s.usename = a.rolname))
+  || coalesce(' entra_en=' || (SELECT string_agg(d.datname, ',' ORDER BY d.datname) FROM pg_database d
+                               WHERE d.datallowconn AND NOT d.datistemplate AND has_database_privilege(a.oid, d.oid, 'CONNECT')), ' entra_en=-')
+  || coalesce(' crea_esquemas_en=' || (SELECT string_agg(d.datname, ',' ORDER BY d.datname) FROM pg_database d
+                               WHERE d.datallowconn AND NOT d.datistemplate AND has_database_privilege(a.oid, d.oid, 'CREATE')), '')
+  || coalesce(' dueño_de=' || (SELECT string_agg(pg_describe_object(classid, objid, objsubid), ',') FROM pg_shdepend
+                               WHERE dbid = 0 AND refclassid = 'pg_authid'::regclass AND refobjid = a.oid AND deptype = 'o'), '')
+  FROM pg_authid a WHERE a.rolname !~ '^pg_' AND a.rolname NOT IN ($known) ORDER BY a.rolname"
 
 for db in $($RO -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate ORDER BY 1"); do
   echo "-- base $db"
@@ -105,9 +131,23 @@ for db in $($RO -d postgres -c "SELECT datname FROM pg_database WHERE datallowco
       AND refclassid = 'pg_authid'::regclass AND refobjid = '$L'::regrole AND deptype <> 'o' ORDER BY 1"
   $RO -d "$db" -c "SELECT '  extensión ' || extname || ' (dueño ' || pg_get_userbyid(extowner) || ')' FROM pg_extension WHERE extname <> 'plpgsql' ORDER BY 1"
   $RO -d "$db" -c "SELECT '  privilegios por defecto de $L: ' || count(*) FROM pg_default_acl WHERE defaclrole = '$L'::regrole"
-  allowed=""
-  for e in $EXPECTED_EXT; do [ "${e%%:*}" = "$db" ] && allowed="extension ${e#*:}"; done
-  [ -z "$owned" ] || [ "$owned" = "$allowed" ] || fail "$L es dueño de algo inesperado en $db: $owned"
+  # los otros roles en esta base: de qué son dueños y en qué tienen permisos
+  $RO -d "$db" -c "SELECT format('  otro rol %s: dueño de %s, permisos en %s%s', r.rolname,
+        count(*) FILTER (WHERE d.deptype = 'o'), count(*) FILTER (WHERE d.deptype = 'a'),
+        ' (' || left(string_agg(pg_describe_object(d.classid, d.objid, d.objsubid), ', ' ORDER BY d.deptype, d.objid), 300) || ')')
+    FROM pg_shdepend d JOIN pg_roles r ON r.oid = d.refobjid
+    WHERE d.dbid = (SELECT oid FROM pg_database WHERE datname = current_database()) AND d.refclassid = 'pg_authid'::regclass
+      AND r.rolname !~ '^pg_' AND r.rolname NOT IN ($known)
+    GROUP BY r.rolname ORDER BY 1"
+  unexpected=$(printf '%s\n' "$owned" | while IFS= read -r o; do
+    [ -n "$o" ] || continue
+    ok=0
+    for e in $EXPECTED_OWNED; do
+      [ "${e%%:*}" = "$db" ] && [ "$(printf '%s' "${e#*:}" | tr + ' ')" = "$o" ] && ok=1
+    done
+    [ "$ok" = 1 ] || printf '%s; ' "$o"
+  done)
+  [ -z "$unexpected" ] || fail "$L es dueño de algo inesperado en $db: $unexpected"
 done
 
 echo "-- comprobaciones previas"
@@ -136,6 +176,10 @@ CREATE TEMP TABLE before_acl AS SELECT datname, grantee, priv FROM db_acl;
 
 SELECT format('ALTER DATABASE postgres OWNER TO %I', :'super')
 FROM pg_database WHERE datname = 'postgres' AND datdba = :'legacy'::regrole \gexec
+-- su esquema public, al dueño por defecto desde PG 15 (pg_database_owner: el
+-- dueño de la base, que ahora es el superusuario)
+SELECT 'ALTER SCHEMA public OWNER TO pg_database_owner'
+FROM pg_namespace WHERE nspname = 'public' AND nspowner = :'legacy'::regrole \gexec
 SELECT format('REVOKE CONNECT ON DATABASE %I FROM PUBLIC', datname)
 FROM pg_database WHERE datname = ANY (string_to_array(:'targets', ',')) AND has_database_privilege('public', oid, 'CONNECT')
 ORDER BY 1 \gexec
@@ -186,6 +230,12 @@ FROM (SELECT 1 FROM before_db b JOIN pg_database a ON a.oid = b.oid WHERE a.datd
                                EXCEPT SELECT datname, grantee, priv FROM db_acl) g) c \gset
 \echo '  ' :status
 SQL
+# después de la transacción: en la base postgres, app_user ya no es dueño de nada
+left=$($RO -d postgres -c "SELECT coalesce(string_agg(pg_describe_object(classid, objid, objsubid), ', '), '') FROM pg_shdepend
+  WHERE dbid IN (0, (SELECT oid FROM pg_database WHERE datname = 'postgres')) AND refclassid = 'pg_authid'::regclass
+    AND refobjid = '$L'::regrole AND deptype = 'o'")
+[ -z "$left" ] || fail "en la base postgres (o compartido), $L sigue siendo dueño de: $left"
+echo "  base postgres: $L ya no es dueño de nada"
 
 echo "== 3. extensiones de $L (REASSIGN, una transacción por base)"
 for e in $EXPECTED_EXT; do
@@ -237,6 +287,54 @@ DO $$ BEGIN RAISE EXCEPTION 'objetos inesperados de app_user'; END $$;
 SQL
 done
 
+echo "== 3b. permisos de $L en el esquema public (una transacción por base)"
+for db in $($RO -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate ORDER BY 1"); do
+  $PSQL -1 -d "$db" -v db="$db" <<'SQL'
+SELECT EXISTS (SELECT FROM pg_namespace n, aclexplode(n.nspacl) e
+               WHERE n.nspname = 'public' AND e.grantee = :'legacy'::regrole) AS has_grant \gset
+\if :has_grant
+-- ACL del esquema de antes, sin las entradas de app_user: tiene que quedar así
+CREATE TEMP TABLE before_acl AS
+  SELECT e.grantor, e.grantee, e.privilege_type, e.is_grantable
+  FROM pg_namespace n, aclexplode(n.nspacl) e WHERE n.nspname = 'public' AND e.grantee <> :'legacy'::regrole;
+-- Un superusuario revoca como el dueño del esquema, así que solo quita lo que
+-- concedió el dueño. Si lo concedió otro rol, se para y se mira a mano (SET
+-- ROLE a ese rol no es fiable: si es dueño de la base, también es miembro de
+-- pg_database_owner, y Postgres puede revocar como cualquiera de los dos).
+-- Sin CASCADE: si app_user lo había vuelto a conceder a otros, falla
+SELECT coalesce(string_agg(DISTINCT e.grantor::regrole::text, ', '), '') AS other_grantors
+FROM pg_namespace n, aclexplode(n.nspacl) e
+WHERE n.nspname = 'public' AND e.grantee = :'legacy'::regrole AND e.grantor <> n.nspowner \gset
+SELECT :'other_grantors' <> '' AS has_other \gset
+\if :has_other
+\echo ERROR: :db ', esquema public: permisos de' :legacy 'concedidos por' :other_grantors '(no por el dueño): revisar a mano'
+DO $$ BEGIN RAISE EXCEPTION 'permisos concedidos por otro rol'; END $$;
+\endif
+SELECT format('REVOKE ALL ON SCHEMA public FROM %I', :'legacy') \gexec
+SELECT coalesce(string_agg(x, '; '), '') AS unexpected FROM (
+  SELECT 'sigue: ' || e.privilege_type x FROM pg_namespace n, aclexplode(n.nspacl) e
+  WHERE n.nspname = 'public' AND e.grantee = :'legacy'::regrole
+  UNION ALL
+  SELECT format('cambia: %s -> %s %s', grantor::regrole, grantee::regrole, privilege_type) FROM (
+    (SELECT * FROM before_acl
+     EXCEPT SELECT e.grantor, e.grantee, e.privilege_type, e.is_grantable
+            FROM pg_namespace n, aclexplode(n.nspacl) e WHERE n.nspname = 'public')
+    UNION ALL
+    (SELECT e.grantor, e.grantee, e.privilege_type, e.is_grantable
+     FROM pg_namespace n, aclexplode(n.nspacl) e WHERE n.nspname = 'public'
+     EXCEPT SELECT * FROM before_acl)) c
+) u \gset
+SELECT :'unexpected' <> '' AS has_unexpected \gset
+\if :has_unexpected
+\echo ERROR: :db ', esquema public:' :unexpected
+DO $$ BEGIN RAISE EXCEPTION 'el ACL del esquema public no queda como debe'; END $$;
+\endif
+\echo '  ' :db ': revocados los permisos de' :legacy 'en el esquema public'
+\endif
+SQL
+done
+echo "  (en las demás bases no tenía ninguno)"
+
 echo "== 4. comprobaciones (solo lectura)"
 echo "-- dueños"
 $RO -d postgres -F ' ' -c "SELECT '  ' || datname, pg_get_userbyid(datdba) FROM pg_database WHERE NOT datistemplate ORDER BY 1"
@@ -260,6 +358,10 @@ for r in $(for s in $SVCS; do printf '%s_app %s_owner ' "$s" "$s"; done) $KC_USE
   printf '  %-30s %-28s %s\n' "$r" "$can" "$mark"
 done
 [ "$bad" = 0 ] || fail "algún rol puede conectarse donde no debe"
+$RO -d postgres -c "SELECT format('  %-30s %-28s (otro rol, sin comprobar)', a.rolname,
+    coalesce((SELECT string_agg(d.datname, ' ' ORDER BY d.datname) FROM pg_database d
+              WHERE d.datallowconn AND NOT d.datistemplate AND has_database_privilege(a.oid, d.oid, 'CONNECT')), '-'))
+  FROM pg_roles a WHERE a.rolname !~ '^pg_' AND a.rolname NOT IN ($known) ORDER BY 1"
 
 echo "-- $L"
 $RO -d postgres -c "SELECT format('  createdb=%s superuser=%s login=%s', rolcreatedb, rolsuper, rolcanlogin) FROM pg_roles WHERE rolname = '$L'"
@@ -272,6 +374,11 @@ for db in $($RO -d postgres -c "SELECT datname FROM pg_database WHERE datallowco
 done
 [ "$left" = 0 ] || fail "$L sigue siendo dueño de algo"
 echo "  no es dueño de nada"
+for db in $($RO -d postgres -c "SELECT datname FROM pg_database WHERE datallowconn ORDER BY 1"); do
+  c=$($RO -d "$db" -c "SELECT count(*) FROM pg_namespace n, aclexplode(n.nspacl) e WHERE n.nspname = 'public' AND e.grantee = '$L'::regrole")
+  [ "$c" = 0 ] || fail "$db: $L sigue con permisos en el esquema public"
+done
+echo "  sin permisos en ningún esquema public"
 $RO -d payroll_db -c "SELECT '  payroll_db: ' || extname || ' de ' || pg_get_userbyid(extowner) FROM pg_extension WHERE extname = 'uuid-ossp'"
 $RO -d collective_agreements_db -c "SELECT '  collective_agreements_db: ' || extname || ' de ' || pg_get_userbyid(extowner) FROM pg_extension WHERE extname = 'pg_trgm'"
 
