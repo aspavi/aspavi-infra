@@ -1,13 +1,17 @@
 ### Limpieza final de app_user (ASP-4 fase 1, paso 4). Ver README.md,
 ### "Limpieza de app_user". Se ejecuta una vez: el Job terminado se queda en
 ### el clúster y ArgoCD no lo relanza. Es idempotente: para repetirlo, se
-### borra el Job y ArgoCD lo vuelve a crear. Si para (algo inesperado), el
-### Job falla sin reintentos y la app `postgresql` sale Degraded; el log dice
-### por qué.
+### borra el Job y ArgoCD lo vuelve a crear, o se le cambia el nombre (-2,
+### -3...). Si para (algo inesperado), el Job falla sin reintentos y la app
+### `postgresql` sale Degraded; el log dice por qué.
+###
+### -2: el primero (postgresql-app-user-cleanup) paró en el paso 1 por el
+### esquema public de la base postgres, sin tocar nada. Sigue en el clúster
+### (la app no poda) hasta que alguien lo borre; ver README.
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: postgresql-app-user-cleanup
+  name: postgresql-app-user-cleanup-2
   namespace: rrhh-data
 spec:
   backoffLimit: 0
