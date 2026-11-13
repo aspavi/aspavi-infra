@@ -19,6 +19,7 @@ clúster.
 | `app-user-cleanup.sh`, `app-user-cleanup-job.yaml` | Limpieza final de `app_user` (ConfigMap `postgresql-app-user-cleanup-script`) |
 | `legacy-roles-lockdown.sh`, `legacy-roles-lockdown-job.yaml` | Desactiva los roles sueltos (ConfigMap `postgresql-legacy-roles-lockdown-script`) |
 | `asp4-fase2-precheck.sh`, `asp4-fase2-precheck-job.yaml` | Comprobación previa de ASP-4 fase 2, solo lectura (ConfigMap `postgresql-asp4-fase2-precheck-script`) |
+| `tenant-backup/` | Copias diarias por tenant, cifradas, al bucket (ASP-43): CronJob `postgresql-tenant-backup`, rol `backup_reader` y su Job, `tenants.conf` y `settings.conf`. Ver "Copias por tenant" |
 
 ## Copia de seguridad puntual
 
@@ -506,3 +507,303 @@ kubectl -n rrhh-data logs job/postgresql-asp4-fase2-precheck
 Job (`-2`, `-3`...). Cuando un servicio ya tenga su migración nueva, su consulta
 puede fallar o dejar de tener sentido: se quita del script en esa misma PR.
 
+
+## Copias por tenant (ASP-43)
+
+Cada noche (03:30, hora de Madrid) el CronJob `postgresql-tenant-backup` hace,
+por cada tenant con copia, **un objeto cifrado** en Hetzner Object Storage:
+
+```
+s3://<bucket>/backups/<tenant>/<tenant>-<AAAAMMDDTHHMMSSZ>.tar.gz.age
+```
+
+El bucket es compartido (también guarda los ficheros de DUD-7): las copias van
+solo bajo `backups/`, y el CronJob no lee, escribe ni borra nada fuera de
+`backups/<tenant>/` con ese patrón de nombre.
+
+| Fichero (en `tenant-backup/`) | Qué es |
+|---|---|
+| `tenants.conf` | Qué tenants tienen copia (`on`/`off`) y, si no es la de por defecto, su retención. ConfigMap `postgresql-tenant-backup-config` |
+| `settings.conf` | Bucket, endpoint, región, prefijo y retención por defecto. ConfigMap `postgresql-tenant-backup-settings` |
+| `cronjob.yaml` | El CronJob, con `suspend: true` hasta la puesta en marcha (abajo) |
+| `backup-reader-job.yaml`, `backup-reader-rbac.yaml` | El rol `backup_reader` (hook Sync de la app) y sus permisos para crear su Secret |
+| `backup-reader-secret.sh`, `backup-reader.sh` | Los dos pasos de ese Job |
+| `fetch-age.sh`, `dump.sh`, `restore-check.sh`, `kc-export.sh`, `upload.py` | Los pasos del CronJob. ConfigMap `postgresql-tenant-backup-scripts` |
+
+Y en `scripts/backup/`, para el usuario: `create-secret.py` (el Secret, desde
+el Llavero) y `restore-test.py` (prueba de restauración en local, con la clave
+privada).
+
+### Por qué por tenant y no un `pg_dump`
+
+test y acme comparten las mismas bases (RLS por `tenant_id`): un `pg_dump` de
+una base lleva los dos tenants mezclados, y el de la base `keycloak` todos los
+realms, `master` incluido. Así que cada copia lleva solo lo de su tenant:
+
+| En el `.tar.gz` | Qué es |
+|---|---|
+| `pg/<base>/schema.dump` | `pg_dump --schema-only -Fc` de cada base de servicio: el esquema para restaurar sobre una base vacía |
+| `pg/<base>/<esquema>.<tabla>.copy` | `COPY` en texto. Las tablas con `tenant_id`, solo las filas del tenant; las que no lo tienen, enteras |
+| `pg/<base>/sequences.tsv` | El valor de cada secuencia |
+| `manifest.tsv` | Por tabla: base, tipo (`tenant` o `global`), filas, sha256 del fichero y columnas |
+| `backup.info` | Tenant, fecha, versiones, la última migración de Flyway de cada base y cuántos usuarios lleva el realm |
+| `keycloak/rrhh-tenant-<id>-realm.json` | El realm, con sus usuarios y sus credenciales (`kc.sh export --users realm_file`) |
+
+- **Tablas globales** (sin `tenant_id`: hoy `flyway_schema_history` de cada
+  base y el catálogo `ccaa`/`province`/`locality` de collective-agreements)
+  van **dentro de cada copia**, no aparte en `backups/_global/`. Así cada
+  copia se restaura sola sobre un esquema vacío (`work_calendar` apunta a
+  `locality`), con las globales de esa misma noche y la misma retención. Una
+  carpeta `_global` con su propia rotación podría quedarse sin la versión con
+  la que se hizo una copia vieja de acme. Cuestan unos cientos de KB
+  comprimidos por copia.
+- **Ninguna tabla global lleva datos de un tenant**: si una tabla sin
+  `tenant_id` tiene una FK hacia una con `tenant_id` (una tabla hija sin
+  `tenant_id`, lo que quita la fase 2 de ASP-4), `dump.sh` para la copia en vez
+  de copiarla entera y mezclar tenants.
+- **Coherencia**: todas las tablas de una base salen de la misma transacción
+  `REPEATABLE READ`; las bases, una tras otra (son servicios distintos).
+- **Keycloak**: `kc.sh export` no está soportado con el servidor arrancado
+  contra la misma base ("Your Keycloak server instance must not be started
+  when invoking this command", <https://www.keycloak.org/server/importExport>).
+  Sin parar Keycloak: `pg_dump` de la base `keycloak` (una foto consistente),
+  restaurada en el Postgres temporal del pod, y `kc.sh export` de cada realm
+  desde esa copia, en la que no hay ningún servidor. Ni el volcado ni los
+  realms de otros tenants salen del pod.
+
+### Cómo funciona
+
+Un pod por noche (`cronjob.yaml`). Lo que está en claro vive en `emptyDir` en
+memoria y desaparece con el pod. Si un paso falla, los siguientes no corren y
+esa noche no se sube nada (el Job sale en error):
+
+1. `tools`: baja age (versión y sha256 fijados en `fetch-age.sh`; si el sha256
+   no coincide, para).
+2. `scratch-pg` (sidecar): un Postgres temporal que solo escucha en
+   `127.0.0.1` del pod. Nunca es la base real.
+3. `dump` (`dump.sh`), como `backup_reader`:
+   - decide los tenants: los realms `rrhh-tenant-*` más los de `tenants.conf`.
+     Un realm que no está en `tenants.conf` **tiene copia** (el valor por
+     defecto es `on`), y el log lo avisa;
+   - copia cada base de servicio como arriba, y avisa si hay filas con un
+     `tenant_id` que no es de ningún tenant conocido (no van en ninguna copia);
+   - restaura la base `keycloak` en el Postgres temporal;
+   - **prueba de restauración**: restaura la copia de cada tenant en el
+     Postgres temporal (`restore-check.sh`): esquema, `COPY` de cada tabla y
+     secuencias. Después comprueba el sha256 de cada fichero, que cada tabla
+     tenga las filas del manifiesto, que no falte ninguna tabla del esquema y
+     que se cumplan **todas** las FKs (la copia de un tenant no apunta fuera de
+     sí misma ni de las globales). Si algo no cuadra, para.
+4. `kc-export` (`kc-export.sh`): el realm de cada tenant, desde la copia de
+   keycloak. La imagen tiene que ser la misma versión que el Keycloak que
+   escribió la base, y lo comprueba: **al subir Keycloak, sube también la de
+   `cronjob.yaml`** (y la de `scripts/backup/restore-test.py`).
+5. `upload` (`upload.py`):
+   - comprueba el JSON del realm;
+   - empaqueta y cifra con age, por una tubería, para la clave **pública** del
+     Secret: el `.tar.gz` en claro no llega a escribirse, y en el bucket no hay
+     nada en claro, tampoco el manifiesto;
+   - sube y comprueba con HEAD el tamaño y el sha256;
+   - rota. Cada tenant va por separado: si uno falla, los demás se suben igual
+     y el pod acaba en error.
+
+El log solo lleva nombres de base, tabla y tenant, recuentos, tamaños y
+nombres de objeto: ni datos ni claves.
+
+### El rol `backup_reader`
+
+Lo crea el Job `postgresql-backup-reader`, hook `Sync` de la app `postgresql`:
+corre en cada sync y es idempotente. Su contraseña está en el Secret
+`rrhh-data/postgresql-backup-reader`, que el Job crea si falta. El rol tiene:
+
+- `LOGIN`, `BYPASSRLS` y nada más: ni superusuario, ni `CREATEDB`, ni
+  `CREATEROLE`, ni `REPLICATION`. Como mucho 2 conexiones;
+- miembro de `pg_read_all_data`, el rol predefinido de Postgres que da
+  `SELECT` en todas las tablas y secuencias de todas las bases, también las
+  que se creen después. **No cambia el ACL de ninguna tabla**, tampoco las de
+  Keycloak;
+- `default_transaction_read_only = on`;
+- `CONNECT` en cada base `*_db`. `keycloak` y `postgres` ya dan `CONNECT` a
+  `PUBLIC`, y su ACL no se toca.
+
+Al final, el Job entra como `backup_reader` y comprueba que:
+
+- ve todas las filas de `employees`, que tiene FORCE RLS;
+- un `DELETE` le da `permission denied`.
+
+`dump.sh` también comprueba, antes de copiar nada, que el rol tiene `BYPASSRLS`
+y no es superusuario. Sin `BYPASSRLS`, el RLS filtraría las filas sin dar error
+y las copias saldrían vacías.
+
+Una base de servicio nueva recibe su `CONNECT` en el siguiente sync de la app
+`postgresql`. Hasta entonces, `dump.sh` para con "backup_reader no entra en
+<base>".
+
+### Qué tenants: `tenants.conf`
+
+```
+acme   on
+test   off   # entorno de pruebas
+demo   off   # solo la prueba de alta de ASP-21
+```
+
+- `<tenant> on|off [diarias/semanales/mensuales]`. Sin retención, la de
+  `settings.conf` (7/4/6).
+- Un tenant con realm y sin línea tiene copia (el valor por defecto) y el log
+  lo avisa cada noche. Para que un tenant **no** tenga copia hace falta su
+  línea con `off`. `onboard.py` imprime la línea (`--backups on|off`; ver
+  `docs/adding-a-new-tenant.md`).
+- Activar, desactivar o cambiar la retención es una PR a este fichero: el pod
+  de cada noche lee el ConfigMap, así que no se reinicia ni se redespliega nada.
+- Pasar un tenant a `off` deja sus copias en el bucket: ya no se rotan. Si hay
+  que borrarlas, se borran a mano.
+
+### Retención
+
+Por tenant, N diarias, N semanales y N mensuales, **sin solaparse**:
+
+- las N copias más recientes, una por día;
+- de las anteriores a la última diaria, la más reciente de cada una de N
+  semanas ISO;
+- de las anteriores a la última semanal, la más reciente de cada uno de N
+  meses.
+
+Con 7/4/6 y una copia al día quedan **17 copias**, que cubren unos siete meses
+y medio. Una simulación de un año de rotación diaria nunca pasa de 17.
+
+- Dos copias el mismo día (una ejecución a mano): se queda la más reciente.
+- Solo se rota un tenant cuya subida de esa noche ha ido bien.
+- Solo se borran objetos de `backups/<tenant>/` con el patrón de nombre de
+  arriba.
+
+### Puesta en marcha (el usuario)
+
+1. **Claves S3**: en <https://console.hetzner.com>, en el proyecto del bucket,
+   Security → S3 credentials → Generate credentials. Se guardan en el Llavero:
+   ```bash
+   security add-generic-password -a aspavi -s BACKUP_S3_ACCESS_KEY -w   # pide el valor
+   security add-generic-password -a aspavi -s BACKUP_S3_SECRET_KEY -w
+   ```
+2. **Clave de age** (`brew install age`). La privada no va nunca al clúster:
+   ```bash
+   age-keygen -o ~/aspavi-backup-age.key        # imprime la pública: "Public key: age1..."
+   security add-generic-password -a aspavi -s BACKUP_AGE_RECIPIENT -w "age1...la pública..."
+   security add-generic-password -a aspavi -s BACKUP_AGE_IDENTITY -w "$(grep AGE-SECRET-KEY ~/aspavi-backup-age.key)"
+   ```
+   Guarda **otra copia de la privada fuera de este Mac** (gestor de
+   contraseñas o papel) y borra `~/aspavi-backup-age.key`. **Sin la clave
+   privada, las copias no se pueden descifrar.**
+3. **El Secret** `rrhh-data/postgresql-tenant-backup`:
+   ```bash
+   python3 scripts/backup/create-secret.py           # dry-run: qué encuentra
+   python3 scripts/backup/create-secret.py --apply
+   ```
+4. **Una PR** que rellena `S3_BUCKET`, `S3_ENDPOINT`
+   (`https://<ubicación>.your-objectstorage.com`, p. ej. `fsn1`) y `S3_REGION`
+   (la ubicación) en `settings.conf`, y pone `suspend: false` en `cronjob.yaml`.
+   Con `suspend: true` ya se puede lanzar a mano (paso 5) antes de esa PR.
+5. **La primera, a mano**, y la prueba de restauración desde el bucket:
+   ```bash
+   export KUBECONFIG=~/.kube/aspavi.kubeconfig
+   kubectl -n rrhh-data create job --from=cronjob/postgresql-tenant-backup tenant-backup-primera
+   kubectl -n rrhh-data logs job/tenant-backup-primera --all-containers --prefix
+   python3 scripts/backup/restore-test.py acme --keycloak
+   ```
+
+### Comprobar
+
+```bash
+export KUBECONFIG=~/.kube/aspavi.kubeconfig
+kubectl -n rrhh-data get cronjob postgresql-tenant-backup          # LAST SCHEDULE
+kubectl -n rrhh-data get jobs -l app=postgresql-tenant-backup      # o los de la plantilla
+kubectl -n rrhh-data logs job/<job> --all-containers --prefix
+python3 scripts/backup/restore-test.py acme --keycloak             # de punta a punta, en local
+```
+
+`restore-test.py` hace en local lo mismo que el pod pero con lo que hay de
+verdad en el bucket:
+
+- baja la copia más reciente (o `--key`, o `--file`);
+- la descifra con la clave privada (`BACKUP_AGE_IDENTITY` o `--identity`);
+- la restaura en un Postgres de Docker sin red, con `restore-check.sh`;
+- con `--keycloak`, importa el realm en un Keycloak de Docker (solo
+  `127.0.0.1`) y compara usuarios y clients.
+
+La copia descifrada son datos personales en claro: va a un directorio temporal
+que se borra al acabar.
+
+### Restaurar un tenant en la base real (documentado, no ejecutado)
+
+Sustituye **solo** las filas de un tenant y no toca las de los demás. Lo decide
+el usuario y lo ejecuta quien tenga el superusuario. Antes:
+
+1. `restore-test.py <tenant> --key <objeto> --keep` sobre la copia elegida:
+   tiene que dar BIEN, y deja la copia descifrada en un directorio.
+2. **Flyway**: la `flyway.<base>` de `backup.info` tiene que ser la versión
+   actual de cada base. Si no lo es, el esquema ha cambiado desde la copia y
+   **no se restaura así**: hay que restaurarla en un Postgres temporal,
+   migrarla a la versión actual y sacar de ahí los datos.
+3. Una copia completa puntual antes (`backup-job-<fecha>.yaml`, como las de
+   arriba).
+
+Por cada base, como superusuario y en **una sola transacción**:
+
+```sql
+BEGIN;
+-- Sin triggers ni comprobación de FKs durante la carga: así da igual el orden y
+-- entran las FKs circulares (time_entry <-> time_correction). LOCAL: solo
+-- esta transacción.
+SET LOCAL session_replication_role = replica;
+-- 1. borrar las filas del tenant de cada tabla de tipo "tenant" del manifiesto
+--    (en replica no hay ON DELETE CASCADE: se borran todas a mano)
+DELETE FROM public.<tabla> WHERE tenant_id = '<tenant>';         -- una por tabla
+-- 2. cargarlas de la copia: solo las de tipo "tenant", NUNCA las globales
+\copy public.<tabla> (<columnas del manifiesto>) FROM '<dir>/pg/<base>/public.<tabla>.copy'
+-- 3. comprobar antes del COMMIT: filas de cada tabla del tenant = manifiesto,
+--    y las FKs (la consulta de restore-check.sh) dan 0
+COMMIT;
+```
+
+- **Las FKs compuestas** `(x_id, tenant_id) → padre (id, tenant_id)` de la
+  fase 2 de ASP-4 garantizan que las filas de un tenant solo apuntan a filas
+  del mismo tenant o a tablas globales. Por eso borrar y cargar solo ese
+  tenant deja el conjunto cerrado, y la comprobación de FKs del paso 3 lo
+  confirma antes del `COMMIT`.
+- **Sin `replica`** (si no se puede ser superusuario): cargar en orden de FKs,
+  padres antes que hijos, y borrar en el orden inverso. El orden sale de
+  `pg_constraint` (`contype = 'f'`, `conrelid` depende de `confrelid`). Las
+  FKs circulares de attendance obligan a cargar con la columna a `NULL` y
+  rellenarla después con un `UPDATE`.
+- **No se tocan las secuencias**: ya van por delante. `sequences.tsv` solo
+  sirve para una base vacía.
+- **Las tablas `outbox`** (employee, organization, collective-agreements) **no
+  se restauran**: cargar sus filas viejas volvería a publicar eventos ya
+  enviados. Se quedan como están.
+- Los servicios siguen arrancados. Si el tenant está usando la aplicación
+  mientras tanto, lo que escriba entre la copia y la restauración se pierde:
+  avisar antes.
+
+**Keycloak** (por el port-forward de `scripts/keycloak/README.md`, como admin
+de master): borrar el realm `rrhh-tenant-<tenant>` y crearlo de nuevo con el
+JSON de la copia (consola: Create realm → Resource file, o
+`POST /admin/realms` con el JSON). Entran sus usuarios con sus contraseñas;
+probado en local con Keycloak 26.5.5. Se cierran todas las sesiones del realm.
+El secret del client `rrhh-iam-service` vuelve al de la copia: si se ha
+cambiado después, hay que volver a ponerlo
+(`scripts/keycloak/bootstrap-iam-realm.py`).
+
+### Límites
+
+- **Las claves S3 de Hetzner son del proyecto**: valen para todos sus buckets,
+  también para los ficheros de DUD-7. El CronJob solo borra objetos de
+  `backups/<tenant>/` con su patrón de nombre, pero quien tenga la clave puede
+  borrar cualquier cosa del bucket. Contra eso (o contra un clúster
+  comprometido), Object Lock o versionado en el bucket; tarea aparte.
+- **age se baja de GitHub cada noche**, con el sha256 fijado: si GitHub no
+  responde, esa noche falla (y lo dice el Job).
+- **La imagen de Keycloak** de `kc-export` tiene que ser la misma versión que
+  el Keycloak del clúster. `kc-export.sh` compara la de su imagen con la de la
+  base (`migration_model`) y, si no coinciden, para y dice qué imagen poner:
+  al subir Keycloak, la primera noche falla hasta que se sube también aquí.
+- Este CronJob no tiene alertas propias: un Job fallido se ve en
+  `kubectl get jobs`.

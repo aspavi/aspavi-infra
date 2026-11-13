@@ -1,0 +1,196 @@
+### Copias diarias por tenant a Hetzner Object Storage (ASP-43). Ver README.md,
+### "Copias por tenant".
+###
+### Un pod por noche, todo en él; lo que está en claro vive en emptyDir en
+### memoria y desaparece con el pod:
+###   1. `tools` (init): baja age, versión y sha256 fijados (fetch-age.sh)
+###   2. `scratch-pg` (sidecar): un Postgres temporal en 127.0.0.1, solo de
+###      este pod; nunca la base real
+###   3. `dump` (init): como backup_reader, la copia de cada tenant con copia,
+###      la base keycloak al Postgres temporal y la prueba de restauración de
+###      cada copia en él (dump.sh, restore-check.sh)
+###   4. `kc-export` (init): el realm de cada tenant, desde la copia de keycloak
+###      (kc-export.sh)
+###   5. `upload`: cifra con age (clave pública), sube y rota (upload.py)
+### Si un paso falla, los siguientes no corren y no se sube nada de esa noche.
+###
+### suspend: true hasta que el usuario cree el Secret postgresql-tenant-backup
+### y se rellenen bucket, endpoint y región en settings.conf (ver README.md).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgresql-tenant-backup
+  namespace: rrhh-data
+spec:
+  schedule: "30 3 * * *"
+  timeZone: Europe/Madrid
+  suspend: true
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app: postgresql-tenant-backup
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          nodeSelector:
+            kubernetes.io/arch: amd64 # el age que baja fetch-age.sh es el de linux-amd64
+          securityContext:
+            runAsUser: 70 # postgres en la imagen alpine
+            runAsGroup: 70
+            runAsNonRoot: true
+            fsGroup: 70
+            seccompProfile:
+              type: RuntimeDefault
+          initContainers:
+            - name: tools
+              image: alpine/k8s:1.34.1
+              command: ["sh", "/script/fetch-age.sh"]
+              securityContext: &hardened
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests: { cpu: 10m, memory: 32Mi }
+                limits: { cpu: 500m, memory: 128Mi }
+              volumeMounts:
+                - { name: tools, mountPath: /tools }
+                - { name: tmp, mountPath: /tmp }
+                - { name: script, mountPath: /script, readOnly: true }
+            # Sidecar (restartPolicy: Always): arranca antes de `dump`, sigue
+            # vivo durante `kc-export` y Kubernetes lo para al acabar `upload`.
+            # Solo escucha en 127.0.0.1 y sin socket: nada fuera del pod llega.
+            - name: scratch-pg
+              image: postgres:18.3-alpine
+              restartPolicy: Always
+              command:
+                - sh
+                - -c
+                - |
+                  [ -s /scratch/pgdata/PG_VERSION ] ||
+                    initdb -D /scratch/pgdata -U postgres --auth=trust --no-locale -E UTF8 > /scratch/initdb.log 2>&1 ||
+                    { cat /scratch/initdb.log; exit 1; }
+                  exec postgres -D /scratch/pgdata -c listen_addresses=127.0.0.1 -c unix_socket_directories= \
+                    -c fsync=off -c full_page_writes=off -c synchronous_commit=off
+              startupProbe:
+                exec:
+                  command: ["pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+                periodSeconds: 2
+                failureThreshold: 60
+              securityContext: *hardened
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: "1", memory: 768Mi }
+              volumeMounts:
+                - { name: scratch, mountPath: /scratch }
+                - { name: tmp, mountPath: /tmp }
+                - { name: run, mountPath: /var/run/postgresql }
+            - name: dump
+              image: postgres:18.3-alpine # misma versión que el servidor
+              command: ["sh", "/script/dump.sh"]
+              envFrom:
+                - configMapRef:
+                    name: postgresql-tenant-backup-settings
+              env:
+                - name: PGHOST
+                  value: postgresql.rrhh-data.svc.cluster.local
+                - name: PGUSER
+                  value: backup_reader
+                - name: PGDATABASE
+                  value: postgres
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-backup-reader
+                      key: password
+              securityContext: *hardened
+              resources:
+                requests: { cpu: 100m, memory: 128Mi }
+                limits: { cpu: "1", memory: 512Mi }
+              volumeMounts:
+                - { name: work, mountPath: /work }
+                - { name: tmp, mountPath: /tmp }
+                - { name: config, mountPath: /config, readOnly: true }
+                - { name: script, mountPath: /script, readOnly: true }
+            # La MISMA versión que el Keycloak del clúster (el operador,
+            # apps/keycloak): al subir Keycloak, sube también esta.
+            - name: kc-export
+              image: quay.io/keycloak/keycloak:26.5.5
+              command: ["bash", "/script/kc-export.sh"]
+              securityContext:
+                runAsUser: 70
+                # grupo 0: kc.sh export reconstruye Keycloak para Postgres y
+                # escribe en /opt/keycloak (de escritura para el grupo root)
+                runAsGroup: 0
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests: { cpu: 200m, memory: 768Mi }
+                limits: { cpu: "2", memory: 1536Mi }
+              volumeMounts:
+                - { name: work, mountPath: /work }
+                - { name: script, mountPath: /script, readOnly: true }
+          containers:
+            - name: upload
+              image: alpine/k8s:1.34.1 # python3 y botocore
+              command: ["python3", "/script/upload.py"]
+              envFrom:
+                - configMapRef:
+                    name: postgresql-tenant-backup-settings
+              env:
+                - name: HOME
+                  value: /tmp
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              securityContext: *hardened
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: "1", memory: 512Mi }
+              volumeMounts:
+                - { name: work, mountPath: /work }
+                - { name: tools, mountPath: /tools, readOnly: true }
+                - { name: tmp, mountPath: /tmp }
+                - { name: secret, mountPath: /secret, readOnly: true }
+                - { name: script, mountPath: /script, readOnly: true }
+          volumes:
+            # las copias en claro: en memoria, solo mientras vive el pod
+            - name: work
+              emptyDir:
+                medium: Memory
+                sizeLimit: 512Mi
+            # los datos del Postgres temporal (la copia de keycloak y las
+            # pruebas de restauración): también en memoria
+            - name: scratch
+              emptyDir:
+                medium: Memory
+                sizeLimit: 1Gi
+            - name: tools
+              emptyDir:
+                sizeLimit: 64Mi
+            - name: tmp
+              emptyDir:
+                sizeLimit: 64Mi
+            - name: run
+              emptyDir:
+                sizeLimit: 1Mi
+            - name: config
+              configMap:
+                name: postgresql-tenant-backup-config
+            - name: script
+              configMap:
+                name: postgresql-tenant-backup-scripts
+            # lo crea el usuario: scripts/backup/create-secret.py
+            - name: secret
+              secret:
+                secretName: postgresql-tenant-backup
+                defaultMode: 0440

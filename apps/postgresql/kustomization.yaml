@@ -15,6 +15,10 @@ resources:
   - legacy-roles-lockdown-job.yaml
   - asp4-fase2-precheck-job.yaml
   - asp4-employee-diag-job.yaml
+  # copias diarias por tenant al bucket (ASP-43)
+  - tenant-backup/backup-reader-rbac.yaml
+  - tenant-backup/backup-reader-job.yaml
+  - tenant-backup/cronjob.yaml
 configMapGenerator:
   - name: postgresql-backup-script
     namespace: rrhh-data
@@ -46,6 +50,25 @@ configMapGenerator:
     namespace: rrhh-data
     files:
       - asp4-employee-diag.sh
+  # copias por tenant (ASP-43): scripts, qué tenants y dónde
+  - name: postgresql-tenant-backup-scripts
+    namespace: rrhh-data
+    files:
+      - tenant-backup/backup-reader-secret.sh
+      - tenant-backup/backup-reader.sh
+      - tenant-backup/fetch-age.sh
+      - tenant-backup/dump.sh
+      - tenant-backup/restore-check.sh
+      - tenant-backup/kc-export.sh
+      - tenant-backup/upload.py
+  - name: postgresql-tenant-backup-config
+    namespace: rrhh-data
+    files:
+      - tenant-backup/tenants.conf
+  - name: postgresql-tenant-backup-settings
+    namespace: rrhh-data
+    envs:
+      - tenant-backup/settings.conf
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.
