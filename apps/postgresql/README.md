@@ -16,6 +16,7 @@ clúster.
 | `db-users-secrets.sh`, `db-users.sh` | Los dos pasos del Job de usuarios (ConfigMap `postgresql-db-users-scripts`) |
 | `db-users-job.template.yaml` | Plantilla del Job de cada servicio. No se sincroniza: se genera en `apps/<svc>-service/` |
 | `app-user-cleanup.sh`, `app-user-cleanup-job.yaml` | Limpieza final de `app_user` (ConfigMap `postgresql-app-user-cleanup-script`) |
+| `legacy-roles-lockdown.sh`, `legacy-roles-lockdown-job.yaml` | Desactiva los roles sueltos (ConfigMap `postgresql-legacy-roles-lockdown-script`) |
 
 ## Copia de seguridad puntual
 
@@ -347,6 +348,85 @@ ALTER ROLE app_user CREATEDB;
 `DROP OWNED BY app_user` en cada base (solo quita sus permisos) y `DROP ROLE
 app_user`. Antes hay que quitarlo de la Helm (`auth.username`; las sondas
 usan ese nombre) y del `initdb`.
+
+## Roles sueltos (ASP-4)
+
+El inventario de la limpieza de `app_user` encontró cuatro roles que no son de
+ningún servicio: `audit_user`, `organization_user`, `payroll_user` y
+`keycloak`. Los cuatro eran `LOGIN` con contraseña, sin sesiones y sin nada
+propio, con `CONNECT`, `CREATE` y `TEMPORARY` (`CTc`) en una base, y los tres
+primeros con permisos en el esquema `public` de la base `postgres`.
+
+- No los crea nada del repo (ni la Helm, ni `postgresql-init-secret`, ni los
+  antiguos `db-bootstrap-job.yaml`), y ningún workload ni Secret del clúster
+  los usa. Los tres `*_user` se llaman como el usuario del docker-compose y
+  de la CI de cada servicio; seguramente se crearon a mano al principio.
+  Keycloak entra como `keycloak_user`, no como `keycloak`.
+- Riesgo: con `LOGIN` y `CREATE` en la base de un servicio, quien tenga la
+  contraseña puede crear esquemas en ella desde cualquier pod. Algunas
+  contraseñas de local están publicadas en los README de los servicios.
+
+El Job `postgresql-legacy-roles-lockdown` (`legacy-roles-lockdown.sh`, como
+el superusuario) los deja sin permisos y `NOLOGIN`. **No** los borra ni les
+cambia la contraseña: se quedan desactivados una temporada, y el `DROP ROLE`
+va en otra PR.
+
+1. **Inventario**, solo lectura: atributos, pertenencia a roles, sesiones,
+   permisos y objetos por base, el ACL de cada base y esquema donde aparecen,
+   y las sentencias exactas para volver atrás. **Para** sin tocar nada si
+   alguno tiene sesiones abiertas (tres muestras), es dueño de algo, tiene
+   permisos en algo que no sea una base o el esquema `public` (tablas,
+   secuencias, funciones...), es miembro de otro rol o tiene miembros, tiene
+   atributos de administrador, o si no hay ninguna sesión de `keycloak_user`
+   en `keycloak` (no se podría confirmar que Keycloak no entra como
+   `keycloak`).
+2. **Una transacción por base:** `REVOKE ALL ON DATABASE` y `REVOKE ALL ON
+   SCHEMA public` de los cuatro, solo de lo que concedió el dueño (si lo
+   concedió otro rol, para y se mira a mano). Después, en el ACL de la base y
+   del esquema solo pueden faltar entradas de los cuatro, y en `keycloak`,
+   `keycloak_user` tiene que seguir pudiendo conectarse. Si no, ROLLBACK de
+   esa base. Si una base falla, las anteriores quedan hechas y el Job se
+   puede repetir.
+3. **`ALTER ROLE … NOLOGIN`** de los cuatro, en una transacción.
+4. **Comprobaciones:** ninguno puede iniciar sesión ni tiene `CONNECT` en
+   ninguna base, no les queda ningún permiso ni objeto (un `DROP ROLE` ya no
+   encontraría nada), y la matriz de `CONNECT` de los 9 servicios y
+   `keycloak_user` es la misma que antes.
+
+```bash
+kubectl -n rrhh-data logs job/postgresql-legacy-roles-lockdown
+```
+
+Es idempotente: una segunda vez no cambia nada ("nada que cambiar") y termina
+bien.
+
+**Volver atrás**, como superusuario (pod de restauración). Los permisos de
+las bases son los del log del 2026-11-13 (`CTc`, concedidos por el dueño);
+los del esquema `public` de `postgres`, los del bloque "para volver atrás"
+del log del Job (el inventario anterior solo decía que había un permiso;
+`GRANT ALL ON SCHEMA` da `USAGE, CREATE`):
+
+```sql
+GRANT CONNECT, CREATE, TEMPORARY ON DATABASE audit_db TO audit_user;
+GRANT CONNECT, CREATE, TEMPORARY ON DATABASE organization_db TO organization_user;
+GRANT CONNECT, CREATE, TEMPORARY ON DATABASE payroll_db TO payroll_user;
+GRANT CONNECT, CREATE, TEMPORARY ON DATABASE keycloak TO keycloak;
+\c postgres
+GRANT USAGE, CREATE ON SCHEMA public TO audit_user;        -- según el log del Job
+GRANT USAGE, CREATE ON SCHEMA public TO organization_user;
+GRANT USAGE, CREATE ON SCHEMA public TO payroll_user;
+ALTER ROLE audit_user LOGIN;
+ALTER ROLE organization_user LOGIN;
+ALTER ROLE payroll_user LOGIN;
+ALTER ROLE keycloak LOGIN;
+```
+
+Ojo: desde la limpieza de `app_user`, `postgres` y `keycloak` ya no dan
+`CONNECT` a `PUBLIC`, así que con esto vuelven a entrar en su base, no en
+`postgres` ni en `keycloak` (los tres `*_user`).
+
+**Para borrarlos**, más adelante: `DROP ROLE audit_user, organization_user,
+payroll_user, keycloak;` (no les queda nada, el Job lo comprueba).
 
 ### Pendiente
 
