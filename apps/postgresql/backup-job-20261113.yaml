@@ -1,0 +1,91 @@
+### Copia de seguridad puntual de toda la instancia (ASP-4 fase 2, antes de la
+### primera migración de RLS estricto con backfill de tenant_id). Mismo script y
+### mismo PVC que postgresql-backup-20261112; la copia anterior
+### (/backup/20261112-asp4) no se toca. Se ejecuta una vez: el Job terminado se
+### queda en el clúster y ArgoCD no lo relanza. Ver README.md.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-backup-20261113
+  namespace: rrhh-data
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql-backup
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          # en otro nodo que Postgres, para que el volumen de la copia no
+          # comparta disco con el de la base
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: postgresql
+                  app.kubernetes.io/component: primary
+      containers:
+        - name: backup
+          # misma versión mayor que el servidor (18.3): pg_dump no puede ser
+          # más antiguo que él, y el script lo comprueba
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/backup.sh"]
+          env:
+            - name: BACKUP_NAME
+              value: "20261113-asp4-fase2"
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+            - name: scratch
+              mountPath: /scratch
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: backup
+          persistentVolumeClaim:
+            claimName: postgresql-backup
+        # el Postgres temporal de la prueba de restauración; se borra con el pod
+        - name: scratch
+          emptyDir:
+            sizeLimit: 5Gi
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-backup-script

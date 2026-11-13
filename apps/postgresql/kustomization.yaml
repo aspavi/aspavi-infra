@@ -9,6 +9,7 @@ kind: Kustomization
 resources:
   - backup-pvc.yaml
   - backup-job-20261112.yaml
+  - backup-job-20261113.yaml
   - db-users-rbac.yaml
   - app-user-cleanup-job.yaml
   - legacy-roles-lockdown-job.yaml
