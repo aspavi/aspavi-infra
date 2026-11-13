@@ -623,8 +623,12 @@ corre en cada sync y es idempotente. Su contraseña está en el Secret
   que se creen después. **No cambia el ACL de ninguna tabla**, tampoco las de
   Keycloak;
 - `default_transaction_read_only = on`;
-- `CONNECT` en cada base `*_db`. `keycloak` y `postgres` ya dan `CONNECT` a
-  `PUBLIC`, y su ACL no se toca.
+- `CONNECT`, uno a uno, en cada base que lee el CronJob: las `*_db`,
+  `keycloak` (el realm de cada tenant) y `postgres` (las consultas de catálogo
+  de `dump.sh`). `PUBLIC` no tiene `CONNECT` en ninguna: lo quitó la limpieza
+  de `app_user`. En `keycloak`, el `GRANT` solo **añade** la entrada
+  `backup_reader=c` a su ACL. El Job imprime el ACL antes y después, y para si
+  `keycloak_user` no tiene `CONNECT` antes o no lo tiene después.
 
 Al final, el Job entra como `backup_reader` y comprueba que:
 
@@ -638,6 +642,20 @@ y las copias saldrían vacías.
 Una base de servicio nueva recibe su `CONNECT` en el siguiente sync de la app
 `postgresql`. Hasta entonces, `dump.sh` para con "backup_reader no entra en
 <base>".
+
+**Si el Job falla**, todos sus contenedores (y los del CronJob) llevan
+`terminationMessagePolicy: FallbackToLogsOnError`: las últimas líneas del log
+quedan en el estado del pod mientras exista:
+
+```bash
+kubectl -n rrhh-data get pods -l app=postgresql-backup-reader \
+  -o jsonpath='{range .items[*].status.containerStatuses[*]}{.name}: {.state.terminated.message}{"\n"}{end}'
+```
+
+ArgoCD borra el Job al reintentar el sync (`BeforeHookCreation`), y con él los
+pods. Los errores de conexión (un `CONNECT` que falta, una contraseña mal)
+quedan además en el log de Postgres:
+`kubectl -n rrhh-data logs postgresql-0 | grep FATAL`.
 
 ### Qué tenants: `tenants.conf`
 

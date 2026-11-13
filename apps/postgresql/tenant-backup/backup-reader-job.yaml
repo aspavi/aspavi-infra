@@ -33,6 +33,8 @@ spec:
       initContainers:
         - name: secret
           image: alpine/k8s:1.34.1
+          # si falla, las últimas líneas del log quedan en el estado del pod
+          terminationMessagePolicy: FallbackToLogsOnError
           command: ["sh", "/script/backup-reader-secret.sh"]
           env:
             - name: HOME # caché de kubectl
@@ -53,6 +55,7 @@ spec:
       containers:
         - name: postgres
           image: postgres:18.3-alpine
+          terminationMessagePolicy: FallbackToLogsOnError
           command: ["sh", "/script/backup-reader.sh"]
           env:
             - name: PGHOST
