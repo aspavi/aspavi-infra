@@ -66,6 +66,14 @@ Keycloak y qué clúster trabaja. Hace esto:
      iam lo lee en caliente del volumen (Kubernetes lo actualiza en un minuto
      más o menos), descubre el tenant y le carga el catálogo de permisos y
      roles. No hay que reiniciar iam.
+
+   `onboard.py` **no** siembra los permisos (`<recurso>:read|write`) ni los
+   roles compuestos: lo hace iam (`CatalogBootstrap`). Busca tenants nuevos
+   cada `aspavi.iam.bootstrap.scan-interval` (5 min), así que el catálogo
+   llega como mucho unos 5 min después de que el secret aparezca en el
+   volumen, o antes si alguien usa el tenant en iam (el primer uso lo carga
+   antes de seguir). Si falla, lo reintenta cada 30 s y el componente
+   `catalog` del health de iam lo indica. Se comprueba en el paso 4.
 3. **Admin de RRHH**: el usuario `rrhh@globex.example` (el email es el
    usuario) con el rol `ADMIN_RRHH`, una **contraseña temporal** y la acción
    `UPDATE_PASSWORD`:
@@ -100,16 +108,19 @@ comodín con DNS01 (tarea aparte).
 
 ## Paso 3 — Ingress del front
 
-Una PR a `apps/rrhh-frontend/deployment.yaml` con el host en `spec.tls[0].hosts`
-y su regla en `spec.rules`, que es lo que imprime `onboard.py`:
+Una PR a `apps/rrhh-frontend/deployment.yaml` con una **entrada de `tls`
+propia** para el host (secreto `rrhh-frontend-<id>-tls`) y su regla en
+`spec.rules`, que es lo que imprime `onboard.py`:
 
 ```yaml
   tls:
     - hosts:
         - test.aspavi.com
         - acme.aspavi.com
-        - globex.aspavi.com          # ← añadir
       secretName: rrhh-frontend-tls
+    - hosts:                         # ← añadir
+        - globex.aspavi.com
+      secretName: rrhh-frontend-globex-tls
   rules:
     # ...
     - host: globex.aspavi.com        # ← añadir
@@ -124,8 +135,15 @@ y su regla en `spec.rules`, que es lo que imprime `onboard.py`:
                   number: 80
 ```
 
-cert-manager vuelve a emitir `rrhh-frontend-tls` con el host nuevo, lo que
-necesita que el DNS del paso 2 ya resuelva (reto HTTP-01).
+cert-manager emite `rrhh-frontend-globex-tls` solo para el host nuevo, lo que
+necesita que el DNS del paso 2 resuelva (reto HTTP-01). Si aún no resuelve,
+falla solo ese certificado y cert-manager lo reintenta; cuando el DNS exista,
+lo emite.
+
+**No metas el host en la entrada de test y acme.** Ese certificado pediría
+todos los nombres a la vez: mientras el host nuevo no resuelva, fallaría
+también la renovación de `rrhh-frontend-tls`, y test y acme se quedarían sin
+certificado al caducar.
 
 Nada más en infra:
 
@@ -153,7 +171,14 @@ Nada más en infra:
 2. El admin ve los menús de `ADMIN_RRHH`, y en ausencias aparecen los tipos por
    defecto (los crea absence en el primer uso).
 3. globex no ve nada de los demás tenants, ni al revés.
-4. iam ha cargado el tenant (en sus logs, el catálogo de `globex`).
+4. iam ha cargado el catálogo (como mucho unos 5 min tras el paso 1; ver
+   arriba). En solo lectura:
+   ```bash
+   python3 scripts/keycloak/inventory.py globex
+   ```
+   Tienen que salir los roles con forma `recurso:acción` y los 4 roles base
+   como compuestos con sus hijos. Si no, mira los logs de iam y el
+   componente `catalog` de su health.
 
 ---
 
