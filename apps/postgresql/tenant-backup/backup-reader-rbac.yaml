@@ -1,0 +1,39 @@
+### Permisos del Job del rol backup_reader (ASP-43): crea y lee el Secret
+### postgresql-backup-reader en rrhh-data, donde lo lee el CronJob de las copias
+### por tenant. Ver README.md, "Copias por tenant".
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgresql-backup-reader
+  namespace: rrhh-data
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgresql-backup-reader
+  namespace: rrhh-data
+rules:
+  # OJO: `create` no se puede limitar por nombre en RBAC, así que este
+  # ServiceAccount puede crear CUALQUIER Secret en rrhh-data (no leer ni cambiar
+  # los que ya hay). backup-reader-secret.sh solo crea postgresql-backup-reader.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "patch"]
+    resourceNames: ["postgresql-backup-reader"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgresql-backup-reader
+  namespace: rrhh-data
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: postgresql-backup-reader
+subjects:
+  - kind: ServiceAccount
+    name: postgresql-backup-reader
+    namespace: rrhh-data

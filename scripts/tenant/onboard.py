@@ -19,9 +19,11 @@ hace lo que falta.
      rrhh-auth/tenant-<id>-initial-admin (claves username y password) ANTES de
      crear el usuario, y no se imprime nunca. NO se envía ningún correo. Si el
      usuario ya existe, no se toca su contraseña; solo se le asegura el rol.
-  4. imprime lo que queda por hacer fuera: el registro DNS y el bloque del
+  4. imprime lo que queda por hacer fuera: el registro DNS, el bloque del
      Ingress del front (apps/rrhh-frontend/deployment.yaml), con una entrada
-     de tls propia (secretName rrhh-frontend-<id>-tls). Sin secretos.
+     de tls propia (secretName rrhh-frontend-<id>-tls), y la línea del tenant
+     en apps/postgresql/tenant-backup/tenants.conf (copias diarias, ASP-43;
+     --backups on por defecto, off para no hacerlas). Sin secretos.
 
 Con --dry-run no escribe nada: lee el estado y dice qué haría.
 
@@ -53,6 +55,7 @@ from kcadmin import KC, Admin, die, q, say  # noqa: E402
 
 TEMPLATE = HERE / "realm-template.json"
 FRONT_INGRESS = REPO / "apps" / "rrhh-frontend" / "deployment.yaml"
+BACKUP_TENANTS = REPO / "apps" / "postgresql" / "tenant-backup" / "tenants.conf"
 TENANT_RE = re.compile(r"^[a-z][a-z0-9-]{1,29}$")  # la misma que auth-lib, el front, el CORS y Keycloak
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 # <id>.aspavi.com no puede pisar un host que ya es de otra cosa
@@ -197,7 +200,18 @@ def ensure_admin(kc, kube, realm, tenant, email, first, last, realm_exists, dry_
         say("AVISO", "el usuario está deshabilitado; no se cambia")
 
 
-def pending_outside(tenant):
+def backup_line(tenant):
+    """La línea del tenant en tenants.conf (sin comentario), o None."""
+    if not BACKUP_TENANTS.exists():
+        return None
+    for line in BACKUP_TENANTS.read_text().splitlines():
+        fields = line.split("#", 1)[0].split()
+        if fields and fields[0] == tenant:
+            return fields
+    return None
+
+
+def pending_outside(tenant, backups):
     host = f"{tenant}.aspavi.com"
     print("== 4. lo que falta fuera de este script")
     try:
@@ -231,6 +245,21 @@ def pending_outside(tenant):
         print(f"    - host: {host}\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n"
               f"            backend:\n              service:\n                name: rrhh-frontend\n"
               f"                port:\n                  number: 80")
+    conf = BACKUP_TENANTS.relative_to(REPO)
+    have = backup_line(tenant)
+    if have and have[1:2] == [backups]:
+        say("ok", f"copias diarias: {tenant} ya está con '{backups}' en {conf}")
+    else:
+        print(f"  Copias diarias (ASP-43), en una PR a {conf}:")
+        if have:
+            print(f"    cambiar la línea de '{tenant}' ({' '.join(have)}) por:  {tenant}  {backups}")
+            print(f"    Hasta que se cambie, el CronJob sigue con '{have[1] if len(have) > 1 else '?'}'.")
+        elif backups == "off":
+            print(f"    añadir:  {tenant}  off")
+            print("    Hace falta: sin esa línea, el CronJob también lo copia (el valor por defecto es on).")
+        else:
+            print(f"    añadir:  {tenant}  on")
+            print("    Sin esa línea ya tiene copia (on es el valor por defecto), pero el log del CronJob avisa cada noche.")
     print(f"  Contraseña temporal del admin (no se imprime aquí):\n"
           f"      kubectl -n {AUTH_NS} get secret tenant-{tenant}-initial-admin -o jsonpath='{{.data.password}}' | base64 -d")
 
@@ -245,6 +274,9 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="no escribe nada: dice qué haría")
     ap.add_argument("--kubeconfig", default=os.path.expanduser("~/.kube/aspavi.kubeconfig"),
                     help="kubeconfig del clúster (por defecto ~/.kube/aspavi.kubeconfig)")
+    ap.add_argument("--backups", choices=["on", "off"], default="on",
+                    help="copias diarias del tenant al bucket (ASP-43); on por defecto. Solo cambia lo que se imprime "
+                         "para tenants.conf: la copia se activa o se quita con esa PR")
     ap.add_argument("--smtp-config", help="fichero de correo para realm-smtp.py (por defecto scripts/keycloak/smtp.json)")
     opts = ap.parse_args()
     sys.stdout.reconfigure(line_buffering=True)  # en orden con la salida de los scripts hijos
@@ -270,7 +302,7 @@ def main():
     exists = ensure_realm(kc, realm, tenant, name, opts.dry_run)
     realm_scripts(tenant, exists, opts.dry_run, opts.kubeconfig, opts.smtp_config)
     ensure_admin(kc, kube, realm, tenant, email, opts.admin_first_name, opts.admin_last_name, exists, opts.dry_run)
-    pending_outside(tenant)
+    pending_outside(tenant, opts.backups)
     print("== hecho" + (" (dry-run: no se ha escrito nada)" if opts.dry_run else ""))
 
 

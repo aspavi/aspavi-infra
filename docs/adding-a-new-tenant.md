@@ -6,7 +6,8 @@ front no se recompila. Hacen falta tres cosas:
 1. `scripts/tenant/onboard.py`: el realm de Keycloak, su correo, el client de
    iam y el primer admin de RRHH;
 2. el registro DNS;
-3. una PR a este repo que solo añade el host al Ingress del front.
+3. una PR a este repo que añade el host al Ingress del front y la línea del
+   tenant a las copias diarias (`apps/postgresql/tenant-backup/tenants.conf`).
 
 En el ejemplo, el tenant es `globex` y su dominio `globex.aspavi.com`.
 
@@ -85,8 +86,10 @@ Keycloak y qué clúster trabaja. Hace esto:
 
    Opcionales: `--admin-first-name` y `--admin-last-name`. Si faltan, Keycloak
    se los pide en el primer login.
-4. **Lo que falta fuera**: imprime los registros DNS y el bloque del Ingress
-   del front de los pasos 2 y 3. Si ya están, dice `ok`.
+4. **Lo que falta fuera**: imprime los registros DNS, el bloque del Ingress
+   del front y la línea de `tenants.conf` de los pasos 2 y 3. Si ya están,
+   dice `ok`. `--backups off` para un tenant sin copias diarias (por defecto,
+   `on`).
 
 ---
 
@@ -106,7 +109,7 @@ comodín con DNS01 (tarea aparte).
 
 ---
 
-## Paso 3 — Ingress del front
+## Paso 3 — PR a infra: Ingress del front y copias
 
 Una PR a `apps/rrhh-frontend/deployment.yaml` con una **entrada de `tls`
 propia** para el host (secreto `rrhh-frontend-<id>-tls`) y su regla en
@@ -153,6 +156,26 @@ Nada más en infra:
   `/realms/rrhh-tenant-<id>`;
 - los servicios aceptan cualquier realm `rrhh-tenant-<id>` por
   `aspavi.auth.issuer-pattern`.
+
+### Copias diarias (ASP-43)
+
+En la misma PR, la línea del tenant en
+`apps/postgresql/tenant-backup/tenants.conf`, que también imprime `onboard.py`:
+
+```
+globex  on
+```
+
+- **on** es el valor por defecto (`onboard.py --backups on`, o sin la opción):
+  copia cifrada cada noche al bucket, en `backups/globex/`, con la retención
+  por defecto (7 diarias, 4 semanales y 6 mensuales). Para otra, `globex on 14/8/12`.
+- **off** (`onboard.py --backups off`) no la hace. Esta línea sí es
+  imprescindible: un tenant con realm que no esté en el fichero **tiene**
+  copia, y el log del CronJob lo avisa cada noche.
+
+El CronJob lee el fichero en cada ejecución: activar o desactivar un tenant es
+solo esta PR, sin tocar ningún servicio. Ver `apps/postgresql/README.md`,
+"Copias por tenant".
 
 ---
 
@@ -289,6 +312,7 @@ python3 scripts/keycloak/bootstrap-iam-realm.py <id> --dry-run
 | `scripts/tenant/onboard.py <id> --name ... --admin-email ...` | Keycloak y clúster | quien tenga el port-forward y el Llavero |
 | Registros A `<id>` | Hetzner DNS | el usuario |
 | Host en `apps/rrhh-frontend/deployment.yaml` | `aspavi-infra` | PR |
+| `<id>  on` (u `off`) en `apps/postgresql/tenant-backup/tenants.conf` | `aspavi-infra` | la misma PR |
 
 Ya **no** hacen falta: `KeycloakRealmImport` nuevo, rutas en el Ingress de
 Keycloak, CORS, variables o secrets de employee-service, variables de iam,
