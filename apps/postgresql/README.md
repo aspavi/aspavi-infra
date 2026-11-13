@@ -15,6 +15,7 @@ clúster.
 | `db-users-rbac.yaml` | ServiceAccount `postgresql-db-users` (rrhh-data) y su Role en rrhh-system |
 | `db-users-secrets.sh`, `db-users.sh` | Los dos pasos del Job de usuarios (ConfigMap `postgresql-db-users-scripts`) |
 | `db-users-job.template.yaml` | Plantilla del Job de cada servicio. No se sincroniza: se genera en `apps/<svc>-service/` |
+| `app-user-cleanup.sh`, `app-user-cleanup-job.yaml` | Limpieza final de `app_user` (ConfigMap `postgresql-app-user-cleanup-script`) |
 
 ## Copia de seguridad puntual
 
@@ -186,8 +187,8 @@ Decisiones que no se ven en el código:
   `postgres`.
 - **Conexión a otras bases:** mientras una base no ha migrado, sigue dando
   `CONNECT` a `PUBLIC`, y `<svc>_app` puede *entrar* en ella (no leer sus
-  tablas, que no son suyas). Lo mismo con `postgres` y `keycloak`, que esta
-  fase no toca. El resumen del Job lo muestra.
+  tablas, que no son suyas). Lo mismo con `postgres` y `keycloak` hasta la
+  limpieza de `app_user`, que se lo quita. El resumen del Job lo muestra.
 
 ### Pasar un servicio a sus propios usuarios
 
@@ -223,18 +224,101 @@ GRANT CONNECT ON DATABASE contract_db TO app_user;
 
 Y después revertir la PR. Los roles y los Secrets pueden quedarse.
 
+## Limpieza de `app_user` (ASP-4, paso 4)
+
+Cuando los 9 servicios usan ya sus propios usuarios, el Job
+`postgresql-app-user-cleanup` (`app-user-cleanup.sh`, como el superusuario)
+deja a `app_user` sin nada: ni bases, ni objetos, ni `CREATEDB`. **No** lo
+borra ni le cambia la contraseña: se queda sin usar una temporada antes de
+borrarlo.
+
+Lo que le quedaba (inventario del 2026-11-13):
+
+- la base **`postgres`**: la imagen de Bitnami se la dio en la primera
+  instalación (`POSTGRES_USER=app_user`, `POSTGRES_DATABASE=postgres`);
+- las extensiones que creó Flyway cuando corría como él: `uuid-ossp` en
+  `payroll_db` y `pg_trgm` en `collective_agreements_db`. Sus funciones son
+  del superusuario (son extensiones *trusted*), pero la extensión es suya;
+- `CREATEDB`.
+
+`keycloak` y `postgres` daban además `CONNECT` a `PUBLIC`, y cualquier
+`<svc>_app` podía entrar en ellas.
+
+Lo que hace, en este orden:
+
+1. **Inventario**, solo lectura, en el log: atributos, pertenencia a roles,
+   sesiones, dueño y ACL de cada base, y lo que es de `app_user` en cada
+   una. **Para** sin tocar nada si hay una sesión abierta como `app_user`
+   (tres muestras, para no confundirse con las sondas), si es dueño de algo
+   que no sea la base `postgres` o esas dos extensiones, si alguna de las 9
+   bases no es de su `<svc>_owner` o si `keycloak` no es de `keycloak_user`.
+2. **En una transacción**, en la base `postgres`:
+   - la base `postgres` pasa a ser del superusuario `postgres`;
+   - `REVOKE CONNECT … FROM PUBLIC` en `keycloak`, en `postgres` y en las 9
+     bases que aún lo tengan (ninguna, si todas pasaron por su Job);
+   - `ALTER ROLE app_user NOCREATEDB`;
+   - comprueba que `keycloak_user` sigue pudiendo entrar en `keycloak` (el
+     login de test y acme) y el superusuario en `postgres`, y compara dueño y
+     ACL de todas las bases con los de antes: solo pueden cambiar el dueño de
+     `postgres` y el `CONNECT` de `PUBLIC`. Si algo no cuadra, se deshace todo.
+3. **Extensiones**, una transacción por base: `REASSIGN OWNED BY app_user TO
+   <svc>_owner`, solo si `app_user` ya no es dueño de ninguna base ni
+   tablespace y lo único suyo en esa base es la extensión esperada. Después
+   comprueba que ninguna base ha cambiado.
+4. **Comprobaciones:** dueños, en qué bases puede entrar cada rol (cada
+   `<svc>_app` y `<svc>_owner` solo en la suya, `keycloak_user` solo en
+   `keycloak`, `app_user` en ninguna), que `app_user` no es dueño de nada, y
+   el diff de dueños y ACL de las bases de antes y después.
+
+```bash
+kubectl -n rrhh-data logs job/postgresql-app-user-cleanup
+```
+
+Es idempotente: una segunda vez inventaría, no cambia nada ("nada que
+cambiar", "sin cambios") y termina bien. Para repetirlo, se borra el Job y
+ArgoCD lo vuelve a crear. Si para, el Job falla sin reintentos y la app
+`postgresql` sale `Degraded`.
+
+Las sondas de la StatefulSet (`pg_isready -U app_user -d postgres`) no se
+autentican: el `REVOKE` y `NOCREATEDB` no les afectan (probado).
+
+**Por qué así, y no de otra forma:**
+
+- No existe `ALTER EXTENSION … OWNER` (Postgres 18). Borrar y crear la
+  extensión no vale: `uuid-ossp` está en el `DEFAULT` de una columna y
+  `pg_trgm` en un índice GIN, y `CASCADE` se los llevaría. Tocar
+  `pg_extension` a mano deja `pg_shdepend` inconsistente. `REASSIGN OWNED` es
+  la única vía soportada.
+- **La trampa de `REASSIGN OWNED BY app_user`:** también reasigna los objetos
+  compartidos de `app_user`, es decir, sus **bases**. Lanzado en `payroll_db`
+  mientras `app_user` es dueño de `postgres`, deja `postgres` en manos de
+  `payroll_owner` (comprobado en 18.3). Por eso la base `postgres` cambia de
+  dueño antes, en el paso 2, y el paso 3 lo comprueba otra vez dentro de su
+  transacción.
+- Son bases distintas y no caben en una sola transacción: si el paso 3
+  falla, el 2 queda hecho, y volver a lanzar el Job sigue desde ahí.
+
+**Volver atrás**, como superusuario (pod de restauración):
+
+```sql
+ALTER DATABASE postgres OWNER TO app_user;
+GRANT CONNECT ON DATABASE keycloak TO PUBLIC;
+GRANT CONNECT ON DATABASE postgres TO PUBLIC;
+ALTER ROLE app_user CREATEDB;
+-- las extensiones pueden quedarse en <svc>_owner
+```
+
+**Para borrar `app_user`**, más adelante: no le queda nada propio, así que
+`DROP OWNED BY app_user` en cada base (solo quita sus permisos) y `DROP ROLE
+app_user`. Antes hay que quitarlo de la Helm (`auth.username`; las sondas
+usan ese nombre) y del `initdb`.
+
 ### Pendiente
 
 - El `initdb` de la Helm (`helm/postgresql/values.yaml`) sigue dando las bases
-  nuevas a `app_user`; solo afecta a una instalación desde cero. Va en una PR
-  aparte, revisando con `helm template` que no reinicia la StatefulSet.
-- Cuando hayan migrado los 9: quitar a `app_user` `CREATEDB` y lo que le quede.
-  Le quedan las extensiones creadas por Flyway cuando corría como él
-  (`uuid-ossp` en `payroll_db`, `pg_trgm` en `collective_agreements_db`; el Job
-  las avisa con `AVISO:`). No existe `ALTER EXTENSION ... OWNER`: en cada una
-  de esas bases, `REASSIGN OWNED BY app_user TO <svc>_owner`. **Solo entonces**,
-  cuando `app_user` ya no es dueño de ninguna base: antes se llevaría también
-  las otras bases (ver arriba).
+  nuevas y `CREATEDB` a `app_user`, y Bitnami le da la base `postgres`; solo
+  afecta a una instalación desde cero. Va en una PR aparte, revisando con
+  `helm template` que no reinicia la StatefulSet.
 - El servidor usa `bitnami/postgresql:latest` (hoy 18.3.0). Fijar la versión,
   en una tarea aparte.
 

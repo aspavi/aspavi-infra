@@ -1,0 +1,67 @@
+### Limpieza final de app_user (ASP-4 fase 1, paso 4). Ver README.md,
+### "Limpieza de app_user". Se ejecuta una vez: el Job terminado se queda en
+### el clúster y ArgoCD no lo relanza. Es idempotente: para repetirlo, se
+### borra el Job y ArgoCD lo vuelve a crear. Si para (algo inesperado), el
+### Job falla sin reintentos y la app `postgresql` sale Degraded; el log dice
+### por qué.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-app-user-cleanup
+  namespace: rrhh-data
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql-app-user-cleanup
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cleanup
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/app-user-cleanup.sh"]
+          env:
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-app-user-cleanup-script
