@@ -13,6 +13,7 @@ resources:
   - db-users-rbac.yaml
   - app-user-cleanup-job.yaml
   - legacy-roles-lockdown-job.yaml
+  - asp4-fase2-precheck-job.yaml
 configMapGenerator:
   - name: postgresql-backup-script
     namespace: rrhh-data
@@ -34,6 +35,11 @@ configMapGenerator:
     namespace: rrhh-data
     files:
       - legacy-roles-lockdown.sh
+  # comprobación previa de ASP-4 fase 2, solo lectura
+  - name: postgresql-asp4-fase2-precheck-script
+    namespace: rrhh-data
+    files:
+      - asp4-fase2-precheck.sh
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.
