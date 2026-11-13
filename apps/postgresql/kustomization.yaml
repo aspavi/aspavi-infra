@@ -68,7 +68,7 @@ configMapGenerator:
   - name: postgresql-tenant-backup-settings
     namespace: rrhh-data
     envs:
-      - tenant-backup/settings.env
+      - tenant-backup/settings.conf
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.

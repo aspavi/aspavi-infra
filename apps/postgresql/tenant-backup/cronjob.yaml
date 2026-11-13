@@ -15,7 +15,7 @@
 ### Si un paso falla, los siguientes no corren y no se sube nada de esa noche.
 ###
 ### suspend: true hasta que el usuario cree el Secret postgresql-tenant-backup
-### y se rellenen bucket, endpoint y región en settings.env (ver README.md).
+### y se rellenen bucket, endpoint y región en settings.conf (ver README.md).
 apiVersion: batch/v1
 kind: CronJob
 metadata:

@@ -49,7 +49,7 @@ def say(msg):
 def setting(name):
     value = os.environ.get(name, "").strip()
     if not value:
-        sys.exit(f"ERROR: falta {name} en la configuración (settings.env)")
+        sys.exit(f"ERROR: falta {name} en la configuración (settings.conf)")
     return value
 
 

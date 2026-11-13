@@ -19,7 +19,7 @@ clúster.
 | `app-user-cleanup.sh`, `app-user-cleanup-job.yaml` | Limpieza final de `app_user` (ConfigMap `postgresql-app-user-cleanup-script`) |
 | `legacy-roles-lockdown.sh`, `legacy-roles-lockdown-job.yaml` | Desactiva los roles sueltos (ConfigMap `postgresql-legacy-roles-lockdown-script`) |
 | `asp4-fase2-precheck.sh`, `asp4-fase2-precheck-job.yaml` | Comprobación previa de ASP-4 fase 2, solo lectura (ConfigMap `postgresql-asp4-fase2-precheck-script`) |
-| `tenant-backup/` | Copias diarias por tenant, cifradas, al bucket (ASP-43): CronJob `postgresql-tenant-backup`, rol `backup_reader` y su Job, `tenants.conf` y `settings.env`. Ver "Copias por tenant" |
+| `tenant-backup/` | Copias diarias por tenant, cifradas, al bucket (ASP-43): CronJob `postgresql-tenant-backup`, rol `backup_reader` y su Job, `tenants.conf` y `settings.conf`. Ver "Copias por tenant" |
 
 ## Copia de seguridad puntual
 
@@ -524,7 +524,7 @@ solo bajo `backups/`, y el CronJob no lee, escribe ni borra nada fuera de
 | Fichero (en `tenant-backup/`) | Qué es |
 |---|---|
 | `tenants.conf` | Qué tenants tienen copia (`on`/`off`) y, si no es la de por defecto, su retención. ConfigMap `postgresql-tenant-backup-config` |
-| `settings.env` | Bucket, endpoint, región, prefijo y retención por defecto. ConfigMap `postgresql-tenant-backup-settings` |
+| `settings.conf` | Bucket, endpoint, región, prefijo y retención por defecto. ConfigMap `postgresql-tenant-backup-settings` |
 | `cronjob.yaml` | El CronJob, con `suspend: true` hasta la puesta en marcha (abajo) |
 | `backup-reader-job.yaml`, `backup-reader-rbac.yaml` | El rol `backup_reader` (hook Sync de la app) y sus permisos para crear su Secret |
 | `backup-reader-secret.sh`, `backup-reader.sh` | Los dos pasos de ese Job |
@@ -648,7 +648,7 @@ demo   off   # solo la prueba de alta de ASP-21
 ```
 
 - `<tenant> on|off [diarias/semanales/mensuales]`. Sin retención, la de
-  `settings.env` (7/4/6).
+  `settings.conf` (7/4/6).
 - Un tenant con realm y sin línea tiene copia (el valor por defecto) y el log
   lo avisa cada noche. Para que un tenant **no** tenga copia hace falta su
   línea con `off`. `onboard.py` imprime la línea (`--backups on|off`; ver
@@ -700,7 +700,7 @@ y medio. Una simulación de un año de rotación diaria nunca pasa de 17.
    ```
 4. **Una PR** que rellena `S3_BUCKET`, `S3_ENDPOINT`
    (`https://<ubicación>.your-objectstorage.com`, p. ej. `fsn1`) y `S3_REGION`
-   (la ubicación) en `settings.env`, y pone `suspend: false` en `cronjob.yaml`.
+   (la ubicación) en `settings.conf`, y pone `suspend: false` en `cronjob.yaml`.
    Con `suspend: true` ya se puede lanzar a mano (paso 5) antes de esa PR.
 5. **La primera, a mano**, y la prueba de restauración desde el bucket:
    ```bash

@@ -23,7 +23,7 @@ Credenciales (del Llavero de macOS, cuenta aspavi, o de una variable de entorno
 con el mismo nombre); ninguna se imprime ni va en la línea de comandos:
   BACKUP_S3_ACCESS_KEY, BACKUP_S3_SECRET_KEY  para bajar del bucket
   BACKUP_AGE_IDENTITY                         la clave PRIVADA de age (o --identity FICHERO)
-Bucket, endpoint, región y prefijo: los de apps/postgresql/tenant-backup/settings.env
+Bucket, endpoint, región y prefijo: los de apps/postgresql/tenant-backup/settings.conf
 (o las variables S3_BUCKET, S3_ENDPOINT, S3_REGION, S3_PREFIX, S3_ADDRESSING).
 
 La copia descifrada son datos personales en claro: va a un directorio temporal
@@ -77,7 +77,7 @@ def keychain(service, required=True):
 
 def settings():
     conf = {}
-    with open(os.path.join(TB, "settings.env")) as f:
+    with open(os.path.join(TB, "settings.conf")) as f:
         for line in f:
             if "=" in line and not line.lstrip().startswith("#"):
                 k, v = line.rstrip("\n").split("=", 1)
@@ -87,7 +87,7 @@ def settings():
             conf[k] = os.environ[k]
     for k in ("S3_BUCKET", "S3_ENDPOINT", "S3_REGION", "S3_PREFIX"):
         if not conf.get(k):
-            die(f"falta {k} en settings.env (o en la variable {k})")
+            die(f"falta {k} en settings.conf (o en la variable {k})")
     return conf
 
 
