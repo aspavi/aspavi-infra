@@ -1,6 +1,6 @@
 ### Lo que acompaña a la Postgres de la Helm (ArgoCD app `postgresql`, tercera
-### fuente): la copia de seguridad puntual de ASP-4 y lo común de los usuarios
-### de base de datos por servicio. Ver README.md.
+### fuente): la copia de seguridad puntual de ASP-4, lo común de los usuarios
+### de base de datos por servicio y la limpieza de app_user. Ver README.md.
 ###
 ### Sin `namespace:` global: el Role y el RoleBinding de db-users-rbac.yaml
 ### van en rrhh-system, y cada objeto ya declara el suyo.
@@ -10,6 +10,7 @@ resources:
   - backup-pvc.yaml
   - backup-job-20261112.yaml
   - db-users-rbac.yaml
+  - app-user-cleanup-job.yaml
 configMapGenerator:
   - name: postgresql-backup-script
     namespace: rrhh-data
@@ -21,6 +22,11 @@ configMapGenerator:
     files:
       - db-users-secrets.sh
       - db-users.sh
+  # limpieza final de app_user (ASP-4 fase 1, paso 4)
+  - name: postgresql-app-user-cleanup-script
+    namespace: rrhh-data
+    files:
+      - app-user-cleanup.sh
 generatorOptions:
   # Nombres fijos: los Jobs de los servicios (en otras apps) los referencian
   # por nombre, y el de la copia es de un solo uso.
