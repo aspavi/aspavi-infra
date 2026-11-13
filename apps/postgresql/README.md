@@ -11,6 +11,7 @@ clúster.
 | `backup.sh` | Script de la copia, con prueba de restauración (ConfigMap `postgresql-backup-script`) |
 | `backup-pvc.yaml` | PVC `postgresql-backup`, 5Gi, `local-path`, aparte del de la base |
 | `backup-job-20261112.yaml` | Copia puntual de ASP-4, antes de cambiar los dueños de las bases |
+| `backup-job-20261113.yaml` | Copia puntual de ASP-4 fase 2, antes de la primera migración de RLS estricto |
 | `restore-pod.example.yaml` | Pod para restaurar. ArgoCD **no** lo crea; se lanza a mano |
 | `db-users-rbac.yaml` | ServiceAccount `postgresql-db-users` (rrhh-data) y su Role en rrhh-system |
 | `db-users-secrets.sh`, `db-users.sh` | Los dos pasos del Job de usuarios (ConfigMap `postgresql-db-users-scripts`) |
@@ -51,10 +52,21 @@ kubectl -n rrhh-data get job postgresql-backup-20261112      # COMPLETIONS 1/1
 kubectl -n rrhh-data logs job/postgresql-backup-20261112     # bases, tamaños y "restaurada, mismas filas"
 ```
 
+Copias hechas, todas en el mismo PVC (en el nodo aspavi-k3s-worker-2):
+
+| Job | `BACKUP_NAME` | Para qué |
+|---|---|---|
+| `postgresql-backup-20261112` | `20261112-asp4` | Antes de los usuarios por servicio (ASP-4 fase 1). 980K |
+| `postgresql-backup-20261113` | `20261113-asp4-fase2` | Antes de la primera migración de RLS estricto (ASP-4 fase 2) |
+
 **Otra copia:** un fichero `backup-job-<fecha>.yaml` nuevo, con otro nombre
 de Job y otro `BACKUP_NAME`, y añadirlo a `kustomization.yaml`. Un Job
 terminado no se vuelve a ejecutar, y uno con el mismo `BACKUP_NAME` ve el
-`OK` y no hace nada. Las copias no se borran solas: el PVC tiene 5Gi.
+`OK` y no hace nada. Las copias no se borran solas. El PVC pide 5Gi, pero
+`local-path` no lo limita: el espacio real es el libre en el disco del nodo
+(`kubectl get --raw /api/v1/nodes/aspavi-k3s-worker-2/proxy/stats/summary`,
+`node.fs.availableBytes`). El Postgres temporal de la prueba va en un
+`emptyDir` de hasta 5Gi en el mismo nodo.
 
 Esto no son backups programados; eso va en una tarea aparte.
 
