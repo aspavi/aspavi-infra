@@ -18,6 +18,7 @@ clúster.
 | `db-users-job.template.yaml` | Plantilla del Job de cada servicio. No se sincroniza: se genera en `apps/<svc>-service/` |
 | `app-user-cleanup.sh`, `app-user-cleanup-job.yaml` | Limpieza final de `app_user` (ConfigMap `postgresql-app-user-cleanup-script`) |
 | `legacy-roles-lockdown.sh`, `legacy-roles-lockdown-job.yaml` | Desactiva los roles sueltos (ConfigMap `postgresql-legacy-roles-lockdown-script`) |
+| `asp4-fase2-precheck.sh`, `asp4-fase2-precheck-job.yaml` | Comprobación previa de ASP-4 fase 2, solo lectura (ConfigMap `postgresql-asp4-fase2-precheck-script`) |
 
 ## Copia de seguridad puntual
 
@@ -448,4 +449,47 @@ payroll_user, keycloak;` (no les queda nada, el Job lo comprueba).
   `helm template` que no reinicia la StatefulSet.
 - El servidor usa `bitnami/postgresql:latest` (hoy 18.3.0). Fijar la versión,
   en una tarea aparte.
+
+## Comprobación previa de la fase 2 (ASP-4)
+
+Las migraciones de RLS estricto de la fase 2 llevan un bloque `DO` que para la
+migración si hay filas hijas con otro tenant que su padre (o sin padre). El Job
+`postgresql-asp4-fase2-precheck` (`asp4-fase2-precheck.sh`) lanza esas mismas
+consultas **antes** de desplegar, para saberlo sin que pare ningún servicio.
+
+| Servicio | Migración | De dónde salen las consultas |
+|---|---|---|
+| contract | V4 | aspavi-contract-service#7, "Comprobación previa" |
+| payroll | V3 | aspavi-payroll-service#7, "Pre-check" |
+| absence | V7 | aspavi-absence-service#7, "Pre-check" |
+| attendance | V2 | aspavi-attendance-service#7, "Pre-check" |
+| collective-agreements | V16 | aspavi-collective-agreements-service#10, "Pre-check" |
+| employee | V20 | aspavi-employee-service#15, "Pre-check" |
+| organization | (sin PR) | las dos del contrato: funciones y categorías sin puesto |
+
+audit y events no tienen.
+
+- **Solo lectura.** Como el superusuario, que salta el RLS (también el `FORCE`
+  de `employees`): cuenta las filas de todos los tenants. Como `<svc>_app` el
+  RLS las filtraría y todo saldría 0 sin avisar. Cada base va en una
+  transacción `READ ONLY`, y la sesión con `default_transaction_read_only=on`.
+- **El log** dice, por base, la última migración aplicada (de
+  `flyway_schema_history`), y por servicio y consulta, la etiqueta y el número
+  de filas. Al final, `Todo 0` o la lista de las que no dan 0. Ningún dato de
+  las filas.
+- **Sale con 1** si alguna no da 0 o alguna consulta falla (p. ej., porque la
+  migración nueva ya está aplicada y cambió el esquema). La app `postgresql`
+  sale `Degraded` hasta que se borre el Job o se lance otro.
+- Las consultas están escritas contra el esquema **actual** (antes de cada
+  migración nueva): probadas sobre las migraciones de la imagen desplegada de
+  cada servicio.
+
+```bash
+export KUBECONFIG=~/.kube/aspavi.kubeconfig
+kubectl -n rrhh-data logs job/postgresql-asp4-fase2-precheck
+```
+
+**Repetirla** (p. ej., antes del siguiente servicio): cambiar el nombre del
+Job (`-2`, `-3`...). Cuando un servicio ya tenga su migración nueva, su consulta
+puede fallar o dejar de tener sentido: se quita del script en esa misma PR.
 

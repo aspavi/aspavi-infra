@@ -1,0 +1,70 @@
+### Comprobación previa de ASP-4 fase 2, SOLO LECTURA. Ver README.md,
+### "Comprobación previa de la fase 2". Lanza las consultas que harían parar
+### el bloque DO de la migración nueva de cada servicio, como el superusuario y
+### en transacciones READ ONLY, e imprime solo recuentos.
+### Se ejecuta una vez: el Job terminado se queda en el clúster y ArgoCD no lo
+### relanza. Para repetirlo (antes de cada despliegue, si hace falta), se le
+### cambia el nombre (-2, -3...). Si alguna no da 0 o falla, el Job falla sin
+### reintentos y la app `postgresql` sale Degraded; el log dice cuál.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-asp4-fase2-precheck
+  namespace: rrhh-data
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql-asp4-fase2-precheck
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 70 # postgres en la imagen alpine
+        runAsGroup: 70
+        runAsNonRoot: true
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: precheck
+          image: postgres:18.3-alpine
+          command: ["sh", "/script/asp4-fase2-precheck.sh"]
+          env:
+            - name: PGHOST
+              value: postgresql.rrhh-data.svc.cluster.local
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-helm-secrets
+                  key: postgres-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: script
+          configMap:
+            name: postgresql-asp4-fase2-precheck-script
