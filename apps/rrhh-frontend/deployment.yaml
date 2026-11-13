@@ -79,12 +79,6 @@ spec:
         - test.aspavi.com
         - acme.aspavi.com
       secretName: rrhh-frontend-tls
-    # Un tenant nuevo va con su propio certificado (entrada y secreto aparte).
-    # Si su DNS aún no existe, el reto HTTP-01 falla solo para él; metido en
-    # rrhh-frontend-tls, bloquearía también la renovación de test y acme.
-    - hosts:
-        - demo.aspavi.com
-      secretName: rrhh-frontend-demo-tls
   rules:
     # Dominios por tenant (la SPA detecta el tenant del hostname)
     - host: test.aspavi.com
@@ -98,16 +92,6 @@ spec:
                 port:
                   number: 80
     - host: acme.aspavi.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: rrhh-frontend
-                port:
-                  number: 80
-    - host: demo.aspavi.com
       http:
         paths:
           - path: /
